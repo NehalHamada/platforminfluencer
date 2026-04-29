@@ -25,18 +25,31 @@ import {
 } from "@/components/ui/select";
 import { companySchema, type CompanySchemaType } from "@/schema/auth.schema";
 import { cn } from "@/lib/utils";
+import { useTargetLocationsQuery } from "@/queries/masterData/useTargetLocationsQuery";
 import logphoto from "/assets/login-register.png";
-import axios from "axios";
 import { toast } from "react-toastify";
 import type { SharedRegisterData } from "@/types/auth.types";
 
-const countryOptions = [{ value: "Egypt", labelKey: "company.egypt" }];
+const isRegisterData = (data: unknown): data is SharedRegisterData => {
+  if (!data || typeof data !== "object") return false;
+
+  const value = data as Partial<SharedRegisterData>;
+
+  return Boolean(
+    value.name &&
+      value.email &&
+      value.password &&
+      value.password_confirmation &&
+      value.type === "company",
+  );
+};
 
 function CompanyForm() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const isArabic = i18n.language === "ar";
+  const targetLocationsQuery = useTargetLocationsQuery();
 
   const savedRegisterData = sessionStorage.getItem("registerData");
 
@@ -46,9 +59,16 @@ function CompanyForm() {
     }
   }, [savedRegisterData, navigate]);
 
-  const parsedRegisterData: SharedRegisterData | null = savedRegisterData
-    ? JSON.parse(savedRegisterData)
-    : null;
+  const parsedRegisterData: SharedRegisterData | null = (() => {
+    if (!savedRegisterData) return null;
+
+    try {
+      const data = JSON.parse(savedRegisterData);
+      return isRegisterData(data) ? data : null;
+    } catch {
+      return null;
+    }
+  })();
 
   const form = useForm<CompanySchemaType>({
     resolver: zodResolver(companySchema),
@@ -66,9 +86,9 @@ function CompanyForm() {
   } = form;
 
   const onSubmit = async (data: CompanySchemaType) => {
-    console.log("company step 1 data:", data);
     if (!parsedRegisterData) {
-      console.log("missing registerData");
+      toast.error(t("company.error"));
+      navigate("/register");
       return;
     }
 
@@ -85,19 +105,9 @@ function CompanyForm() {
         JSON.stringify(stepOnePayload),
       );
 
-      console.log("Saved Data", sessionStorage.getItem("companyRegisterStep1"));
-
       navigate("/register/company/complete");
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        console.log("company step 1 error:", error.response?.data);
-        toast.error(
-          (error.response?.data as { message?: string } | undefined)?.message ||
-            t("company.error"),
-        );
-      } else {
-        toast.error(t("company.error"));
-      }
+    } catch {
+      toast.error(t("company.error"));
     }
   };
 
@@ -255,7 +265,8 @@ function CompanyForm() {
                       <FormControl>
                         <Select
                           value={field.value}
-                          onValueChange={field.onChange}>
+                          onValueChange={field.onChange}
+                          disabled={targetLocationsQuery.isLoading}>
                           <SelectTrigger
                             className={cn(
                               inputClass(!!errors.country),
@@ -264,7 +275,11 @@ function CompanyForm() {
                             )}
                             aria-invalid={errors.country ? "true" : undefined}>
                             <SelectValue
-                              placeholder={t("company.selectCountry")}
+                              placeholder={
+                                targetLocationsQuery.isLoading
+                                  ? t("company.loadingCountries")
+                                  : t("company.selectCountry")
+                              }
                             />
                           </SelectTrigger>
                           <SelectContent
@@ -272,16 +287,28 @@ function CompanyForm() {
                             position="popper"
                             sideOffset={6}
                             className="z-9999">
-                            {countryOptions.map((option) => (
+                            {targetLocationsQuery.data?.map((option) => (
                               <SelectItem
-                                key={option.value}
-                                value={option.value.toString()}>
-                                {t(option.labelKey)}
+                                key={option.id}
+                                value={option.id.toString()}>
+                                {t(
+                                  `masterData.targetLocations.${option.id}`,
+                                  option.label,
+                                )}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
+                      {targetLocationsQuery.isError ? (
+                        <p
+                          className={cn(
+                            "text-sm font-medium text-destructive",
+                            isArabic ? "text-right" : "text-left",
+                          )}>
+                          {t("company.countriesError")}
+                        </p>
+                      ) : null}
                       <FormMessage
                         className={cn(isArabic ? "text-right" : "text-left")}>
                         {errors.country?.message

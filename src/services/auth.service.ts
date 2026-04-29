@@ -1,12 +1,12 @@
 import { authClients } from "@/lib/axios";
 import type {
   AuthResponse,
-  CompanyStepPayload,
+  CompanyStepRequestPayload,
   CompleteCompanyProfilePayload,
   CompleteInfluencerProfilePayload,
   ForgotPasswordPayload,
-  InfluencerStepPayload,
   LoginPayload,
+  ResendOtpPayload,
   ResetPasswordPayload,
   SharedRegisterData,
   VerifyOtpPayload,
@@ -24,14 +24,6 @@ export const authService = {
     return response.data;
   },
 
-  registerInfluencerStep: async (
-    data: InfluencerStepPayload,
-  ): Promise<AuthResponse> => {
-    const response = await authClients.post("/api/register/influencer", data);
-
-    return response.data;
-  },
-
   completeInfluencerProfile: async (data: CompleteInfluencerProfilePayload) => {
     const response = await authClients.post(
       "/api/influencer/complete-profile",
@@ -41,7 +33,9 @@ export const authService = {
     return response.data;
   },
 
-  registerCompanyStep: async (data: CompanyStepPayload) => {
+  registerCompanyStep: async (
+    data: CompanyStepRequestPayload,
+  ): Promise<AuthResponse> => {
     const response = await authClients.post("/api/register/company", data);
     return response.data;
   },
@@ -66,7 +60,17 @@ export const authService = {
   },
 
   verifyOtp: async (data: VerifyOtpPayload) => {
-    const response = await authClients.post("/api/verify-otp", data);
+    const response = await authClients.post("/api/verify-otp", {
+      ...data,
+      code: data.otp,
+      verification_code: data.otp,
+    });
+
+    return response.data;
+  },
+
+  resendOtp: async (data: ResendOtpPayload) => {
+    const response = await authClients.post("/api/resend-otp", data);
 
     return response.data;
   },

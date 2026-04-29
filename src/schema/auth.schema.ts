@@ -1,13 +1,21 @@
 import { z } from "zod";
+
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(1, "errors.email_required")
+  .pipe(z.email("errors.invalid_email"));
+
 export const loginSchema = z.object({
-  email: z.email().min(1, "errors.email_required"),
+  email: emailSchema,
   password: z.string().min(6, "errors.password_min"),
 });
 
 export const registerSchema = z
   .object({
     name: z.string().min(2, "errors.name"),
-    email: z.email("errors.invalid_email").min(1, "errors.email_required"),
+    email: emailSchema,
     password: z.string().min(8, "errors.password_min"),
     confirmPassword: z.string().min(2, "errors.confirm_password_required"),
   })
@@ -17,7 +25,7 @@ export const registerSchema = z
   });
 
 export const influencerSchema = z.object({
-  platform_ids: z.string().min(1, "errors.platform_required"),
+  platform_ids: z.array(z.string()).min(1, "errors.platform_required"),
   follower_range_id: z.string().min(1, "errors.followers_required"),
   content_type_id: z.string().min(1, "errors.content_type_required"),
 });
@@ -46,8 +54,14 @@ export const completeInfluencerSchema = z.object({
   phone: z.string().min(1, "errors.phone_required"),
   cooperationType: z.string().min(1, "errors.cooperation_type_required"),
   contentField: z.string().min(1, "errors.content_field_required"),
-  platform: z.string().min(1, "errors.platform"),
-  accountLink: z.string().min(1, "errors.account_link_required"),
+  platformAccounts: z
+    .array(
+      z.object({
+        platform_id: z.string().min(1, "errors.platform"),
+        accountLink: z.string().min(1, "errors.account_link_required"),
+      }),
+    )
+    .min(1, "errors.platform"),
   acceptedTerms: z.boolean().refine((value) => value === true, {
     message: "errors.accept_terms_required",
   }),
@@ -67,7 +81,7 @@ export const completeInfluencerPaymentSchema = z.object({
 });
 
 export const forgetPasswordSchema = z.object({
-  email: z.email("errors.invalid_email").min(1, "errors.email_required"),
+  email: emailSchema,
 });
 
 export const verifyOtpSchema = z.object({
@@ -77,11 +91,13 @@ export const verifyOtpSchema = z.object({
 export const resetPasswordSchema = z
   .object({
     password: z.string().min(6, "errors.password_min"),
-    confirmPassword: z.string().min(6, "errors.confirm_password_required"),
+    password_confirmation: z
+      .string()
+      .min(6, "errors.confirm_password_required"),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.password_confirmation, {
     message: "errors.passwords_not_match",
-    path: ["confirmPassword"],
+    path: ["password_confirmation"],
   });
 
 export type LoginSchemaType = z.infer<typeof loginSchema>;

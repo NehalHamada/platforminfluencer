@@ -3,13 +3,11 @@ import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import type {
   SharedRegisterData,
-  InfluencerStepPayload,
   CompleteInfluencerProfilePayload,
 } from "@/types/auth.types";
 
 type Payload = {
   registerData: SharedRegisterData;
-  influencerStepData: InfluencerStepPayload;
   completeProfileData: CompleteInfluencerProfilePayload;
 };
 
@@ -17,18 +15,8 @@ export function useCompleteInfluencerProfileMutation() {
   const setAuth = useAuthStore((state) => state.setAuth);
 
   return useMutation({
-    mutationFn: async ({
-      registerData,
-      influencerStepData,
-      completeProfileData,
-    }: Payload) => {
-      const registerResponse = await authService.registerInfluencerStep({
-        ...registerData,
-        platform_ids: influencerStepData.platform_ids,
-        follower_range_ids: influencerStepData.follower_range_ids,
-        content_type_ids: influencerStepData.content_type_ids,
-      });
-
+    mutationFn: async ({ registerData, completeProfileData }: Payload) => {
+      const registerResponse = await authService.register(registerData);
       setAuth({
         user: registerResponse.data.user,
         token: registerResponse.data.token,

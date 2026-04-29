@@ -8,6 +8,10 @@ const attachToken = (config: InternalAxiosRequestConfig) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   config.headers.Accept = "application/json";
 
   return config;

@@ -272,7 +272,9 @@
     "loading": "Sending ...",
     "success": "Company Account Created Successfully",
     "error": "Field Registeration, please try again",
-    "selectCountry": "Select Company",
+    "selectCountry": "Select country",
+    "loadingCountries": "Loading countries...",
+    "countriesError": "Could not load countries",
     "saudiArabia": "Saudia Arabia",
     "egypt": "Egypt",
     "uae": "UAE",
@@ -312,8 +314,14 @@
       "education": "Education",
       "entertainment": "Entertainment"
     },
-    "platformPlaceholder": "Instagram, TikTok",
+    "loadingContentTypes": "Loading content types...",
+    "contentTypesError": "Could not load content types",
+    "platformPlaceholder": "Choose platforms",
+    "loadingPlatforms": "Loading platforms...",
+    "platformsError": "Could not load platforms",
     "followersPlaceholder": "500K - 800K",
+    "loadingFollowerRanges": "Loading follower ranges...",
+    "followerRangesError": "Could not load follower ranges",
     "submit": "Send",
     "loading": "Sending...",
     "success": "Account created successfully",
@@ -332,7 +340,13 @@
     "success": "The code is correct. You will now be redirected to the password reset page",
     "error": "Please enter the code as it was sent to your email.",
     "loading": "Loading",
-    "send": "Send"
+    "send": "Send",
+    "expiresIn": "Code expires in {{time}}",
+    "expired": "The verification code has expired. Please request a new one.",
+    "resend": "Resend code",
+    "resending": "Resending...",
+    "resendSuccess": "A new verification code has been sent.",
+    "resendError": "Could not resend the verification code."
   },
   "resetPassword": {
     "title": "Reset Password",
@@ -350,16 +364,53 @@
     "fullName": "Name",
     "email": "Email",
     "phone": "Phone Number",
-    "followersCount": "Field of content",
+    "contentField": "Content Field",
     "password": "Password",
-    "productType": "Available Collaboration Type",
+    "cooperationType": "Available Collaboration Type",
     "platform": "Platform",
+    "selectPlatform": "Choose platform",
+    "loadingPlatforms": "Loading platforms...",
+    "platformsError": "Could not load platforms",
     "accountLink": "Account Link",
     "addAnotherPlatform": "Add another new platform",
+    "removePlatform": "Remove platform",
     "acceptTerms": "I agree to the terms, conditions, and privacy policy",
     "continue": "Continue"
   },
+  "masterData": {
+    "platforms": {
+      "1": "Instagram",
+      "2": "TikTok",
+      "3": "YouTube",
+      "4": "Facebook",
+      "5": "X"
+    },
+    "followerRanges": {
+      "1": "1K - 10K",
+      "2": "10K - 100K",
+      "3": "100K - 500K",
+      "4": "500K - 800K",
+      "5": "800K+"
+    },
+    "contentTypes": {
+      "1": "Fashion",
+      "2": "Technology",
+      "3": "Sports",
+      "4": "Food",
+      "5": "Gaming",
+      "6": "Lifestyle",
+      "7": "Education",
+      "8": "Entertainment"
+    },
+    "targetLocations": {
+      "1": "Egypt",
+      "2": "Saudi Arabia",
+      "3": "United Arab Emirates"
+    }
+  },
   "completeCompanyProfile": {
+    "stepInfo": "Company Information",
+    "stepAccount": "Create Company Account",
     "title": "Start Creating Your Company Account",
     "description": "Create your company account in simple steps and start using the platform immediately",
     "companyName": "Company Name",
@@ -379,7 +430,9 @@
     "accountLink": "Commercial Registration Number",
     "acceptTerms": "I agree to the Terms & Conditions and Privacy Policy",
     "loading": "Sending...",
-    "continue": "Continue"
+    "continue": "Continue",
+    "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results",
+    "footerCta": "Enter your email to receive every update"
   },
   "completeInfluencerPayment": {
     "stepProfit": "Profits",
@@ -387,6 +440,7 @@
     "title": "Your pricing and collaboration method",
     "description": "Set your main prices and preferred collaboration style so it appears clearly to potential clients",
     "postPrice": "Post Price",
+    "storyPrice": "Story Price",
     "reelPrice": "Reel Price",
     "isNegotiable": "Is Negotiable",
     "yes": "Yes",
@@ -406,7 +460,9 @@
     "currency": "Currency",
     "bankInfoNote": "Your banking information is fully encrypted and will only be used to transfer your earnings",
     "save": "Save",
-    "sar": "SAR"
+    "sar": "SAR",
+    "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results",
+    "footerCta": "Enter your email to receive every update"
   },
   "errors": {
     "name": "Name must be at least 2 Character",

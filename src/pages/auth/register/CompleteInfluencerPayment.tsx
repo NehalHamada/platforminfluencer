@@ -32,6 +32,67 @@ import { cn } from "@/lib/utils";
 import hero from "/assets/Hero.png";
 import successImage from "/assets/popImg.png";
 import { useCompleteInfluencerProfileMutation } from "@/queries/auth/useCompleteInfluencerProfileMutation";
+import { logOtpFromResponse } from "@/utils/logOtp";
+import type {
+  InfluencerStepPayload,
+  SharedRegisterData,
+} from "@/types/auth.types";
+
+type SavedInfluencerProfileData = {
+  phone: string;
+  cooperation_type: string;
+  content_field: string;
+  platform_ids: number[];
+  platform_links: string[];
+  accepted_terms: boolean;
+};
+
+const isNumberArray = (value: unknown): value is number[] =>
+  Array.isArray(value) && value.every((item) => typeof item === "number");
+
+const isRegisterData = (data: unknown): data is SharedRegisterData => {
+  if (!data || typeof data !== "object") return false;
+
+  const value = data as Partial<SharedRegisterData>;
+
+  return Boolean(
+    value.name &&
+    value.email &&
+    value.password &&
+    value.password_confirmation &&
+    value.type === "influencer",
+  );
+};
+
+const isInfluencerStepData = (data: unknown): data is InfluencerStepPayload => {
+  if (!data || typeof data !== "object") return false;
+
+  const value = data as Partial<InfluencerStepPayload>;
+
+  return (
+    isNumberArray(value.platform_ids) &&
+    isNumberArray(value.follower_range_ids) &&
+    isNumberArray(value.content_type_ids)
+  );
+};
+
+const isInfluencerProfileData = (
+  data: unknown,
+): data is SavedInfluencerProfileData => {
+  if (!data || typeof data !== "object") return false;
+
+  const value = data as Partial<SavedInfluencerProfileData>;
+
+  return Boolean(
+    value.phone &&
+    value.cooperation_type &&
+    value.content_field &&
+    isNumberArray(value.platform_ids) &&
+    Array.isArray(value.platform_links) &&
+    value.platform_links.length > 0 &&
+    value.accepted_terms,
+  );
+};
 
 function CompleteInfluencerPayment() {
   const { t, i18n } = useTranslation();
@@ -84,18 +145,32 @@ function CompleteInfluencerPayment() {
       return;
     }
 
-    const registerData = JSON.parse(savedRegisterData);
-    const stepOneData = JSON.parse(savedStepOneData);
-    const stepTwoData = JSON.parse(savedStepTwoData);
+    let registerData: unknown;
+    let stepOneData: unknown;
+    let stepTwoData: unknown;
 
-    console.log("registerData", registerData);
-    console.log("stepOneData", stepOneData);
-    console.log("stepTwoData", stepTwoData);
+    try {
+      registerData = JSON.parse(savedRegisterData);
+      stepOneData = JSON.parse(savedStepOneData);
+      stepTwoData = JSON.parse(savedStepTwoData);
+    } catch {
+      toast.error(t("influencer.error"));
+      return;
+    }
+
+    if (
+      !isRegisterData(registerData) ||
+      !isInfluencerStepData(stepOneData) ||
+      !isInfluencerProfileData(stepTwoData)
+    ) {
+      toast.error(t("influencer.error"));
+      return;
+    }
 
     influencerMutation.mutate(
       {
         registerData,
-        influencerStepData: stepOneData,
+
         completeProfileData: {
           phone: stepTwoData.phone,
           cooperation_type: stepTwoData.cooperation_type,
@@ -106,7 +181,7 @@ function CompleteInfluencerPayment() {
           price_reel: Number(data.reelPrice),
           is_negotiable: data.isNegotiable,
 
-          platform: stepTwoData.platform,
+          platform_ids: stepTwoData.platform_ids,
           platform_links: stepTwoData.platform_links,
 
           follower_range_ids: stepOneData.follower_range_ids,
@@ -122,7 +197,8 @@ function CompleteInfluencerPayment() {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          logOtpFromResponse("influencer register otp:", response);
           sessionStorage.setItem("otpPurpose", "influencer-register");
           localStorage.setItem("otpEmail", registerData.email);
 
@@ -138,13 +214,15 @@ function CompleteInfluencerPayment() {
   };
 
   const fieldClass =
-    "h-8 rounded-full border border-[#d2d2cc] bg-transparent px-4 text-[11px] shadow-none focus-visible:ring-0";
+    "h-7.5 rounded-full border border-[#d2d2cc] bg-transparent px-3 text-[10px] shadow-none focus-visible:ring-0";
 
   return (
     <>
-      <section dir={isArabic ? "rtl" : "ltr"} className="min-h-screen">
-        <div>
-          <div className="relative h-60 overflow-hidden">
+      <section
+        dir={isArabic ? "rtl" : "ltr"}
+        className="min-h-screen bg-[#ececea]">
+        <div className="mx-auto min-h-screen bg-[#ececea]">
+          <div className="relative h-34 overflow-hidden">
             <img
               src={hero}
               alt="campaign hero"
@@ -153,33 +231,33 @@ function CompleteInfluencerPayment() {
             <div className="absolute inset-0 bg-black/35" />
           </div>
 
-          <div className="relative -mt-4 rounded-t-[26px] bg-[#f6f6f3] px-8 pb-10 pt-9 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-            <div className="mt-8 text-center">
-              <h1 className="text-[17px] font-semibold leading-8 text-[#1f1f1f]">
+          <div className="relative -mt-4 rounded-t-[18px] bg-[#f6f6f3] px-8 pb-8 pt-9 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+            <div className="text-center">
+              <h1 className="text-[14px] font-semibold leading-7 text-[#1f1f1f]">
                 {t("completeInfluencerPayment.title")}
               </h1>
-              <p className="mt-2 text-[11px] leading-6 text-[#666666]">
+              <p className="mx-auto mt-1 max-w-72 text-[9px] leading-5 text-[#666666]">
                 {t("completeInfluencerPayment.description")}
               </p>
             </div>
 
             <Form {...form}>
-              <form onSubmit={handleSubmit(onSubmit)} className="mt-8">
+              <form onSubmit={handleSubmit(onSubmit)} className="mt-5">
                 <Card className="border-0 bg-transparent py-0 shadow-none ring-0">
-                  <CardContent className="space-y-6 p-0">
-                    <div className="grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-2">
+                  <CardContent className="space-y-4 p-0">
+                    <div className="grid grid-cols-2 gap-x-2.5 gap-y-3">
                       <FormField
                         control={form.control}
                         name="postPrice"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                            <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                               {t("completeInfluencerPayment.postPrice")}
                             </FormLabel>
                             <FormControl>
                               <Input {...field} className={fieldClass} />
                             </FormControl>
-                            <FormMessage className="text-[10px]">
+                            <FormMessage className="text-[9px]">
                               {errors.postPrice?.message
                                 ? t(String(errors.postPrice.message))
                                 : null}
@@ -193,13 +271,13 @@ function CompleteInfluencerPayment() {
                         name="storyPrice"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                            <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                               {t("completeInfluencerPayment.storyPrice")}
                             </FormLabel>
                             <FormControl>
                               <Input {...field} className={fieldClass} />
                             </FormControl>
-                            <FormMessage className="text-[10px]">
+                            <FormMessage className="text-[9px]">
                               {errors.storyPrice?.message
                                 ? t(String(errors.storyPrice.message))
                                 : null}
@@ -213,13 +291,13 @@ function CompleteInfluencerPayment() {
                         name="reelPrice"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                            <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                               {t("completeInfluencerPayment.reelPrice")}
                             </FormLabel>
                             <FormControl>
                               <Input {...field} className={fieldClass} />
                             </FormControl>
-                            <FormMessage className="text-[10px]">
+                            <FormMessage className="text-[9px]">
                               {errors.reelPrice?.message
                                 ? t(String(errors.reelPrice.message))
                                 : null}
@@ -233,10 +311,10 @@ function CompleteInfluencerPayment() {
                         name="isNegotiable"
                         render={() => (
                           <FormItem>
-                            <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                            <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                               {t("completeInfluencerPayment.isNegotiable")}
                             </FormLabel>
-                            <div className="flex h-8 items-center justify-between rounded-full border border-[#d2d2cc] px-3">
+                            <div className="flex h-7.5 items-center justify-between rounded-full border border-[#d2d2cc] px-2">
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -245,7 +323,7 @@ function CompleteInfluencerPayment() {
                                   setValue("isNegotiable", true);
                                 }}
                                 className={cn(
-                                  "flex min-w-12 rounded-full px-2 py-1 text-[10px] hover:bg-transparent",
+                                  "flex min-w-9 rounded-full px-2 py-1 text-[9px] hover:bg-transparent",
                                   isNegotiableState === "yes"
                                     ? "bg-[#ece7ff] text-[#5e4ea1] hover:bg-[#ece7ff]"
                                     : "text-[#7d7d7d]",
@@ -260,7 +338,7 @@ function CompleteInfluencerPayment() {
                                   setValue("isNegotiable", false);
                                 }}
                                 className={cn(
-                                  "flex min-w-12 rounded-full px-2 py-1 text-[10px] hover:bg-transparent",
+                                  "flex min-w-9 rounded-full px-2 py-1 text-[9px] hover:bg-transparent",
                                   isNegotiableState === "no"
                                     ? "bg-[#ece7ff] text-[#5e4ea1] hover:bg-[#ece7ff]"
                                     : "text-[#7d7d7d]",
@@ -268,7 +346,7 @@ function CompleteInfluencerPayment() {
                                 {t("completeInfluencerPayment.no")}
                               </Button>
                             </div>
-                            <FormMessage className="text-[10px]">
+                            <FormMessage className="text-[9px]">
                               {errors.isNegotiable?.message
                                 ? t(String(errors.isNegotiable.message))
                                 : null}
@@ -278,11 +356,11 @@ function CompleteInfluencerPayment() {
                       />
                     </div>
 
-                    <div className="mt-7 text-center">
-                      <h2 className="text-[14px] font-semibold text-[#262626]">
+                    <div className="pt-2 text-center">
+                      <h2 className="text-[12px] font-semibold text-[#262626]">
                         {t("completeInfluencerPayment.payoutTitle")}
                       </h2>
-                      <p className="mt-2 text-[10px] leading-5 text-[#707070]">
+                      <p className="mx-auto mt-1 max-w-64 text-[8px] leading-4 text-[#707070]">
                         {t("completeInfluencerPayment.payoutDescription")}
                       </p>
                     </div>
@@ -291,11 +369,11 @@ function CompleteInfluencerPayment() {
                       control={form.control}
                       name="payoutMethod"
                       render={({ field }) => (
-                        <FormItem className="mt-5">
-                          <p className="mb-2 text-center text-[11px] font-medium text-[#3f3f3f]">
+                        <FormItem>
+                          <p className="mb-2 text-center text-[9px] font-medium text-[#3f3f3f]">
                             {t("completeInfluencerPayment.chooseMethod")}
                           </p>
-                          <div className="flex items-center justify-center gap-3">
+                          <div className="flex items-center justify-center gap-2">
                             <Button
                               type="button"
                               variant="outline"
@@ -304,13 +382,13 @@ function CompleteInfluencerPayment() {
                                 field.onChange("wallet");
                               }}
                               className={cn(
-                                "h-8.5 min-w-28 rounded-full text-[10px]",
+                                "h-7 min-w-24 rounded-full text-[8px]",
                                 selectedMethod === "wallet"
                                   ? "border-[#3a9c4a] bg-white text-[#3a9c4a] hover:bg-white"
                                   : "border-[#cfcfc9] bg-white text-[#6d6d6d] hover:bg-white",
                               )}>
                               <span className="font-semibold">
-                                {t("completeInfluencerPayment.wallet")}
+                                {t("completeInfluencerPayment.stcPay")}
                               </span>
                             </Button>
                             <Button
@@ -321,7 +399,7 @@ function CompleteInfluencerPayment() {
                                 field.onChange("bank");
                               }}
                               className={cn(
-                                "h-8.5 min-w-28 rounded-full text-[10px]",
+                                "h-7 min-w-24 rounded-full text-[8px]",
                                 selectedMethod === "bank"
                                   ? "border-[#3a5cff] bg-white text-[#3a5cff] hover:bg-white"
                                   : "border-[#cfcfc9] bg-white text-[#6d6d6d] hover:bg-white",
@@ -331,13 +409,13 @@ function CompleteInfluencerPayment() {
                               </span>
                             </Button>
                           </div>
-                          <FormMessage className="mt-1 text-center text-[10px]">
+                          <FormMessage className="mt-1 text-center text-[9px]">
                             {errors.payoutMethod?.message
                               ? t(String(errors.payoutMethod.message))
                               : null}
                           </FormMessage>
-                          <div className="mt-2 flex items-center justify-center gap-1 text-[9px] text-[#707070]">
-                            <CircleAlert size={11} />
+                          <div className="mt-2 flex items-center justify-center gap-1 text-[8px] text-[#707070]">
+                            <CircleAlert size={10} />
                             <span>
                               {t("completeInfluencerPayment.methodNote")}
                             </span>
@@ -347,19 +425,19 @@ function CompleteInfluencerPayment() {
                     />
 
                     {selectedMethod === "bank" ? (
-                      <div className="mt-6 grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-2">
+                      <div className="grid grid-cols-2 gap-x-2.5 gap-y-3">
                         <FormField
                           control={form.control}
                           name="accountHolder"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                              <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                                 {t("completeInfluencerPayment.accountHolder")}
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} className={fieldClass} />
                               </FormControl>
-                              <FormMessage className="text-[10px]">
+                              <FormMessage className="text-[9px]">
                                 {errors.accountHolder?.message
                                   ? t(String(errors.accountHolder.message))
                                   : null}
@@ -373,13 +451,13 @@ function CompleteInfluencerPayment() {
                           name="bankName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                              <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                                 {t("completeInfluencerPayment.bankName")}
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} className={fieldClass} />
                               </FormControl>
-                              <FormMessage className="text-[10px]">
+                              <FormMessage className="text-[9px]">
                                 {errors.bankName?.message
                                   ? t(String(errors.bankName.message))
                                   : null}
@@ -393,13 +471,13 @@ function CompleteInfluencerPayment() {
                           name="iban"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                              <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                                 {t("completeInfluencerPayment.iban")}
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} className={fieldClass} />
                               </FormControl>
-                              <FormMessage className="text-[10px]">
+                              <FormMessage className="text-[9px]">
                                 {errors.iban?.message
                                   ? t(String(errors.iban.message))
                                   : null}
@@ -413,13 +491,13 @@ function CompleteInfluencerPayment() {
                           name="country"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                              <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                                 {t("completeInfluencerPayment.country")}
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} className={fieldClass} />
                               </FormControl>
-                              <FormMessage className="text-[10px]">
+                              <FormMessage className="text-[9px]">
                                 {errors.country?.message
                                   ? t(String(errors.country.message))
                                   : null}
@@ -432,8 +510,8 @@ function CompleteInfluencerPayment() {
                           control={form.control}
                           name="currency"
                           render={({ field }) => (
-                            <FormItem className="sm:col-span-2">
-                              <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                            <FormItem>
+                              <FormLabel className="mb-1 block text-[9px] font-medium text-[#3f3f3f]">
                                 {t("completeInfluencerPayment.currency")}
                               </FormLabel>
                               <FormControl>
@@ -442,7 +520,7 @@ function CompleteInfluencerPayment() {
                                   onValueChange={field.onChange}>
                                   <SelectTrigger
                                     dir={isArabic ? "rtl" : "ltr"}
-                                    className="h-8 rounded-full border border-[#d2d2cc] bg-transparent px-4 text-[11px] shadow-none focus-visible:ring-0">
+                                    className="h-7.5 rounded-full border border-[#d2d2cc] bg-transparent px-3 text-[10px] shadow-none focus-visible:ring-0">
                                     <SelectValue
                                       placeholder={t(
                                         "completeInfluencerPayment.currency",
@@ -460,7 +538,7 @@ function CompleteInfluencerPayment() {
                                   </SelectContent>
                                 </Select>
                               </FormControl>
-                              <FormMessage className="text-[10px]">
+                              <FormMessage className="text-[9px]">
                                 {errors.currency?.message
                                   ? t(String(errors.currency.message))
                                   : null}
@@ -471,22 +549,22 @@ function CompleteInfluencerPayment() {
                       </div>
                     ) : null}
 
-                    <div className="mt-3 flex items-start gap-1 text-[9px] text-[#707070]">
-                      <Info size={11} className="mt-px" />
+                    <div className="flex items-start justify-center gap-1 text-[8px] text-[#707070]">
+                      <Info size={10} className="mt-px" />
                       <span>{t("completeInfluencerPayment.bankInfoNote")}</span>
                     </div>
 
                     <div
                       className={cn(
-                        "mt-7 flex",
-                        isArabic ? "justify-end" : "justify-start",
+                        "pt-2 flex",
+                        isArabic ? "justify-start" : "justify-start",
                       )}>
                       <Button
                         type="submit"
                         disabled={isSubmitting || influencerMutation.isPending}
-                        className="h-8.75 min-w-32 rounded-full bg-[#9ba785] px-3 text-[11px] font-medium text-white hover:bg-[#8f9b79] disabled:opacity-70">
+                        className="h-7.5 min-w-28 rounded-full bg-[#9ba785] px-2 text-[10px] font-medium text-white hover:bg-[#8f9b79] disabled:opacity-70">
                         <span className="flex w-full items-center justify-between gap-2">
-                          <span className={isArabic ? "order-2" : "order-1"}>
+                          <span className={isArabic ? "order-1" : "order-1"}>
                             {influencerMutation.isPending
                               ? t("completeInfluencerPayment.loading")
                               : t("completeInfluencerPayment.save")}

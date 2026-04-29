@@ -25,8 +25,6 @@ function ResetPassword() {
   const { t, i18n } = useTranslation();
 
   const isArabic = i18n.language === "ar";
-  const resetEmail = localStorage.getItem("resetEmail");
-  const resetOtp = localStorage.getItem("resetOtp");
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -41,7 +39,7 @@ function ResetPassword() {
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: "",
-      confirmPassword: "",
+      password_confirmation: "",
     },
   });
 
@@ -50,24 +48,39 @@ function ResetPassword() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = form;
+
   const onSubmit = async (data: ResetPasswordSchemaType) => {
+    const resetEmail = localStorage.getItem("otpEmail");
+    const resetOtp = localStorage.getItem("resetOtp");
+    const otpPurpose = sessionStorage.getItem("otpPurpose");
+
+    if (!resetEmail || !resetOtp || otpPurpose !== "forget-password") {
+      toast.error(t("resetPassword.invalidSession"));
+      navigate("/forget-password");
+      return;
+    }
+
     try {
       await resetPassword({
-        email: resetEmail!,
-        otp: resetOtp!,
+        email: resetEmail,
+        otp: resetOtp,
         password: data.password,
-        confirm_password: data.confirmPassword,
+        password_confirmation: data.password_confirmation,
       });
+
       toast.success(t("resetPassword.success"));
-      localStorage.removeItem("resetEmail");
+
+      localStorage.removeItem("otpEmail");
       localStorage.removeItem("resetOtp");
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
-    } catch {
+      sessionStorage.removeItem("otpPurpose");
+
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
       toast.error(t("resetPassword.error"));
     }
   };
+
   return (
     <section
       dir={isArabic ? "rtl" : "ltr"}
@@ -84,7 +97,7 @@ function ResetPassword() {
       />
       <div className="absolute inset-0 bg-black/70 lg:hidden" />
 
-      <div className="absolute top-4 start-4 z-10 lg:hidden">
+      <div className="absolute top-4 inset-s-4 z-10 lg:hidden">
         <LanguageToggle />
       </div>
 
@@ -195,12 +208,12 @@ function ResetPassword() {
                     <Input
                       id="reset-confirm-password"
                       type={showConfirmPassword ? "text" : "password"}
-                      {...register("confirmPassword")}
-                      aria-invalid={!!errors.confirmPassword}
+                      {...register("password_confirmation")}
+                      aria-invalid={!!errors.password_confirmation}
                       placeholder="******"
                       className={cn(
                         "h-11 rounded-full border bg-transparent text-white shadow-none placeholder:text-white/70 focus-visible:border-[#a7b78e] focus-visible:ring-[#a7b78e]/25 lg:bg-white/95 lg:text-[#202020] lg:placeholder:text-muted-foreground",
-                        errors.confirmPassword
+                        errors.password_confirmation
                           ? "border-destructive focus-visible:ring-destructive/20 lg:border-destructive"
                           : "border-white/55 focus-visible:border-[#a7b78e] focus-visible:ring-[#a7b78e]/20 lg:border-[#d9d9d9]",
                         isArabic
@@ -209,13 +222,13 @@ function ResetPassword() {
                       )}
                     />
                   </div>
-                  {errors.confirmPassword?.message ? (
+                  {errors.password_confirmation?.message ? (
                     <p
                       className={cn(
                         "text-sm text-red-500",
                         isArabic ? "text-right" : "text-left",
                       )}>
-                      {t(String(errors.confirmPassword.message))}
+                      {t(String(errors.password_confirmation.message))}
                     </p>
                   ) : null}
                 </div>

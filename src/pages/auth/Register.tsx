@@ -63,15 +63,11 @@ function Register() {
   } = form;
 
   const onContinue = (data: RegisterSchemaType) => {
-    console.log("form data", data);
     setPendingData(data);
     setShowRolePopup(true);
-    console.log("Open Popup");
   };
 
-  const onError = (errors: unknown) => {
-    console.log("Form Errors: ", errors);
-  };
+  const onError = () => {};
 
   const handleChooseRole = (role: UserRole) => {
     if (!pendingData) return;
@@ -83,7 +79,6 @@ function Register() {
       password_confirmation: pendingData.confirmPassword,
       type: role,
     };
-    console.log("Payload Register", payload);
 
     sessionStorage.setItem("registerData", JSON.stringify(payload));
     setShowRolePopup(false);

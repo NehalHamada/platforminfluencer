@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import logphoto from "/assets/login-register.png";
+import { logOtpFromResponse } from "@/utils/logOtp";
 
 function ForgotPassword() {
   const { forgotPassword } = useAuth();
@@ -40,12 +41,14 @@ function ForgotPassword() {
 
   const onSubmit = async (data: ForgotPasswordSchemaType) => {
     try {
-      await forgotPassword(data);
-      localStorage.setItem("resetEmail", data.email);
+      const response = await forgotPassword({
+        email: data.email,
+      });
+      logOtpFromResponse("forgot password otp:", response);
+      localStorage.setItem("otpEmail", data.email);
+      sessionStorage.setItem("otpPurpose", "forget-password");
       toast.success(t("forgetPasswordSchema"));
-      setTimeout(() => {
-        navigate("/verify-otp");
-      }, 1500);
+      navigate("/verify-otp");
     } catch {
       toast.error(t("forgetPassword.error"));
     }
@@ -54,7 +57,7 @@ function ForgotPassword() {
     <section
       dir={isArabic ? "rtl" : "ltr"}
       className={cn(
-        "fixed inset-0 z-[60] flex min-h-screen flex-col items-center justify-center overflow-y-auto px-4 py-8 text-white lg:relative lg:inset-auto lg:z-auto lg:flex-col-reverse lg:justify-between lg:gap-10 lg:p-4 lg:text-inherit",
+        "fixed inset-0 z-60 flex min-h-screen flex-col items-center justify-center overflow-y-auto px-4 py-8 text-white lg:relative lg:inset-auto lg:z-auto lg:flex-col-reverse lg:justify-between lg:gap-10 lg:p-4 lg:text-inherit",
         "lg:flex-row",
         isArabic ? "lg:flex-row-reverse" : "lg:flex-row-reverse",
       )}>
@@ -66,7 +69,7 @@ function ForgotPassword() {
       />
       <div className="absolute inset-0 bg-black/70 lg:hidden" />
 
-      <div className="absolute top-4 start-4 z-10 lg:hidden">
+      <div className="absolute top-4 inset-s-4 z-10 lg:hidden">
         <LanguageToggle />
       </div>
 

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,12 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
 import LanguageToggle from "@/components/common/LanguageToggle";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -29,24 +35,19 @@ import {
   type InfluencerSchemaType,
 } from "@/schema/auth.schema";
 import { cn } from "@/lib/utils";
+import { useContentTypesQuery } from "@/queries/masterData/useContentTypesQuery";
+import { useFollowerRangesQuery } from "@/queries/masterData/useFollowerRangesQuery";
+import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import logphoto from "/assets/login-register.png";
-
-const contentTypeOptions = [
-  { id: "1", labelKey: "influencer.contentTypeOptions.fashion" },
-  { id: "2", labelKey: "influencer.contentTypeOptions.technology" },
-  { id: "3", labelKey: "influencer.contentTypeOptions.sports" },
-  { id: "4", labelKey: "influencer.contentTypeOptions.food" },
-  { id: "5", labelKey: "influencer.contentTypeOptions.gaming" },
-  { id: "6", labelKey: "influencer.contentTypeOptions.lifestyle" },
-  { id: "7", labelKey: "influencer.contentTypeOptions.education" },
-  { id: "8", labelKey: "influencer.contentTypeOptions.entertainment" },
-];
 
 function InfluencerForm() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const isArabic = i18n.language === "ar";
+  const platformsQuery = usePlatformsQuery();
+  const followerRangesQuery = useFollowerRangesQuery();
+  const contentTypesQuery = useContentTypesQuery();
   const savedRegisterData = sessionStorage.getItem("registerData");
 
   useEffect(() => {
@@ -58,7 +59,7 @@ function InfluencerForm() {
   const form = useForm<InfluencerSchemaType>({
     resolver: zodResolver(influencerSchema),
     defaultValues: {
-      platform_ids: "",
+      platform_ids: [],
       follower_range_id: "",
       content_type_id: "",
     },
@@ -74,7 +75,7 @@ function InfluencerForm() {
 
     try {
       const influencerStepOnePayload = {
-        platform_ids: [Number(data.platform_ids)],
+        platform_ids: data.platform_ids.map(Number),
         follower_range_ids: [Number(data.follower_range_id)],
         content_type_ids: [Number(data.content_type_id)],
       };
@@ -97,6 +98,14 @@ function InfluencerForm() {
         ? "border-destructive focus-visible:ring-destructive/20 lg:border-destructive"
         : "border-white/55 focus-visible:border-[#a7b78e] focus-visible:ring-[#a7b78e]/20 lg:border-[#d9d9d9]",
     );
+
+  const getPlatformLabel = (id: string) => {
+    const platform = platformsQuery.data?.find(
+      (item) => item.id.toString() === id,
+    );
+
+    return t(`masterData.platforms.${id}`, platform?.label ?? id);
+  };
 
   if (location.pathname !== "/register/influencer") {
     return <Outlet />;
@@ -144,34 +153,75 @@ function InfluencerForm() {
                         {t("influencer.platform")}
                       </FormLabel>
                       <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}>
-                          <SelectTrigger
-                            dir={isArabic ? "rtl" : "ltr"}
-                            className={cn(
-                              inputClass(!!errors.platform_ids),
-                              "[&>svg]:text-white/75 lg:[&>svg]:text-gray-400",
-                              isArabic ? "text-right" : "text-left",
-                            )}
-                            aria-invalid={!!errors.platform_ids}>
-                            <SelectValue
-                              placeholder={t("influencer.platformPlaceholder")}
-                            />
-                          </SelectTrigger>
-                          <SelectContent
-                            dir={isArabic ? "rtl" : "ltr"}
-                            position="popper"
-                            sideOffset={6}
-                            className="z-9999">
-                            <SelectItem value="1">Instagram</SelectItem>
-                            <SelectItem value="2">TikTok</SelectItem>
-                            <SelectItem value="3">YouTube</SelectItem>
-                            <SelectItem value="4">Facebook</SelectItem>
-                            <SelectItem value="5">X</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <DropdownMenu dir={isArabic ? "rtl" : "ltr"}>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              disabled={platformsQuery.isLoading}
+                              aria-invalid={
+                                errors.platform_ids ? "true" : undefined
+                              }
+                              className={cn(
+                                inputClass(!!errors.platform_ids),
+                                "flex w-full items-center justify-between px-3",
+                                isArabic ? "text-right" : "text-left",
+                              )}>
+                              <span className="truncate">
+                                {platformsQuery.isLoading
+                                  ? t("influencer.loadingPlatforms")
+                                  : field.value.length
+                                    ? field.value
+                                        .map(getPlatformLabel)
+                                        .join(", ")
+                                    : t("influencer.platformPlaceholder")}
+                              </span>
+                              <ChevronDown
+                                size={16}
+                                className="shrink-0 text-white/75 lg:text-gray-400"
+                              />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align={isArabic ? "end" : "start"}
+                            className="z-9999 w-(--radix-dropdown-menu-trigger-width)">
+                            {platformsQuery.data?.map((platform) => {
+                              const value = platform.id.toString();
+                              const selected =
+                                field.value.indexOf(value) !== -1;
+
+                              return (
+                                <DropdownMenuCheckboxItem
+                                  key={platform.id}
+                                  checked={selected}
+                                  onSelect={(event) => {
+                                    event.preventDefault();
+                                  }}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      field.onChange([...field.value, value]);
+                                      return;
+                                    }
+
+                                    field.onChange(
+                                      field.value.filter((id) => id !== value),
+                                    );
+                                  }}>
+                                  {getPlatformLabel(value)}
+                                </DropdownMenuCheckboxItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </FormControl>
+                      {platformsQuery.isError ? (
+                        <p
+                          className={cn(
+                            "text-sm font-medium text-destructive",
+                            isArabic ? "text-right" : "text-left",
+                          )}>
+                          {t("influencer.platformsError")}
+                        </p>
+                      ) : null}
                       <FormMessage
                         className={cn(isArabic ? "text-right" : "text-left")}>
                         {errors.platform_ids?.message
@@ -197,7 +247,8 @@ function InfluencerForm() {
                       <FormControl>
                         <Select
                           value={field.value}
-                          onValueChange={field.onChange}>
+                          onValueChange={field.onChange}
+                          disabled={followerRangesQuery.isLoading}>
                           <SelectTrigger
                             dir={isArabic ? "rtl" : "ltr"}
                             className={cn(
@@ -207,7 +258,11 @@ function InfluencerForm() {
                             )}
                             aria-invalid={!!errors.follower_range_id}>
                             <SelectValue
-                              placeholder={t("influencer.followersPlaceholder")}
+                              placeholder={
+                                followerRangesQuery.isLoading
+                                  ? t("influencer.loadingFollowerRanges")
+                                  : t("influencer.followersPlaceholder")
+                              }
                             />
                           </SelectTrigger>
                           <SelectContent
@@ -215,14 +270,28 @@ function InfluencerForm() {
                             position="popper"
                             sideOffset={6}
                             className="z-9999">
-                            <SelectItem value="1">1K - 10K</SelectItem>
-                            <SelectItem value="2">10K - 100K</SelectItem>
-                            <SelectItem value="3">100K - 500K</SelectItem>
-                            <SelectItem value="4">500K - 800K</SelectItem>
-                            <SelectItem value="5">800K+</SelectItem>
+                            {followerRangesQuery.data?.map((range) => (
+                              <SelectItem
+                                key={range.id}
+                                value={range.id.toString()}>
+                                {t(
+                                  `masterData.followerRanges.${range.id}`,
+                                  range.label,
+                                )}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
+                      {followerRangesQuery.isError ? (
+                        <p
+                          className={cn(
+                            "text-sm font-medium text-destructive",
+                            isArabic ? "text-right" : "text-left",
+                          )}>
+                          {t("influencer.followerRangesError")}
+                        </p>
+                      ) : null}
                       <FormMessage
                         className={cn(isArabic ? "text-right" : "text-left")}>
                         {errors.follower_range_id?.message
@@ -248,7 +317,8 @@ function InfluencerForm() {
                       <FormControl>
                         <Select
                           value={field.value}
-                          onValueChange={field.onChange}>
+                          onValueChange={field.onChange}
+                          disabled={contentTypesQuery.isLoading}>
                           <SelectTrigger
                             dir={isArabic ? "rtl" : "ltr"}
                             className={cn(
@@ -258,9 +328,11 @@ function InfluencerForm() {
                             )}
                             aria-invalid={!!errors.content_type_id}>
                             <SelectValue
-                              placeholder={t(
-                                "influencer.contentTypePlaceholder",
-                              )}
+                              placeholder={
+                                contentTypesQuery.isLoading
+                                  ? t("influencer.loadingContentTypes")
+                                  : t("influencer.contentTypePlaceholder")
+                              }
                             />
                           </SelectTrigger>
                           <SelectContent
@@ -268,14 +340,28 @@ function InfluencerForm() {
                             position="popper"
                             sideOffset={6}
                             className="z-9999">
-                            {contentTypeOptions.map((option) => (
-                              <SelectItem key={option.id} value={option.id}>
-                                {t(option.labelKey)}
+                            {contentTypesQuery.data?.map((contentType) => (
+                              <SelectItem
+                                key={contentType.id}
+                                value={contentType.id.toString()}>
+                                {t(
+                                  `masterData.contentTypes.${contentType.id}`,
+                                  contentType.label,
+                                )}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
+                      {contentTypesQuery.isError ? (
+                        <p
+                          className={cn(
+                            "text-sm font-medium text-destructive",
+                            isArabic ? "text-right" : "text-left",
+                          )}>
+                          {t("influencer.contentTypesError")}
+                        </p>
+                      ) : null}
                       <FormMessage
                         className={cn(isArabic ? "text-right" : "text-left")}>
                         {errors.content_type_id?.message

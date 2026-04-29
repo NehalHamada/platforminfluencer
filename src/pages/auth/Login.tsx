@@ -14,6 +14,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLoginMutation } from "@/queries/auth/useLoginMutation";
 import { Button } from "@/components/ui/Button";
+import axios from "axios";
+import { logOtpFromResponse } from "@/utils/logOtp";
+
+type LoginVerificationError = {
+  message?: string;
+  requires_verification?: boolean;
+};
 
 function Login() {
   const loginMutation = useLoginMutation();
@@ -49,7 +56,25 @@ function Login() {
           }
           navigate("/");
         },
-        onError: () => {
+        onError: (error) => {
+          if (axios.isAxiosError<LoginVerificationError>(error)) {
+            const responseData = error.response?.data;
+
+            if (
+              error.response?.status === 403 &&
+              responseData?.requires_verification
+            ) {
+              logOtpFromResponse("login otp:", responseData);
+              localStorage.setItem("otpEmail", data.email);
+              sessionStorage.setItem("otpPurpose", "login-verification");
+              navigate("/verify-otp");
+              return;
+            }
+
+            setServerError(responseData?.message || t("errors.login_failed"));
+            return;
+          }
+
           setServerError(t("errors.login_failed"));
         },
       });

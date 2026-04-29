@@ -1,4 +1,4 @@
-export type UserRole = "company" | "influencer" | "admin";
+export type UserRole = "company" | "influencer";
 
 export type AuthUser = {
   id: number;
@@ -37,7 +37,7 @@ export type SharedRegisterData = {
   type: UserRole;
 };
 
-export type InfluencerStepPayload = SharedRegisterData & {
+export type InfluencerStepPayload = {
   platform_ids: number[];
   follower_range_ids: number[];
   content_type_ids: number[];
@@ -51,7 +51,7 @@ export type CompleteInfluencerProfilePayload = {
   price_story: number;
   price_reel: number;
   is_negotiable: boolean;
-  platform: string;
+  platform_ids: number[];
   platform_links: string[];
   follower_range_ids: number[];
   content_type_ids: number[];
@@ -72,6 +72,9 @@ export type CompanyStepPayload = {
   country: string;
 };
 
+export type CompanyStepRequestPayload = SharedRegisterData &
+  CompanyStepPayload;
+
 export type CompleteCompanyProfilePayload = FormData;
 
 export type ForgotPasswordPayload = {
@@ -83,9 +86,13 @@ export type VerifyOtpPayload = {
   otp: string;
 };
 
+export type ResendOtpPayload = {
+  email: string;
+};
+
 export type ResetPasswordPayload = {
   email: string;
   otp: string;
   password: string;
-  confirm_password: string;
+  password_confirmation: string;
 };

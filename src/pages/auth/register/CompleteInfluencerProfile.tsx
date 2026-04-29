@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,12 +23,14 @@ import {
 } from "@/schema/auth.schema";
 import { cn } from "@/lib/utils";
 import hero from "/assets/Hero.png";
+import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import type { SharedRegisterData } from "@/types/auth.types";
 
 function CompleteInfluencerProfile() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const isArabic = i18n.language === "ar";
+  const platformsQuery = usePlatformsQuery();
 
   const savedRegisterData = sessionStorage.getItem("registerData");
 
@@ -54,16 +56,21 @@ function CompleteInfluencerProfile() {
       phone: "",
       cooperationType: "",
       contentField: "",
-      platform: "",
-      accountLink: "",
+      platformAccounts: [{ platform_id: "", accountLink: "" }],
       acceptedTerms: false,
     },
   });
 
   const {
+    control,
     handleSubmit,
     formState: { isSubmitting },
   } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "platformAccounts",
+  });
 
   const onSubmit = async (data: CompleteInfluencerSchemaType) => {
     if (!parsedRegisterData) {
@@ -77,12 +84,12 @@ function CompleteInfluencerProfile() {
         phone: data.phone,
         cooperation_type: data.cooperationType,
         content_field: data.contentField,
-        platform: data.platform,
-        platform_links: [data.accountLink],
+        platform_ids: data.platformAccounts.map((item) =>
+          Number(item.platform_id),
+        ),
+        platform_links: data.platformAccounts.map((item) => item.accountLink),
         accepted_terms: data.acceptedTerms,
       };
-
-      sessionStorage.setItem("influencerStepTwoData", JSON.stringify(payload));
 
       sessionStorage.setItem("influencerStepTwoData", JSON.stringify(payload));
 
@@ -93,7 +100,7 @@ function CompleteInfluencerProfile() {
   };
 
   const fieldClass =
-    "h-8 rounded-full border border-[#d2d2cc] bg-transparent px-4 text-[11px] shadow-none focus-visible:ring-0";
+    "h-8 w-full rounded-full border border-[#d2d2cc] bg-transparent px-4 text-[11px] shadow-none focus-visible:ring-0";
 
   return (
     <section
@@ -219,57 +226,107 @@ function CompleteInfluencerProfile() {
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="platform"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
-                            {t("completeInfluencerProfile.platform")}
-                          </FormLabel>
-                          <FormControl>
-                            <select {...field}>
-                              <option value="">Choose platform</option>
-                              <option value="1">Instagram</option>
-                              <option value="2">TikTok</option>
-                              <option value="3">YouTube</option>
-                            </select>
-                          </FormControl>
-                          <FormMessage className="text-[10px]" />
-                        </FormItem>
-                      )}
-                    />
+                    {fields.map((item, index) => (
+                      <div
+                        key={item.id}
+                        className="grid grid-cols-1 gap-x-3 gap-y-4 sm:col-span-2 sm:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name={`platformAccounts.${index}.platform_id`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
+                                {t("completeInfluencerProfile.platform")}
+                              </FormLabel>
+                              <FormControl>
+                                <select
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  disabled={platformsQuery.isLoading}
+                                  className={fieldClass}>
+                                  <option value="">
+                                    {platformsQuery.isLoading
+                                      ? t(
+                                          "completeInfluencerProfile.loadingPlatforms",
+                                        )
+                                      : t(
+                                          "completeInfluencerProfile.selectPlatform",
+                                        )}
+                                  </option>
+                                  {platformsQuery.data?.map((platform) => (
+                                    <option
+                                      key={platform.id}
+                                      value={platform.id.toString()}>
+                                      {t(
+                                        `masterData.platforms.${platform.id}`,
+                                        platform.label,
+                                      )}
+                                    </option>
+                                  ))}
+                                </select>
+                              </FormControl>
+                              {platformsQuery.isError ? (
+                                <p className="text-[10px] font-medium text-destructive">
+                                  {t(
+                                    "completeInfluencerProfile.platformsError",
+                                  )}
+                                </p>
+                              ) : null}
+                              <FormMessage className="text-[10px]" />
+                            </FormItem>
+                          )}
+                        />
 
-                    <FormField
-                      control={form.control}
-                      name="accountLink"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="mb-1.5 block text-[11px] font-medium text-[#3f3f3f]">
-                            {t("completeInfluencerProfile.accountLink")}
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              value={field.value ?? ""}
-                              className={fieldClass}
-                            />
-                          </FormControl>
-                          <FormMessage className="text-[10px]" />
-                        </FormItem>
-                      )}
-                    />
+                        <FormField
+                          control={form.control}
+                          name={`platformAccounts.${index}.accountLink`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <div className="mb-1.5 flex items-center justify-between gap-2">
+                                <FormLabel className="block text-[11px] font-medium text-[#3f3f3f]">
+                                  {t("completeInfluencerProfile.accountLink")}
+                                </FormLabel>
+                                {fields.length > 1 ? (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => remove(index)}
+                                    aria-label={t(
+                                      "completeInfluencerProfile.removePlatform",
+                                    )}
+                                    className="h-5 w-5 rounded-full p-0 text-[#7d7d7d] hover:bg-[#ececea]">
+                                    <X size={12} />
+                                  </Button>
+                                ) : null}
+                              </div>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  className={fieldClass}
+                                />
+                              </FormControl>
+                              <FormMessage className="text-[10px]" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    ))}
                   </div>
 
                   <div className="mt-5 space-y-3">
-                    <Link
-                      to="/add-platform"
-                      className="flex items-center gap-1.5 text-[11px] text-[#6a6a6a]">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() =>
+                        append({ platform_id: "", accountLink: "" })
+                      }
+                      className="flex cursor-pointer h-auto items-center gap-1.5 p-0 text-[11px] text-[#6a6a6a] hover:bg-transparent">
                       <Plus size={12} className="text-[#7d7d7d]" />
                       <span className="text-[11px] font-normal text-[#6a6a6a]">
                         {t("completeInfluencerProfile.addAnotherPlatform")}
                       </span>
-                    </Link>
+                    </Button>
 
                     <FormField
                       control={form.control}
@@ -300,7 +357,7 @@ function CompleteInfluencerProfile() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="h-8.75 min-w-32 rounded-full bg-[#9ba785] px-3 text-[11px] font-medium text-white hover:bg-[#8f9b79] disabled:opacity-70">
+                      className="h-8.75 cursor-pointer min-w-32 rounded-full bg-[#9ba785] px-3 text-[11px] font-medium text-white hover:bg-[#8f9b79] disabled:opacity-70">
                       <span className="flex w-full items-center justify-between gap-2">
                         <span>
                           {isSubmitting

@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import hero from "/assets/Hero.png";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import { logOtpFromResponse } from "@/utils/logOtp";
 import type {
   CompanyStepPayload,
   SharedRegisterData,
@@ -79,6 +80,17 @@ const isValidCompanyStepPayload = (
 ): data is CompanyStepPayload =>
   Boolean(
     data?.company_name && data.manager_name && data.field && data.country,
+  );
+
+const isValidRegisterData = (
+  data: SharedRegisterData | null,
+): data is SharedRegisterData =>
+  Boolean(
+    data?.name &&
+    data.email &&
+    data.password &&
+    data.password_confirmation &&
+    data.type === "company",
   );
 
 function CompleteCompanyProfile() {
@@ -144,25 +156,32 @@ function CompleteCompanyProfile() {
       const registerData = JSON.parse(savedRegisterData) as SharedRegisterData;
       const stepOneData = JSON.parse(savedStepOneData) as CompanyStepPayload;
 
+      if (!isValidRegisterData(registerData)) {
+        toast.error(t("company.error"));
+        navigate("/register");
+        return;
+      }
+
       if (!isValidCompanyStepPayload(stepOneData)) {
         toast.error(t("company.error"));
         navigate("/register/company");
         return;
       }
 
-      const registerResponse = await authService.register(registerData);
+      const registerResponse = await authService.registerCompanyStep({
+        ...registerData,
+        ...stepOneData,
+      });
+      logOtpFromResponse("company register otp:", registerResponse);
 
       setAuth({
         user: registerResponse.data.user,
         token: registerResponse.data.token,
       });
 
-      await authService.registerCompanyStep(stepOneData);
-
       const formData = new FormData();
 
       formData.append("field", data.field);
-      formData.append("country", stepOneData.country);
       formData.append("phone", data.phone);
       formData.append("commercial_register", data.commercialRegister);
 
@@ -176,7 +195,12 @@ function CompleteCompanyProfile() {
 
       formData.append("accepted_terms", data.acceptedTerms ? "1" : "0");
 
-      await authService.completeCompanyProfile(formData);
+      const completeProfileResponse =
+        await authService.completeCompanyProfile(formData);
+      logOtpFromResponse(
+        "company complete profile otp:",
+        completeProfileResponse,
+      );
 
       sessionStorage.setItem("otpPurpose", "company-register");
       localStorage.setItem("otpEmail", registerData.email);

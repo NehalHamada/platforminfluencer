@@ -1,0 +1,861 @@
+{
+  "nav": {
+    "platform": "Our Platform",
+    "ourResults": "Results",
+    "whoUs": "Who Us",
+    "ourServices": "Our Services",
+    "influencers": "Our Influencers",
+    "search": "Search for influencer",
+    "home": "Home",
+    "profits": "Profits",
+    "campaigns": "Campaign",
+    "messages": "Messages",
+    "offers": "Offers",
+    "exploreInfluencers": "Explore Influencers",
+    "createCampaign": "Create Campaign",
+    "influencerRequest": "Influencer Request",
+    "cooperation": "Collaberate",
+    "contactUs": "Contact US",
+    "whoAreWe": "Who are we"
+  },
+  "errorTitle": "Something went wrong",
+  "errorDescription": "Unable to load landing page data.",
+  "heroTitle": "Specialists in Connecting Brands with Influencers",
+  "heroDesc": "to execute impactful digital marketing campaigns.",
+  "compBtn": "Start as Company",
+  "infBtn": "Start as Influencer",
+  "JoinUsToday": "Join us today",
+  "TryFree": "Try Free",
+  "campaignDesc": "We transform brand ideas into creative content delivered by influencers that reaches the right audience.",
+  "campaignTitle": "From a simple idea… to a campaign that makes an impact",
+  "resultsTitle": "Real Results from Successful Collaborations",
+  "resultsDesc": "Because success isn’t measured by engagement alone, but by results. Here, we share stories of collaborations built professionally, managed transparently, and that achieved their goals.",
+  "aboutPlatform": {
+    "logoAlt": "Platform logo",
+    "profileAlt": "Profile image",
+    "centerAlt": "Platform preview image",
+    "title1": "A digital platform",
+    "title2": "that helps collaboration",
+    "title3": "between brands and influencers",
+    "cardTitle": "Know us",
+    "cardDesc": "We are a specialized tech platform that connects companies with influencers in a professional way. We simplify agreement steps, campaign management, performance tracking, and long-term relationship building. We believe successful collaboration starts with clear organization, effective communication, and lasting trust.",
+    "readMore": "Learn more",
+    "stats": {
+      "1": {
+        "value": "+12",
+        "label": "Years of experience"
+      },
+      "2": {
+        "value": "+500",
+        "label": "Ad campaigns"
+      },
+      "3": {
+        "value": "+100",
+        "label": "Happy clients"
+      }
+    }
+  },
+  "Influencers": {
+    "title": "Our Most Popular Influencers",
+    "desc": "We are a specialized tech platform that connects companies with influencers in a professional and structured way.",
+    "prev": "Previous",
+    "next": "Next",
+    "items": {
+      "1": {
+        "name": "Alina Kassem",
+        "handle": "@AlinaKassem",
+        "category1": "Skincare",
+        "category2": "Fashion",
+        "followers": "Total followers: 700K"
+      },
+      "2": {
+        "name": "Alina Kassem",
+        "handle": "@AlinaKassem",
+        "category1": "Skincare",
+        "category2": "Fashion",
+        "followers": "Total followers: 700K"
+      },
+      "3": {
+        "name": "Alina Kassem",
+        "handle": "@AlinaKassem",
+        "category1": "Skincare",
+        "category2": "Fashion",
+        "followers": "Total followers: 700K"
+      }
+    }
+  },
+  "campaignShowcase": {
+    "title1": "Campaigns That Made",
+    "title2": "A Big Impact!",
+    "desc": "Examples of successful collaborations between brands and influencers on our platform",
+    "button": "Explore All Campaigns",
+    "items": {
+      "1": {
+        "alt": "First phone"
+      },
+      "2": {
+        "alt": "Second phone"
+      },
+      "3": {
+        "alt": "Third phone"
+      }
+    }
+  },
+  "overview": {
+    "title": "Overview",
+    "sideCard": "Explore audience size across all social media platforms",
+    "cards": {
+      "instagram": {
+        "followers": "21,000",
+        "label": "Followers",
+        "link": "twitch.tv/yourname"
+      },
+      "youtube": {
+        "followers": "21,000",
+        "label": "Subscribers",
+        "link": "twitch.tv/yourname"
+      },
+      "facebook": {
+        "followers": "21,000",
+        "label": "Followers",
+        "link": "twitch.tv/yourname"
+      },
+      "tiktok": {
+        "followers": "21,000",
+        "label": "Followers",
+        "link": "twitch.tv/yourname"
+      },
+      "x": {
+        "followers": "21,000",
+        "label": "Followers",
+        "link": "twitch.tv/yourname"
+      },
+      "twitch": {
+        "followers": "21,000",
+        "label": "Followers",
+        "link": "twitch.tv/yourname"
+      }
+    }
+  },
+  "topInfluencers2": {
+    "title": "Our Most Popular Influencers",
+    "desc": "We are a specialized tech platform that connects companies with influencers in a professional way.",
+    "items": {
+      "1": {
+        "name": "@AlinnaAhmed",
+        "followers": "900K followers"
+      },
+      "2": {
+        "name": "@AlinnaAhmed",
+        "followers": "900K followers"
+      },
+      "3": {
+        "name": "@AlinnaAhmed",
+        "followers": "900K followers"
+      }
+    }
+  },
+  "features": {
+    "bannerAlt": "Features banner",
+    "items": {
+      "1": {
+        "title": "Smart matching between brands and influencers",
+        "desc": "We connect each campaign with the most suitable influencer based on niche and expertise to ensure the best results for both sides."
+      },
+      "2": {
+        "title": "Clear and organized management",
+        "desc": "From agreement to execution and payment, every step is handled in one transparent and structured workflow."
+      },
+      "3": {
+        "title": "Secure payment and protection system",
+        "desc": "Funds are held until services are completed, then released securely while protecting the rights of all parties."
+      },
+      "4": {
+        "title": "Performance-driven results and experience",
+        "desc": "Each campaign is evaluated based on real performance to improve collaboration quality and increase future success."
+      }
+    }
+  },
+  "whyChooseUs": "Why Choose Us?",
+  "feature1": "Easy access to trusted influencers",
+  "feature2": "Transparent pricing",
+  "feature3": "In-platform communication",
+  "feature4": "Secure payments",
+  "trustedCompanies": {
+    "title1": "Trusted by",
+    "count": "500+",
+    "title2": "companies",
+    "title3": "startups and agencies",
+    "desc": "A group of brands that partnered with us to launch successful influencer marketing campaigns.",
+    "items": {
+      "1": {
+        "name": "BARKER LLC",
+        "sub": "Choice Of The Nation"
+      },
+      "2": {
+        "name": "WUCKERT INC",
+        "sub": "Gold Time Everybody"
+      },
+      "3": {
+        "name": "SCHUMM SCHULTZ",
+        "sub": "Work Of The Nation's Children"
+      },
+      "4": {
+        "name": "BASHIR CO",
+        "sub": "Choice Of The Nation"
+      },
+      "5": {
+        "name": "GROUP",
+        "sub": "The Nation"
+      },
+      "6": {
+        "name": "LABADIE LLC",
+        "sub": "Time Is Golden"
+      },
+      "7": {
+        "name": "WUCKERT INC",
+        "sub": "Gold Time Everybody"
+      },
+      "8": {
+        "name": "SCHUMM",
+        "sub": "Work Of The Nation"
+      }
+    }
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "forgetPassword": "Forget Password ?",
+    "login": "Login",
+    "loading": "Loading",
+
+    "createAccount": "Create Account",
+    "popup": {
+      "title": "Choose Account Type",
+      "companyButton": "Company",
+      "influencerButton": "Influencer",
+      "cancel": "Cancel"
+    }
+  },
+  "register": {
+    "title": "Create New Account",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "continue": "Continue",
+    "success": "Account created Successfully",
+    "error": "Something wrong happen when creating account",
+    "popup": {
+      "title": "Choose Account Type",
+      "company": "Company",
+      "influencer": "Influencer",
+      "cancel": "Cancel"
+    }
+  },
+  "company": {
+    "title": "Company Register",
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "Enter company name",
+    "managerName": "Company Manager",
+    "managerNamePlaceholder": "Enter manager name",
+    "field": "Field",
+    "country": "Country",
+    "platform": "Platform",
+    "followersRange": "Followers Range",
+    "contentType": "Content Type",
+    "selectPlatform": "Select platform",
+    "selectFollowersRange": "Select followers range",
+    "selectContentType": "Select content type",
+    "submit": "Sumbit",
+    "loading": "Sending ...",
+    "success": "Company Account Created Successfully",
+    "error": "Field Registeration, please try again",
+    "selectCountry": "Select Company",
+    "saudiArabia": "Saudia Arabia",
+    "egypt": "Egypt",
+    "uae": "UAE",
+    "platformOptions": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "followerRangeOptions": {
+      "range1": "1K - 10K",
+      "range2": "10K - 100K",
+      "range3": "100K+"
+    },
+    "contentTypeOptions": {
+      "posts": "Posts",
+      "reels": "Reels",
+      "stories": "Stories"
+    },
+    "validation": {
+      "company_name_required": "Company name is required",
+      "manager_name_required": "Manager name is required"
+    }
+  },
+  "influencer": {
+    "title": "Register Your Details",
+    "platform": "Platforms",
+    "followersRange": "Followers Count",
+    "contentType": "Content Type",
+    "contentTypePlaceholder": "Choose content type",
+    "contentTypeOptions": {
+      "fashion": "Fashion",
+      "technology": "Technology",
+      "sports": "Sports",
+      "food": "Food",
+      "gaming": "Gaming",
+      "lifestyle": "Lifestyle",
+      "education": "Education",
+      "entertainment": "Entertainment"
+    },
+    "platformPlaceholder": "Instagram, TikTok",
+    "followersPlaceholder": "500K - 800K",
+    "submit": "Send",
+    "loading": "Sending...",
+    "success": "Account created successfully",
+    "error": "An error occurred during registration"
+  },
+  "forgetPassword": {
+    "title": "Forget Password",
+    "description": "Enter your registered email to send verify number",
+    "email": "Email",
+    "send": "Send",
+    "error": "Please Enter Registered Email"
+  },
+  "verifyOtp": {
+    "title": "Verification",
+    "description": "verify your identity. We have sent a 6-digit verification code to your email. Enter the code to complete the process",
+    "success": "The code is correct. You will now be redirected to the password reset page",
+    "error": "Please enter the code as it was sent to your email.",
+    "loading": "Loading",
+    "send": "Send"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "description": "Change Your Password, It Should be different for last password",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "submit": "Update Password",
+    "loading": "Loading ...",
+    "success": "Password Change Successfully",
+    "error": "Something wrong, please, try again"
+  },
+  "completeInfluencerProfile": {
+    "title": "Join the smart collaboration platform",
+    "description": "Create your account now and start accessing professional collaboration opportunities with brands and influencers in one trusted place",
+    "fullName": "Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "followersCount": "Field of content",
+    "password": "Password",
+    "productType": "Available Collaboration Type",
+    "platform": "Platform",
+    "accountLink": "Account Link",
+    "addAnotherPlatform": "Add another new platform",
+    "acceptTerms": "I agree to the terms, conditions, and privacy policy",
+    "continue": "Continue"
+  },
+  "completeCompanyProfile": {
+    "title": "Start Creating Your Company Account",
+    "description": "Create your company account in simple steps and start using the platform immediately",
+    "companyName": "Company Name",
+    "email": "Email Address",
+    "field": "Field",
+    "country": "Country",
+    "phone": "Phone Number",
+    "commercialRegister": "Commercial Register",
+    "companyActivity": "Content Category",
+    "password": "Password",
+    "contentType": "Available Collaboration Type",
+    "followersRange": "Followers Range",
+    "platform": "Platform",
+    "selectPlatform": "Select platform",
+    "selectFollowersRange": "Select followers range",
+    "selectContentType": "Select content type",
+    "accountLink": "Commercial Registration Number",
+    "acceptTerms": "I agree to the Terms & Conditions and Privacy Policy",
+    "loading": "Sending...",
+    "continue": "Continue"
+  },
+  "completeInfluencerPayment": {
+    "stepProfit": "Profits",
+    "stepBasic": "Basic Info",
+    "title": "Your pricing and collaboration method",
+    "description": "Set your main prices and preferred collaboration style so it appears clearly to potential clients",
+    "postPrice": "Post Price",
+    "reelPrice": "Reel Price",
+    "isNegotiable": "Is Negotiable",
+    "yes": "Yes",
+    "no": "No",
+    "monthlyRate": "Monthly Rate",
+    "payoutTitle": "Profit Withdrawal Method",
+    "payoutDescription": "Choose your preferred method to receive payments after the campaign is successfully completed",
+    "chooseMethod": "Choose your preferred payment method",
+    "stcPay": "STC PAY",
+    "visa": "VISA",
+    "wallet": "Wallet",
+    "methodNote": "Your money will be transferred automatically after the campaign is accepted and completed successfully",
+    "accountHolder": "Account Holder Name",
+    "bankName": "Bank Name",
+    "iban": "IBAN",
+    "country": "Country",
+    "currency": "Currency",
+    "bankInfoNote": "Your banking information is fully encrypted and will only be used to transfer your earnings",
+    "save": "Save",
+    "sar": "SAR"
+  },
+  "errors": {
+    "name": "Name must be at least 2 Character",
+    "email_required": "Email is required",
+    "login_failed": "Login Failed",
+    "invalid_email": "Invalid Email",
+    "password_min": "Password must be at least 6 characters",
+    "confirm_password_required": "Confirm Password",
+    "passwords_not_match": "Passwords not matches",
+    "otp_required": "please enter verify number",
+    "company_name_required": "Company Name is required",
+    "manager_name_required": "Manager Name",
+    "field_required": "Field Requires",
+    "country_required": "Country Required",
+    "platform_required": "Platform is required",
+    "followers_required": "Followers count is required",
+    "follower_range_required": "Followers range is required",
+    "cooperation_type_required": "Cooperation Field Requited",
+    "content_field_required": "Content Field Required",
+    "account_link_required": "Link Required",
+    "phone_required": "Phone number is required",
+    "commercial_register_required": "Commercial register is required",
+    "accept_terms_required": "You must accept the terms and conditions",
+    "fullName": "Full name is required",
+    "phone": "Phone is required",
+    "follower": "Followers count is required",
+    "productType": "Product type is required",
+    "platform": "Platform is required",
+    "accLink": "Account link is required",
+    "conditionTerms": "You must accept the terms and conditions",
+    "minPriceRequired": "Minimum price is required",
+    "maxPriceRequired": "Maximum price is required",
+    "monthlyRateRequired": "Monthly rate is required",
+    "accountHolderRequired": "Account holder name is required",
+    "bankNameRequired": "Bank name is required",
+    "ibanRequired": "IBAN is required",
+    "countryRequired": "Country is required",
+    "currencyRequired": "Currency is required",
+    "payoutMethodRequired": "Please select a payout method",
+    "campaignNameRequired": "Campaign name is required",
+    "campaignIdeaRequired": "Campaign idea is required",
+    "platformRequired": "Platform is required",
+    "targetAgeRequired": "Target age is required",
+    "targetCountryRequired": "Target audience location is required",
+    "campaignDurationRequired": "Campaign duration is required",
+    "campaignTypeRequired": "Campaign type is required",
+    "estimatedBudgetRequired": "Estimated budget is required",
+    "influencersCountRequired": "Influencers count is required",
+    "contentTypeRequired": "Content type is required",
+    "goalRequired": "Goal is required",
+    "budgetRequired": "Budget is required",
+    "executionDateRequired": "Execution date is required",
+    "messageRequired": "Message is required",
+    "contentNotesRequired": "Content notes are required",
+    "finalPriceRequired": "Final price is required",
+    "deliverablesCountRequired": "Deliverables count is required",
+    "deliveryDateRequired": "Delivery date is required",
+    "agreementTermsRequired": "Terms and conditions are required"
+  },
+  "registrationSuccess": {
+    "title": "Your account has been set up successfully",
+    "description": "You can now explore influencers and start creating your first campaign on the platform",
+    "goToDashboard": "Go to Dashboard",
+    "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results",
+    "emailPlaceholder": "Enter your email to receive the latest updates"
+  },
+  "influencerProfile": {
+    "heroAlt": "Influencer profile hero",
+    "handle": "@sara_hamed",
+    "activeNow": "Available now",
+    "startChat": "Start chat",
+    "viewProfile": "View profile",
+    "bio": "A beauty and lifestyle creator focused on skincare, trusted audience connection, and premium brand storytelling across short-form platforms.",
+    "statCampaigns": "Campaigns",
+    "statFollowers": "Followers",
+    "statEngagement": "Engagement",
+    "statRate": "Rating",
+    "similarBrands": "Similar brands",
+    "brandCategory": "Beauty campaign partner",
+    "brandNote": "A strong fit for premium skincare launches and high-intent product storytelling.",
+    "worksTitle": "Previous work",
+    "filterAll": "All",
+    "filterPhotos": "Photos",
+    "filterReels": "Reels",
+    "reviewsTitle": "Previous collaborations",
+    "reviewTitle": "Campaign review",
+    "reviewStatus": "Completed successfully"
+  },
+  "influencerDashboard": {
+    "verify": "Verify",
+    "currentInfo": "Your Current Information",
+    "upcomingCampaigns": "Your Upcoming Campaigns",
+    "latestActivities": "Your Latest Activities",
+    "latestActivitiesSubtitle": "Track your performance, content, and campaigns across all platforms",
+    "editProfile": "Edit Profile",
+    "reject": "Reject",
+    "requestProfile": "Request Profile",
+    "platform": "Platform",
+    "followers": "Followers",
+    "budget": "Budget",
+    "loading": "Loading...",
+    "error": "Something went wrong while loading data",
+    "empty": "No data available right now",
+    "status": {
+      "pending": "Under Review",
+      "rejected": "Rejected",
+      "accepted": "Accepted"
+    }
+  },
+  "earn": {
+    "heroAlt": "Earnings hero",
+    "title": "My Earnings",
+    "totalIncome": "Total earnings",
+    "totalIncomeValue": "SAR 20,000",
+    "transferCode": "Pending transfer code",
+    "transferCodeValue": "SAR 2,000",
+    "availableBalance": "Available balance",
+    "availableBalanceValue": "SAR 12,000",
+    "transferNote": "Earnings are transferred automatically within 24 - 48 hours after campaign delivery is confirmed.",
+    "transactionsTitle": "Current transactions",
+    "payoutMethodTitle": "Payout method",
+    "switchPayout": "You can change the payout method",
+    "transferTo": "Transfer to",
+    "payoutHint": "SA00 **** **** 7878",
+    "campaign": "Campaign",
+    "company": "Company",
+    "date": "Date",
+    "amount": "Amount",
+    "status": "Status",
+    "statusCompleted": "Completed",
+    "statusPending": "Processing"
+  },
+  "cooperation": {
+    "heroAlt": "Cooperation hero",
+    "title": "New Cooperation Request",
+    "companyName": "Company name",
+    "contentType": "Content type",
+    "date": "Date",
+    "budget": "Suggested budget",
+    "accept": "Accept",
+    "reject": "Reject",
+    "negotiate": "Negotiate"
+  },
+  "offer": {
+    "heroAlt": "Offer submission hero",
+    "title": "Apply to Campaign",
+    "description": "Give your account a strong start by building real partnerships through advertising services and influencers in one trusted place.",
+    "proposedPrice": "Proposed price",
+    "proposedPricePlaceholder": "Enter your proposed price",
+    "proposedPriceRequired": "Proposed price is required",
+    "companyNote": "Short note to company",
+    "companyNotePlaceholder": "Add a short note",
+    "companyNoteRequired": "A short note to the company is required",
+    "executionTime": "Execution date",
+    "executionTimePlaceholder": "Choose execution date",
+    "executionTimeRequired": "Execution date is required",
+    "guarantee": "Readiness confirmation",
+    "guaranteePlaceholder": "Confirm your readiness",
+    "guaranteeRequired": "Readiness confirmation is required",
+    "submit": "Send request"
+  },
+  "campaign": {
+    "heroAlt": "Influencer campaign hero",
+    "chatAvailable": "You can start the chat",
+    "campaignCompleted": "Your campaign content was posted successfully",
+    "campaignName": "Campaign name",
+    "companyName": "Company name",
+    "paymentDetails": "Payment details",
+    "reservedAmount": "Reserved amount",
+    "commission": "Commission",
+    "influencerNet": "Influencer net",
+    "agreementDone": "Agreement completed",
+    "contentApproved": "Content approved",
+    "contentPosted": "Content posted"
+  },
+  "infChat": {
+    "heroAlt": "Influencer chat hero",
+    "title": "Start your conversation with",
+    "influencerName": "Sara Hamed",
+    "description": "Define the collaboration details and begin direct communication with the influencer.",
+    "campaignName": "Campaign name",
+    "contentType": "Content type",
+    "goal": "Target goal",
+    "budget": "Available budget",
+    "executionDate": "Execution date",
+    "message": "Message to the influencer",
+    "submit": "Continue",
+    "placeholders": {
+      "campaignName": "Enter campaign name",
+      "contentType": "Choose content type",
+      "goal": "Select campaign goal",
+      "budget": "Enter your available budget",
+      "executionDate": "Choose execution date",
+      "message": "Write a short note"
+    },
+    "contentTypes": {
+      "skincare": "Skincare",
+      "fashion": "Fashion",
+      "lifestyle": "Lifestyle"
+    },
+    "goals": {
+      "awareness": "Brand awareness",
+      "sales": "Increase sales",
+      "launch": "New product launch"
+    },
+    "executionDates": {
+      "thisWeek": "This week",
+      "nextWeek": "Next week",
+      "thisMonth": "This month"
+    },
+    "validation": {
+      "campaignNameRequired": "Campaign name is required",
+      "contentTypeRequired": "Content type is required",
+      "goalRequired": "Goal is required",
+      "budgetRequired": "Budget is required",
+      "executionDateRequired": "Execution date is required",
+      "messageRequired": "Message is required"
+    }
+  },
+  "companyDashboard": {},
+  "campaigns": {
+    "heroAlt": "Campaign hero",
+    "pageTitle": "My Campaigns",
+    "openChat": "You can start the chat",
+    "success": "Campaign completed successfully",
+    "campaignName": "Campaign name",
+    "influencerName": "Influencer name",
+    "paymentDetails": "Payment details",
+    "totalAmount": "Reserved amount",
+    "commission": "Commission",
+    "netAmount": "Influencer net",
+    "viewContent": "View published content",
+    "relaunch": "Launch a new campaign with the same influencer"
+  },
+  "campaignsRequest": {
+    "heroAlt": "Campaign dashboard hero",
+    "badge": "Campaign workflow",
+    "title": "Campaign Requests Dashboard",
+    "description": "Review incoming creator applications, compare reach and pricing, and move your campaign forward with fast, confident decisions.",
+    "sectionEyebrow": "Requests",
+    "sectionTitle": "Applications submitted to your campaign",
+    "sectionDescription": "Choose the creators who best match your audience, budget, and platform goals.",
+    "totalRequests": "",
+    "reviewAll": "Review all",
+    "creatorLabel": "Verified creator",
+    "followers": "Followers",
+    "requestedPrice": "Requested price",
+    "accept": "Accept",
+    "reject": "Reject",
+    "ctaBadge": "Stay updated",
+    "ctaTitle": "Receive new campaign matches directly in your inbox",
+    "ctaDescription": "Get notified when qualified influencers apply, campaign performance shifts, or a strong shortlist is ready for review.",
+    "emailPlaceholder": "Enter your email for campaign updates",
+    "subscribe": "Subscribe",
+    "ctaNote": "Notifications are tailored to your active company campaigns."
+  },
+  "exploreInfluencers": {
+    "searchPlaceholder": "Search influencers by name or category...",
+    "platform": "Platform",
+    "followers": "Followers",
+    "engagement": "Engagement Rate",
+    "category": "Category",
+    "audience": "Audience",
+    "followersLabel": "Followers",
+    "engagementLabel": "Engagement",
+    "viewProfile": "View Profile",
+    "sendMessage": "Send Message",
+    "emptySearchTitle": "No search results",
+    "emptySearch": "No influencers matched your search criteria. Try another keyword.",
+    "k": "K"
+  },
+  "createCampaign": {
+    "title": "Start a New Campaign",
+    "description": "Create your campaign in simple steps and start using the platform right away",
+    "campaignName": "Campaign Name",
+    "campaignNamePlaceholder": "Launch a new product",
+    "campaignIdea": "Campaign Idea",
+    "campaignIdeaPlaceholder": "Launch a new product",
+    "platform": "Which platform would you like to advertise on?",
+    "platformPlaceholder": "Titok, Instagram, ....",
+    "targetAge": "What is the target age for your campaign?",
+    "targetAgePlaceholder": "Young Adults (25 - 34)",
+    "targetCountry": "Where is your target audience located?",
+    "targetCountryPlaceholder": "All regions of Saudi Arabia",
+    "campaignDuration": "When should the campaign run?",
+    "campaignDurationPlaceholder": "Within one month",
+    "campaignType": "Which campaign type fits your campaign?",
+    "campaignTypePlaceholder": "Lifestyle",
+    "estimatedBudget": "What is the estimated budget?",
+    "estimatedBudgetPlaceholder": "Less than 5000 SAR",
+    "influencersCount": "Required number of influencers",
+    "influencersCountPlaceholder": "2",
+    "publishCampaign": "Publish Campaign"
+  },
+  "chat": {
+    "thread": {
+      "campaignBrief": "Hello we want To Collaberate",
+      "inputPlaceholder": "Write your message here..."
+    },
+    "mock": {
+      "status": {
+        "inReview": "In review",
+        "approved": "Approved",
+        "awaitingReply": "Awaiting reply",
+        "active": "Active now",
+        "negotiation": "Negotiation",
+        "completed": "Completed"
+      },
+      "time": {
+        "now": "Now",
+        "mins5": "5 min",
+        "mins20": "20 min",
+        "hour1": "1 h",
+        "hour3": "3 h",
+        "yesterday": "Yesterday",
+        "am0915": "09:15 AM",
+        "am0918": "09:18 AM",
+        "am0924": "09:24 AM",
+        "am1002": "10:02 AM",
+        "am1011": "10:11 AM",
+        "am1016": "10:16 AM",
+        "am1110": "11:10 AM",
+        "pm0210": "02:10 PM",
+        "pm0214": "02:14 PM"
+      },
+      "company": {
+        "influencerRole": "Influencer partner",
+        "categories": {
+          "skincare": "Skincare",
+          "reels": "Reels production",
+          "event": "Event coverage"
+        },
+        "conversations": {
+          "sara": {
+            "preview": "I reviewed the brief and I can send the first storyboard this afternoon.",
+            "message1": "I reviewed the brief and the visual direction feels clear. I can send the first storyboard this afternoon.",
+            "message2": "Perfect. We want the opening frames to focus on texture and before/after product usage.",
+            "message3": "Great, I will keep the first cut soft and premium, then send both Reel and Story versions for approval."
+          },
+          "lina": {
+            "preview": "The product arrived, and I can start shooting tomorrow morning.",
+            "message1": "The product arrived on time. Are you comfortable with a short three-scene Reel plus two supporting Stories?",
+            "message2": "Yes, that works for me. I can start shooting tomorrow morning and share the first frames before noon."
+          },
+          "noor": {
+            "preview": "Please confirm the guest list details before I finalize the event coverage plan.",
+            "message1": "Please confirm the guest list details before I finalize the event coverage plan and assign a second camera angle."
+          }
+        }
+      },
+      "influencer": {
+        "companyRole": "Brand team",
+        "categories": {
+          "productLaunch": "Product launch",
+          "ugc": "UGC package",
+          "storySet": "Story set"
+        },
+        "conversations": {
+          "growth": {
+            "preview": "We loved the draft hook. Can you deliver the final cut by tomorrow afternoon?",
+            "message1": "We loved the first draft hook. Can you deliver the final cut by tomorrow afternoon so we can schedule the post?",
+            "message2": "Yes, I can deliver tomorrow before 3 PM. I will also send a clean caption option with the final cut.",
+            "message3": "Perfect. Once we review the final edit, we will send publishing approval directly in this thread."
+          },
+          "lumina": {
+            "preview": "Your revised offer looks good. We only need to align on the number of supporting Stories.",
+            "message1": "I updated the offer with one Reel, two Stories, and raw clips for paid usage over 30 days.",
+            "message2": "Your revised offer looks good. We only need to align on the number of supporting Stories before we confirm."
+          },
+          "olive": {
+            "preview": "Thanks again, the campaign closed successfully and payout is now scheduled.",
+            "message1": "Thanks again, the campaign closed successfully and payout is now scheduled for the next transfer cycle."
+          }
+        }
+      }
+    }
+  },
+  "camPopup": {
+    "trigger": "Convert deal to campaign",
+    "title": "Please fill in the following details",
+    "submit": "Send agreement",
+    "submitting": "Sending...",
+    "success": "The agreement was sent successfully",
+    "error": "Something went wrong while sending the agreement",
+    "defaultTerms": "The collaboration may not be canceled for 14 days once the agreement is sent.",
+    "fields": {
+      "contentNotes": "Content notes",
+      "finalPrice": "Final price",
+      "deliverablesCount": "Number of deliverables",
+      "deliveryDate": "Delivery date",
+      "agreementTerms": "Terms and conditions"
+    },
+    "placeholders": {
+      "contentNotes": "Video review with focus on product usage",
+      "finalPrice": "SAR 6,000",
+      "deliverablesCount": "1 Reel + 1 Story",
+      "deliveryDate": "20 / 10 / 2026"
+    },
+    "errors": {
+      "contentNotesRequired": "Content notes are required",
+      "finalPriceRequired": "Final price is required",
+      "deliverablesCountRequired": "Deliverables count is required",
+      "deliveryDateRequired": "Delivery date is required",
+      "agreementTermsRequired": "Terms and conditions are required"
+    }
+  },
+  "whoUs": {
+    "heroAlt": "Who we are hero",
+    "kicker": "Learn about us",
+    "title": "We connect brands with influencers to create real impact",
+    "paragraphs": {
+      "1": "We are a Saudi platform specialized in connecting brands with content creators in a professional and organized way. We help brands turn campaign ideas into meaningful collaborations based on clear data, transparent communication, and a trusted workflow that supports better decisions from the start.",
+      "2": "Our role starts from making influencer discovery easier, then continues by simplifying communication, alignment, and campaign management in one place. This allows companies to focus on outcomes while creators receive a smoother experience built on clarity and mutual trust.",
+      "3": "We believe strong campaigns happen when the right creator, the right message, and the right audience meet at the right time. That is why we built a complete environment that brings every step together and helps both sides achieve better, more measurable results."
+    },
+    "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results.",
+    "footerButton": "Enter your email to receive every update"
+  },
+  "contsctForUs": {
+    "heroAlt": "Contact us hero",
+    "kicker": "Contact us",
+    "title": "Let us help you build better collaborations",
+    "description": "If you have a question, need support, or want to explore a partnership opportunity, our team is here to help you with a clear and fast response.",
+    "info": {
+      "email": {
+        "title": "Email us",
+        "value": "support@growth-platform.com"
+      },
+      "phone": {
+        "title": "Call us",
+        "value": "+966 50 000 0000"
+      },
+      "address": {
+        "title": "Visit us",
+        "value": "Riyadh, Saudi Arabia"
+      }
+    },
+    "form": {
+      "name": "Your name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "message": "Write your message here",
+      "note": "Our team usually replies within one business day.",
+      "submit": "Send message"
+    },
+    "mapAlt": "Office location map",
+    "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results.",
+    "footerInput": "Enter your email to receive every update"
+  },
+  "footer.description": "A platform that connects companies with influencers through organized, transparent collaborations based on real results.",
+  "footer.emailPlaceholder": "Enter your email to receive updates"
+}

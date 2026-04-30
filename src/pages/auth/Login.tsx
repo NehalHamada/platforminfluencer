@@ -135,6 +135,7 @@ function Login() {
                     <Input
                       id="login-email"
                       type="email"
+                      autoComplete="email"
                       {...register("email")}
                       aria-invalid={!!errors.email}
                       placeholder="Almostaqbal@support.com"
@@ -195,6 +196,7 @@ function Login() {
                     <Input
                       id="login-password"
                       type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
                       {...register("password")}
                       aria-invalid={!!errors.password}
                       placeholder="******"

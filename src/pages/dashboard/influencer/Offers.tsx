@@ -15,24 +15,29 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { offerSchema, type OfferSchema } from "@/schema/offer.schema";
-import { offerService } from "@/services/offer.service";
+import { campaignService } from "@/services/campaign.service";
+import type { CampaignApplyPayload } from "@/types/campaign.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import hero from "/assets/Hero.png";
 
 function Offers() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const { campaignId: campaignIdParam } = useParams();
+  const campaignId = campaignIdParam;
 
   const form = useForm<OfferSchema>({
     resolver: zodResolver(offerSchema),
     defaultValues: {
-      proposedPrice: "",
-      companyNote: "",
-      executionTime: "",
-      guarantee: "",
+      price: "",
+      note: "",
+      execution_date: "",
+      is_ready: "",
     },
   });
 
@@ -48,33 +53,52 @@ function Offers() {
     placeholder: string;
   }> = [
     {
-      id: "proposedPrice",
+      id: "price",
       label: t("offer.proposedPrice"),
       placeholder: t("offer.proposedPricePlaceholder"),
     },
     {
-      id: "companyNote",
+      id: "note",
       label: t("offer.companyNote"),
       placeholder: t("offer.companyNotePlaceholder"),
     },
     {
-      id: "executionTime",
+      id: "execution_date",
       label: t("offer.executionTime"),
       placeholder: t("offer.executionTimePlaceholder"),
     },
     {
-      id: "guarantee",
+      id: "is_ready",
       label: t("offer.guarantee"),
       placeholder: t("offer.guaranteePlaceholder"),
     },
   ];
 
   const onSubmit = async (data: OfferSchema) => {
+    if (!campaignId) {
+      toast.error(t("campaign.campaignIdRequired"));
+      return;
+    }
+
+    const payload: CampaignApplyPayload = {
+      price: Number(data.price),
+      note: data.note,
+      execution_date: data.execution_date,
+      is_ready: data.is_ready === "0" ? 0 : 1,
+    };
+
+    console.log("campaign apply payload:", payload);
+
     try {
-      const response = await offerService.createOffer(data);
+      const response = await campaignService.applyToCampaign(
+        campaignId,
+        payload,
+      );
       console.log(response);
+      toast.success(t("campaign.applySuccess"));
     } catch (error) {
       console.error(error);
+      toast.error(t("campaign.applyError"));
     }
   };
 
@@ -114,6 +138,16 @@ function Offers() {
             </CardHeader>
 
             <CardContent className="px-3 pb-5 sm:px-8 sm:pb-8">
+              {!campaignId ? (
+                <p
+                  className={cn(
+                    "mx-auto mb-4 max-w-4xl rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600",
+                    isRTL ? "text-right" : "text-left",
+                  )}>
+                  {t("campaign.campaignIdRequired")}
+                </p>
+              ) : null}
+
               <Form {...form}>
                 <form
                   onSubmit={handleSubmit(onSubmit)}
@@ -137,13 +171,45 @@ function Offers() {
                         </FieldLabel>
 
                         <FieldContent>
-                          <Input
-                            id={field.id}
-                            {...register(field.id)}
-                            placeholder={field.placeholder}
-                            aria-invalid={Boolean(errors[field.id])}
-                            className={inputClass(!!errors[field.id])}
-                          />
+                          {field.id === "is_ready" ? (
+                            <select
+                              id={field.id}
+                              {...register(field.id)}
+                              {...(errors[field.id]
+                                ? { "aria-invalid": "true" }
+                                : {})}
+                              className={cn(
+                                inputClass(!!errors[field.id]),
+                                "w-full",
+                              )}>
+                              <option value="">
+                                {field.placeholder}
+                              </option>
+                              <option value="1">
+                                {t("campaign.applyReadyYes")}
+                              </option>
+                              <option value="0">
+                                {t("campaign.applyReadyNo")}
+                              </option>
+                            </select>
+                          ) : (
+                            <Input
+                              id={field.id}
+                              type={
+                                field.id === "price"
+                                  ? "number"
+                                  : field.id === "execution_date"
+                                    ? "date"
+                                    : "text"
+                              }
+                              {...register(field.id)}
+                              placeholder={field.placeholder}
+                              {...(errors[field.id]
+                                ? { "aria-invalid": "true" }
+                                : {})}
+                              className={inputClass(!!errors[field.id])}
+                            />
+                          )}
 
                           <FieldError
                             className={cn(
@@ -167,7 +233,7 @@ function Offers() {
                     )}>
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !campaignId}
                       variant="brand"
                       className={cn(
                         "h-6 rounded-full px-2.5 text-[9px] font-medium shadow-none disabled:cursor-not-allowed sm:h-13 sm:px-6 sm:text-sm sm:shadow-[0_10px_30px_rgba(170,180,143,0.3)]",
@@ -180,7 +246,9 @@ function Offers() {
                           <ArrowRight className="h-3 w-3 sm:h-4.5 sm:w-4.5" />
                         )}
                       </span>
-                      <span>{t("offer.submit")}</span>
+                      <span>
+                        {t("offer.submit")}
+                      </span>
                     </Button>
                   </div>
                 </form>

@@ -5,45 +5,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BadgeCheck, CircleX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import hero from "/assets/Hero.png";
-import type { CampaignRequest } from "@/types/campaign.types";
 import { cn } from "@/lib/utils";
+import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
 
 function CampaignsRequests() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
-
-  const requests: CampaignRequest[] = [
-    {
-      id: 1,
-      name: "Sara Hamed",
-      title: `${t("campaignsRequest.creatorLabel")}`,
-      image:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
-      platforms: ["Instagram", "Snapchat", "Tiktok"],
-      followers: "150K",
-      requestedPrice: "6000 SAR",
-    },
-    {
-      id: 2,
-      name: "Mariam Ali",
-      title: `${t("campaignsRequest.creatorLabel")}`,
-      image:
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80",
-      platforms: ["Instagram", "Youtube", "Tiktok"],
-      followers: "210K",
-      requestedPrice: "7200 SAR",
-    },
-    {
-      id: 3,
-      name: "Nour Hassan",
-      title: `${t("campaignsRequest.creatorLabel")}`,
-      image:
-        "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=600&q=80",
-      platforms: ["Instagram", "Snapchat", "X"],
-      followers: "98K",
-      requestedPrice: "4300 SAR",
-    },
-  ];
+  const requestsQuery = useCampaignRequestsQuery();
+  const requests = requestsQuery.data?.data ?? [];
 
   return (
     <section
@@ -96,7 +65,7 @@ function CampaignsRequests() {
                           {request.name}
                         </p>
                         <p className="text-[7px] text-[#8b8b8b] sm:text-xs">
-                          {request.title}
+                          {request.title || t("campaignsRequest.creatorLabel")}
                         </p>
                       </div>
 
@@ -120,6 +89,13 @@ function CampaignsRequests() {
                             {platform}
                           </Badge>
                         ))}
+                        {request.platforms.length === 0 ? (
+                          <Badge
+                            variant="secondary"
+                            className="justify-center rounded-sm bg-[#f7f7f4] px-2 py-1 text-[8px] font-normal text-[#55554f] shadow-none sm:rounded-full sm:text-xs">
+                            -
+                          </Badge>
+                        ) : null}
                       </div>
                     </div>
 

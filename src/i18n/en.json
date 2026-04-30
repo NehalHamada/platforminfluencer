@@ -332,6 +332,8 @@
     "description": "Enter your registered email to send verify number",
     "email": "Email",
     "send": "Send",
+    "loading": "Sending...",
+    "success": "A verification code has been sent to your email.",
     "error": "Please Enter Registered Email"
   },
   "verifyOtp": {
@@ -356,7 +358,8 @@
     "submit": "Update Password",
     "loading": "Loading ...",
     "success": "Password Change Successfully",
-    "error": "Something wrong, please, try again"
+    "error": "Something wrong, please, try again",
+    "invalidSession": "Password reset session is invalid. Please start again."
   },
   "completeInfluencerProfile": {
     "title": "Join the smart collaboration platform",
@@ -406,6 +409,15 @@
       "1": "Egypt",
       "2": "Saudi Arabia",
       "3": "United Arab Emirates"
+    },
+    "targetAudiences": {
+      "1": "Young Adults (25 - 34)"
+    },
+    "executionTimes": {
+      "1": "Within one month"
+    },
+    "campaignTypes": {
+      "1": "Lifestyle"
     }
   },
   "completeCompanyProfile": {
@@ -636,7 +648,21 @@
     "influencerNet": "Influencer net",
     "agreementDone": "Agreement completed",
     "contentApproved": "Content approved",
-    "contentPosted": "Content posted"
+    "contentPosted": "Content posted",
+    "applyTitle": "Apply to this campaign",
+    "applyDescription": "Send your price, note, execution date, and readiness confirmation to the company.",
+    "applyPrice": "Price",
+    "applyNote": "Note",
+    "applyExecutionDate": "Execution date",
+    "applyReady": "I am ready to execute this campaign",
+    "applyReadyYes": "Ready",
+    "applyReadyNo": "Not ready",
+    "applySubmit": "Apply",
+    "applySubmitting": "Sending...",
+    "applySuccess": "Your campaign application was sent successfully.",
+    "applyError": "Could not send your campaign application.",
+    "campaignIdRequired": "Campaign id is missing. Please open the application from a campaign.",
+    "loadingCampaign": "Loading campaign..."
   },
   "infChat": {
     "heroAlt": "Influencer chat hero",
@@ -686,8 +712,12 @@
   "campaigns": {
     "heroAlt": "Campaign hero",
     "pageTitle": "My Campaigns",
+    "loading": "Loading campaigns...",
+    "error": "Could not load campaigns.",
+    "empty": "No campaigns available right now.",
     "openChat": "You can start the chat",
     "success": "Campaign completed successfully",
+    "inProgress": "Campaign in progress",
     "campaignName": "Campaign name",
     "influencerName": "Influencer name",
     "paymentDetails": "Payment details",
@@ -743,14 +773,24 @@
     "campaignIdeaPlaceholder": "Launch a new product",
     "platform": "Which platform would you like to advertise on?",
     "platformPlaceholder": "Titok, Instagram, ....",
+    "loadingPlatforms": "Loading platforms...",
+    "platformsError": "Could not load platforms",
     "targetAge": "What is the target age for your campaign?",
     "targetAgePlaceholder": "Young Adults (25 - 34)",
+    "loadingTargetAudiences": "Loading target audiences...",
+    "targetAudiencesError": "Could not load target audiences",
     "targetCountry": "Where is your target audience located?",
     "targetCountryPlaceholder": "All regions of Saudi Arabia",
+    "loadingTargetLocations": "Loading target locations...",
+    "targetLocationsError": "Could not load target locations",
     "campaignDuration": "When should the campaign run?",
     "campaignDurationPlaceholder": "Within one month",
+    "loadingExecutionTimes": "Loading execution times...",
+    "executionTimesError": "Could not load execution times",
     "campaignType": "Which campaign type fits your campaign?",
     "campaignTypePlaceholder": "Lifestyle",
+    "loadingCampaignTypes": "Loading campaign types...",
+    "campaignTypesError": "Could not load campaign types",
     "estimatedBudget": "What is the estimated budget?",
     "estimatedBudgetPlaceholder": "Less than 5000 SAR",
     "influencersCount": "Required number of influencers",

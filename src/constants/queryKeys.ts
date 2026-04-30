@@ -7,6 +7,8 @@ export const queryKeys = {
     details: (campaignId: string) =>
       ["campaigns", "details", campaignId] as const,
     request: (params?: unknown) => ["campaigns", "request", params] as const,
+    applications: (campaignId: string | number) =>
+      ["campaigns", "applications", campaignId] as const,
   },
   dashboard: {
     company: () => ["dashboard", "company"] as const,

@@ -325,6 +325,8 @@
     "description": "ادخل بريدك الالكتروني المسجل لنرسل لك رقم التاكيد",
     "email": "البريد الالكتروني",
     "send": "ارسال",
+    "loading": "جارٍ الإرسال...",
+    "success": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
     "error": "من فضلك ادخل الايميل المسجل"
   },
   "verifyOtp": {
@@ -349,7 +351,8 @@
     "submit": "تحديث كلمة المرور",
     "loading": "جارٍ التحديث...",
     "success": "تم تغيير كلمة المرور بنجاح",
-    "error": "حدث خطأ، حاول مرة أخرى"
+    "error": "حدث خطأ، حاول مرة أخرى",
+    "invalidSession": "جلسة إعادة تعيين كلمة المرور غير صحيحة. من فضلك ابدأ من جديد."
   },
   "completeInfluencerProfile": {
     "title": "انضم إلى منصة التعاون الذكي",
@@ -399,6 +402,15 @@
       "1": "مصر",
       "2": "المملكة العربية السعودية",
       "3": "الإمارات العربية المتحدة"
+    },
+    "targetAudiences": {
+      "1": "شباب صغار (25 - 34)"
+    },
+    "executionTimes": {
+      "1": "في خلال شهر"
+    },
+    "campaignTypes": {
+      "1": "لايف ستايل"
     }
   },
   "completeCompanyProfile": {
@@ -632,7 +644,21 @@
     "influencerNet": "صافي المؤثر",
     "agreementDone": "تم الاتفاق",
     "contentApproved": "تم الموافقة على المحتوى",
-    "contentPosted": "تم نشر المحتوى"
+    "contentPosted": "تم نشر المحتوى",
+    "applyTitle": "التقديم على هذه الحملة",
+    "applyDescription": "أرسل سعرك وملاحظتك وموعد التنفيذ وتأكيد جاهزيتك للشركة.",
+    "applyPrice": "السعر",
+    "applyNote": "الملاحظة",
+    "applyExecutionDate": "موعد التنفيذ",
+    "applyReady": "أنا جاهز لتنفيذ هذه الحملة",
+    "applyReadyYes": "جاهز",
+    "applyReadyNo": "غير جاهز",
+    "applySubmit": "تقديم",
+    "applySubmitting": "جاري الإرسال...",
+    "applySuccess": "تم إرسال طلبك على الحملة بنجاح.",
+    "applyError": "تعذر إرسال طلب التقديم على الحملة.",
+    "campaignIdRequired": "رقم الحملة غير موجود. افتح التقديم من داخل الحملة.",
+    "loadingCampaign": "جاري تحميل الحملة..."
   },
   "infChat": {
     "heroAlt": "صورة محادثة المؤثر",
@@ -682,8 +708,12 @@
   "campaigns": {
     "heroAlt": "صورة رئيسية للحملة",
     "pageTitle": "حملاتي",
+    "loading": "جاري تحميل الحملات...",
+    "error": "تعذر تحميل الحملات.",
+    "empty": "لا توجد حملات متاحة الآن.",
     "openChat": "يمكنك بدء الدردشة",
     "success": "تم تنفيذ الحملة بنجاح",
+    "inProgress": "الحملة قيد التنفيذ",
     "campaignName": "اسم الحملة",
     "influencerName": "اسم المؤثر",
     "paymentDetails": "تفاصيل الدفع",
@@ -739,14 +769,24 @@
     "campaignIdeaPlaceholder": "تجربة منتج جديد",
     "platform": "ما المنصة التي تريد الإعلان فيها ؟",
     "platformPlaceholder": "تيك توك و انستجرم و ...",
+    "loadingPlatforms": "جاري تحميل المنصات...",
+    "platformsError": "تعذر تحميل المنصات",
     "targetAge": "الفئة المستهدفة لحملتك ؟",
     "targetAgePlaceholder": "شباب صغار (25 - 34)",
+    "loadingTargetAudiences": "جاري تحميل الفئات المستهدفة...",
+    "targetAudiencesError": "تعذر تحميل الفئات المستهدفة",
     "targetCountry": "أين جمهورك المستهدف ؟",
     "targetCountryPlaceholder": "كل مناطق السعودية",
+    "loadingTargetLocations": "جاري تحميل المواقع المستهدفة...",
+    "targetLocationsError": "تعذر تحميل المواقع المستهدفة",
     "campaignDuration": "ما موعد التنفيذ ؟",
     "campaignDurationPlaceholder": "في خلال شهر",
+    "loadingExecutionTimes": "جاري تحميل مواعيد التنفيذ...",
+    "executionTimesError": "تعذر تحميل مواعيد التنفيذ",
     "campaignType": "ما نوع الحملات المناسب لحملتك ؟",
     "campaignTypePlaceholder": "لايف ستايل",
+    "loadingCampaignTypes": "جاري تحميل أنواع الحملات...",
+    "campaignTypesError": "تعذر تحميل أنواع الحملات",
     "estimatedBudget": "ما الميزانية التقريبية ؟",
     "estimatedBudgetPlaceholder": "أقل من 5000 ريال",
     "influencersCount": "عدد المؤثرين المطلوبين",

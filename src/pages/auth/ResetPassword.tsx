@@ -1,11 +1,10 @@
-import useAuth from "@/hooks/useAuth";
 import {
   resetPasswordSchema,
   type ResetPasswordSchemaType,
 } from "@/schema/auth.schema";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -18,9 +17,10 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, KeyRound } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/Button";
+import { useResetPasswordMutation } from "@/queries/auth/useResetPasswordMutation";
 
 function ResetPassword() {
-  const { resetPassword } = useAuth();
+  const resetPasswordMutation = useResetPasswordMutation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
@@ -29,11 +29,17 @@ function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // useEffect(() => {
-  //   if (!resetEmail || !resetOtp) {
-  //     navigate("/forget-password");
-  //   }
-  // }, [navigate, resetEmail, resetOtp]);
+  useEffect(() => {
+    const resetEmail = sessionStorage.getItem("otpEmail");
+    const resetOtp = sessionStorage.getItem("resetOtp");
+    const otpPurpose = sessionStorage.getItem("otpPurpose");
+
+    console.log("reset password stored otp:", resetOtp ?? "not found");
+
+    if (!resetEmail || !resetOtp || otpPurpose !== "forget-password") {
+      navigate("/forget-password");
+    }
+  }, [navigate]);
 
   const form = useForm<ResetPasswordSchemaType>({
     resolver: zodResolver(resetPasswordSchema),
@@ -46,12 +52,12 @@ function ResetPassword() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = form;
 
   const onSubmit = async (data: ResetPasswordSchemaType) => {
-    const resetEmail = localStorage.getItem("otpEmail");
-    const resetOtp = localStorage.getItem("resetOtp");
+    const resetEmail = sessionStorage.getItem("otpEmail");
+    const resetOtp = sessionStorage.getItem("resetOtp");
     const otpPurpose = sessionStorage.getItem("otpPurpose");
 
     if (!resetEmail || !resetOtp || otpPurpose !== "forget-password") {
@@ -60,18 +66,27 @@ function ResetPassword() {
       return;
     }
 
+    const cleanResetEmail = resetEmail.trim().toLowerCase();
+    const cleanResetOtp = resetOtp.trim();
+
+    console.log("reset password otp:", cleanResetOtp);
+    console.log("reset password payload:", {
+      email: cleanResetEmail,
+      otp: cleanResetOtp,
+    });
+
     try {
-      await resetPassword({
-        email: resetEmail,
-        otp: resetOtp,
+      await resetPasswordMutation.mutateAsync({
+        email: cleanResetEmail,
+        otp: cleanResetOtp,
         password: data.password,
         password_confirmation: data.password_confirmation,
       });
 
       toast.success(t("resetPassword.success"));
 
-      localStorage.removeItem("otpEmail");
-      localStorage.removeItem("resetOtp");
+      sessionStorage.removeItem("otpEmail");
+      sessionStorage.removeItem("resetOtp");
       sessionStorage.removeItem("otpPurpose");
 
       navigate("/login");
@@ -146,6 +161,7 @@ function ResetPassword() {
                     <Input
                       id="reset-password"
                       type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       {...register("password")}
                       aria-invalid={!!errors.password}
                       placeholder="******"
@@ -208,6 +224,7 @@ function ResetPassword() {
                     <Input
                       id="reset-confirm-password"
                       type={showConfirmPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       {...register("password_confirmation")}
                       aria-invalid={!!errors.password_confirmation}
                       placeholder="******"
@@ -235,10 +252,10 @@ function ResetPassword() {
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={resetPasswordMutation.isPending}
                   variant="brand"
                   className="h-10 w-full rounded-full text-sm lg:h-14 lg:text-base">
-                  {isSubmitting
+                  {resetPasswordMutation.isPending
                     ? t("resetPassword.loading")
                     : t("resetPassword.submit")}
                 </Button>

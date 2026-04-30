@@ -80,9 +80,11 @@ export const masterDataService = {
       .filter((item): item is MasterDataOption => Boolean(item));
   },
 
-  getTargetAudience: async () => {
+  getTargetAudience: async (): Promise<MasterDataOption[]> => {
     const response = await api.get("/api/master-data/target-audiences");
-    return response.data;
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
   },
 
   getTargetLocation: async (): Promise<MasterDataOption[]> => {
@@ -92,23 +94,31 @@ export const masterDataService = {
       .filter((item): item is MasterDataOption => Boolean(item));
   },
 
-  getExecutionTime: async () => {
+  getExecutionTime: async (): Promise<MasterDataOption[]> => {
     const response = await api.get("/api/master-data/execution-times");
-    return response.data;
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
   },
 
-  getCampaignType: async () => {
+  getCampaignType: async (): Promise<MasterDataOption[]> => {
     const response = await api.get("/api/master-data/campaign-types");
-    return response.data;
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
   },
 
-  getBudgetRange: async () => {
+  getBudgetRange: async (): Promise<MasterDataOption[]> => {
     const response = await api.get("/api/master-data/budget-ranges");
-    return response.data;
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
   },
 
-  getInfluencerCountRange: async () => {
+  getInfluencerCountRange: async (): Promise<MasterDataOption[]> => {
     const response = await api.get("/api/master-data/influencer-count-ranges");
-    return response.data;
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
   },
 };

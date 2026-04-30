@@ -74,6 +74,25 @@ export type Influencer = {
   image: string;
 };
 
+export type InfluencerDiscoveryItem = Influencer & {
+  platform: string;
+  audience: string;
+};
+
+export type InfluencerDiscoveryQueryParams = {
+  platform_id?: string;
+  follower_range_id?: string;
+  engagement_rate_id?: string;
+  fame_level_id?: string;
+  content_type_id?: string;
+  search?: string;
+};
+
+export type InfluencerDiscoveryResponse = {
+  data: InfluencerDiscoveryItem[];
+  total?: number;
+};
+
 export type SelectFieldProps = {
   label: string;
   value: string;

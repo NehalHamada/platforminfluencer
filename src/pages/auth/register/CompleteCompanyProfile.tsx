@@ -36,22 +36,12 @@ import hero from "/assets/Hero.png";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import { logOtpFromResponse } from "@/utils/logOtp";
+import { useContentTypesQuery } from "@/queries/masterData/useContentTypesQuery";
+import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import type {
   CompanyStepPayload,
   SharedRegisterData,
 } from "@/types/auth.types";
-
-const platformOptions = [
-  { id: 1, labelKey: "company.platformOptions.instagram" },
-  { id: 2, labelKey: "company.platformOptions.tiktok" },
-  { id: 3, labelKey: "company.platformOptions.youtube" },
-];
-
-const contentTypeOptions = [
-  { id: 1, labelKey: "company.contentTypeOptions.posts" },
-  { id: 2, labelKey: "company.contentTypeOptions.reels" },
-  { id: 3, labelKey: "company.contentTypeOptions.stories" },
-];
 
 const getApiErrorMessage = (data: unknown) => {
   if (!data || typeof data !== "object") return "Failed";
@@ -98,6 +88,8 @@ function CompleteCompanyProfile() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
   const isArabic = i18n.language === "ar";
+  const platformsQuery = usePlatformsQuery();
+  const contentTypesQuery = useContentTypesQuery();
   const [selectedFileName, setSelectedFileName] = useState("");
   const savedRegisterData = sessionStorage.getItem("registerData");
   const savedStepOneData = sessionStorage.getItem("companyRegisterStep1");
@@ -392,17 +384,27 @@ function CompleteCompanyProfile() {
                                     errors.platformIds ? "true" : undefined
                                   }>
                                   <SelectValue
-                                    placeholder={t(
-                                      "completeCompanyProfile.selectPlatform",
-                                    )}
+                                    placeholder={
+                                      platformsQuery.isLoading
+                                        ? t(
+                                            "completeCompanyProfile.loadingPlatforms",
+                                            "Loading platforms...",
+                                          )
+                                        : t(
+                                            "completeCompanyProfile.selectPlatform",
+                                          )
+                                    }
                                   />
                                 </SelectTrigger>
                                 <SelectContent dir={isArabic ? "rtl" : "ltr"}>
-                                  {platformOptions.map((option) => (
+                                  {platformsQuery.data?.map((option) => (
                                     <SelectItem
                                       key={option.id}
                                       value={option.id.toString()}>
-                                      {t(option.labelKey)}
+                                      {t(
+                                        `masterData.platforms.${option.id}`,
+                                        option.label,
+                                      )}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -413,6 +415,14 @@ function CompleteCompanyProfile() {
                                 ? t(String(errors.platformIds.message))
                                 : null}
                             </FormMessage>
+                            {platformsQuery.isError ? (
+                              <p className="text-[10px] text-destructive">
+                                {t(
+                                  "completeCompanyProfile.platformsError",
+                                  "Could not load platforms",
+                                )}
+                              </p>
+                            ) : null}
                           </FormItem>
                         )}
                       />
@@ -437,17 +447,27 @@ function CompleteCompanyProfile() {
                                     errors.contentTypeIds ? "true" : undefined
                                   }>
                                   <SelectValue
-                                    placeholder={t(
-                                      "completeCompanyProfile.selectContentType",
-                                    )}
+                                    placeholder={
+                                      contentTypesQuery.isLoading
+                                        ? t(
+                                            "completeCompanyProfile.loadingContentTypes",
+                                            "Loading content types...",
+                                          )
+                                        : t(
+                                            "completeCompanyProfile.selectContentType",
+                                          )
+                                    }
                                   />
                                 </SelectTrigger>
                                 <SelectContent dir={isArabic ? "rtl" : "ltr"}>
-                                  {contentTypeOptions.map((option) => (
+                                  {contentTypesQuery.data?.map((option) => (
                                     <SelectItem
                                       key={option.id}
                                       value={option.id.toString()}>
-                                      {t(option.labelKey)}
+                                      {t(
+                                        `masterData.contentTypes.${option.id}`,
+                                        option.label,
+                                      )}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -458,6 +478,14 @@ function CompleteCompanyProfile() {
                                 ? t(String(errors.contentTypeIds.message))
                                 : null}
                             </FormMessage>
+                            {contentTypesQuery.isError ? (
+                              <p className="text-[10px] text-destructive">
+                                {t(
+                                  "completeCompanyProfile.contentTypesError",
+                                  "Could not load content types",
+                                )}
+                              </p>
+                            ) : null}
                           </FormItem>
                         )}
                       />

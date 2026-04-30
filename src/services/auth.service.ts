@@ -76,7 +76,16 @@ export const authService = {
   },
 
   resetPassword: async (data: ResetPasswordPayload) => {
-    const response = await authClients.post("/api/reset-password", data);
+    const otp = data.otp.trim();
+    const response = await authClients.post("/api/reset-password", {
+      ...data,
+      email: data.email.trim().toLowerCase(),
+      otp,
+      code: otp,
+      verification_code: otp,
+      password: data.password,
+      password_confirmation: data.password_confirmation,
+    });
     return response.data;
   },
 };

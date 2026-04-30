@@ -11,12 +11,16 @@ export const getOtpFromResponse = (value: unknown): unknown => {
     record.verify_code ??
     record.verifyCode;
 
-  if (directOtp) return directOtp;
+  if (directOtp !== undefined && directOtp !== null && directOtp !== "") {
+    return directOtp;
+  }
 
   for (const key of Object.keys(record)) {
     const nestedOtp = getOtpFromResponse(record[key]);
 
-    if (nestedOtp) return nestedOtp;
+    if (nestedOtp !== undefined && nestedOtp !== null && nestedOtp !== "") {
+      return nestedOtp;
+    }
   }
 
   return undefined;
@@ -25,5 +29,11 @@ export const getOtpFromResponse = (value: unknown): unknown => {
 export const logOtpFromResponse = (label: string, response: unknown) => {
   const otp = getOtpFromResponse(response);
 
-  console.log(label, otp ?? response);
+  if (otp !== undefined && otp !== null && otp !== "") {
+    console.log(label, otp);
+    return otp;
+  }
+
+  console.log(`${label} no otp returned from API`, response);
+  return undefined;
 };

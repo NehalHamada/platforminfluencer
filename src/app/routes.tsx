@@ -108,11 +108,16 @@ function AppRoutes() {
               path="/dashboard/influencer/campaigns"
               element={<CampaignsInf />}
             />
+
             <Route
               path="/dashboard/influencer/earnings"
               element={<Earnings />}
             />
             <Route path="/dashboard/influencer/offers" element={<Offers />} />
+            <Route
+              path="/dashboard/influencer/:campaignId/offers"
+              element={<Offers />}
+            />
             <Route
               path="/dashboard/influencer/cooperation"
               element={<Cooperation />}

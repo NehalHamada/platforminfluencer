@@ -59,7 +59,7 @@ function SelectField({
               {...field}
               id={fieldId}
               title={label}
-              aria-invalid={Boolean(error)}
+              aria-invalid={error ? "true" : undefined}
               aria-describedby={error ? errorId : undefined}
               className={cn(
                 "h-11 w-full appearance-none rounded-full border bg-white px-4 text-sm outline-none transition focus:border-[#a7b58f] focus-visible:ring-2 focus-visible:ring-[#a7b58f]/30",

@@ -1,5 +1,6 @@
 import { CalendarDays, Check, MessageCircleMore } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useParams, useSearchParams } from "react-router-dom";
 import hero from "/assets/Hero.png";
 
 type CampaignStep = {
@@ -10,6 +11,9 @@ type CampaignStep = {
 function CampaignsInf() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const { campaignId: campaignIdParam } = useParams();
+  const [searchParams] = useSearchParams();
+  const campaignId = campaignIdParam ?? searchParams.get("campaignId");
 
   const steps: CampaignStep[] = [
     {
@@ -27,6 +31,7 @@ function CampaignsInf() {
   ];
 
   const campaign = {
+    id: campaignId ?? "",
     date: "1-3-2026",
     title: isRTL
       ? "لعناية البشرة منتج جديد Glow"

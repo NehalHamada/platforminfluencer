@@ -1,15 +1,17 @@
 import { z } from "zod";
 
 export const campaignSchema = z.object({
-  campaignName: z.string().min(1, "errors.campaignNameRequired"),
-  campaignIdea: z.string().min(1, "errors.campaignIdeaRequired"),
-  platform: z.string().min(1, "errors.platformRequired"),
-  targetAge: z.string().min(1, "errors.targetAgeRequired"),
-  targetCountry: z.string().min(1, "errors.targetCountryRequired"),
-  campaignDuration: z.string().min(1, "errors.campaignDurationRequired"),
-  campaignType: z.string().min(1, "errors.campaignTypeRequired"),
-  estimatedBudget: z.string().min(1, "errors.estimatedBudgetRequired"),
-  influencersCount: z.string().min(1, "errors.influencersCountRequired"),
+  name: z.string().min(1, "errors.campaignNameRequired"),
+  idea: z.string().min(1, "errors.campaignIdeaRequired"),
+  platform_id: z.string().min(1, "errors.platformRequired"),
+  target_audience_id: z.string().min(1, "errors.targetAgeRequired"),
+  target_location_id: z.string().min(1, "errors.targetCountryRequired"),
+  execution_time_id: z.string().min(1, "errors.campaignDurationRequired"),
+  campaign_type_id: z.string().min(1, "errors.campaignTypeRequired"),
+  budget_range_id: z.string().min(1, "errors.estimatedBudgetRequired"),
+  influencer_count_range_id: z
+    .string()
+    .min(1, "errors.influencersCountRequired"),
 });
 
 export type CampaignSchema = z.infer<typeof campaignSchema>;

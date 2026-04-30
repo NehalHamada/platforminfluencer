@@ -2,15 +2,15 @@ import type { CampaignSchema } from "@/schema/campaign.schema";
 import type { FieldError, UseFormRegister } from "react-hook-form";
 
 export type CampaignPayload = {
-  campaignName: string;
-  campaignIdea: string;
-  platform: string;
-  targetAge: string;
-  targetCountry: string;
-  campaignDuration: string;
-  campaignType: string;
-  estimatedBudget: string;
-  influencersCount: string;
+  name: string;
+  idea: string;
+  platform_id: number;
+  target_audience_id: number;
+  target_location_id: number;
+  execution_time_id: number;
+  campaign_type_id: number;
+  budget_range_id: number;
+  influencer_count_range_id: number;
 };
 
 export type CampaignResponse = {
@@ -21,17 +21,36 @@ export type CampaignResponse = {
   };
 };
 
+export type CampaignApplyPayload = {
+  price: number;
+  note: string;
+  execution_date: string;
+  is_ready: 0 | 1;
+};
+
+export type CampaignApplyResponse = {
+  success?: boolean;
+  message?: string;
+  data?: unknown;
+};
+
 export type Campaign = {
   id: string;
-  campaignName: string;
-  campaignIdea: string;
-  platform: string;
-  targetAge: string;
-  targetCountry: string;
-  campaignDuration: string;
-  campaignType: string;
-  estimatedBudget: string;
-  influencersCount: string;
+  name?: string;
+  idea?: string;
+  campaignName?: string;
+  campaignIdea?: string;
+  platform?: string;
+  targetAge?: string;
+  targetCountry?: string;
+  campaignDuration?: string;
+  campaignType?: string;
+  estimatedBudget?: string;
+  influencersCount?: string;
+  influencerName?: string;
+  totalAmount?: string;
+  commission?: string;
+  netAmount?: string;
   status?: "draft" | "active" | "completed" | "cancelled";
   createdAt?: string;
 };
@@ -90,6 +109,8 @@ export type CampaignRequestsResponse = {
   page?: number;
   limit?: number;
 };
+
+export type CampaignApplicationsResponse = CampaignRequestsResponse;
 
 export type CampaignsCopy = {
   heroAlt: string;

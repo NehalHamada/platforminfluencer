@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import logphoto from "/assets/login-register.png";
-import { logOtpFromResponse } from "@/utils/logOtp";
+import { getOtpFromResponse, logOtpFromResponse } from "@/utils/logOtp";
 
 function ForgotPassword() {
   const { forgotPassword } = useAuth();
@@ -41,13 +41,23 @@ function ForgotPassword() {
 
   const onSubmit = async (data: ForgotPasswordSchemaType) => {
     try {
+      sessionStorage.removeItem("resetOtp");
       const response = await forgotPassword({
         email: data.email,
       });
       logOtpFromResponse("forgot password otp:", response);
-      localStorage.setItem("otpEmail", data.email);
+      console.log("forgot password full response:", response);
+
+      const otp = getOtpFromResponse(response);
+
+      if (otp !== undefined && otp !== null && otp !== "") {
+        sessionStorage.setItem("resetOtp", String(otp));
+      }
+
+      console.log("forgot password extracted otp:", otp ?? "not returned");
+      sessionStorage.setItem("otpEmail", data.email);
       sessionStorage.setItem("otpPurpose", "forget-password");
-      toast.success(t("forgetPasswordSchema"));
+      toast.success(t("forgetPassword.success"));
       navigate("/verify-otp");
     } catch {
       toast.error(t("forgetPassword.error"));

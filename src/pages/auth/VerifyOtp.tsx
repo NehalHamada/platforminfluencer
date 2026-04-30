@@ -11,13 +11,14 @@ import LanguageToggle from "@/components/common/LanguageToggle";
 import { cn } from "@/lib/utils";
 import { useResendOtpMutation } from "@/queries/auth/useResendOtpMutation";
 import { useVerifyOtpMutation } from "@/queries/auth/useVerifyOtpMutation";
+import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 import type { AuthResponse, AuthUser } from "@/types/auth.types";
 import { getOtpFromResponse, logOtpFromResponse } from "@/utils/logOtp";
 
 import logphoto from "/assets/login-register.png";
 
-const OTP_EXPIRES_IN_SECONDS = 2 * 60;
+const OTP_EXPIRES_IN_SECONDS = 3 * 60;
 
 const formatTimerPart = (value: number) =>
   value < 10 ? `0${value}` : String(value);
@@ -70,6 +71,8 @@ function VerifyOtp() {
 
   const isArabic = i18n.language === "ar";
   const otpPurpose = sessionStorage.getItem("otpPurpose");
+  const getOtpEmail = () =>
+    sessionStorage.getItem("otpEmail") || localStorage.getItem("otpEmail");
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [secondsLeft, setSecondsLeft] = useState(OTP_EXPIRES_IN_SECONDS);
@@ -172,7 +175,7 @@ function VerifyOtp() {
   };
 
   const handleResendOtp = async () => {
-    const email = localStorage.getItem("otpEmail");
+    const email = getOtpEmail();
 
     if (!email) {
       toast.error(t("verifyOtp.error"));
@@ -180,11 +183,16 @@ function VerifyOtp() {
     }
 
     try {
-      const response = await resendOtpMutation.mutateAsync({ email });
+      const response =
+        otpPurpose === "forget-password"
+          ? await authService.forgotPassword({ email })
+          : await resendOtpMutation.mutateAsync({ email });
       logOtpFromResponse("new resend otp:", response);
       console.log("resend otp full response:", response);
 
       const newOtp = getOtpFromResponse(response);
+      console.log("new resend extracted otp:", newOtp ?? "not returned");
+
       const newOtpDigits =
         typeof newOtp === "string" || typeof newOtp === "number"
           ? String(newOtp).replace(/\D/g, "").slice(0, 6)
@@ -211,16 +219,25 @@ function VerifyOtp() {
     e.preventDefault();
 
     const otpCode = otp.join("");
+    console.log("submitted otp:", otpCode);
 
     if (otpCode.length !== 6) {
       toast.error(t("verifyOtp.errors.otp_required"));
       return;
     }
 
-    const email = localStorage.getItem("otpEmail");
+    const email = getOtpEmail();
 
     if (!email) {
       toast.error(t("verifyOtp.error"));
+      return;
+    }
+
+    if (otpPurpose === "forget-password") {
+      sessionStorage.setItem("resetOtp", otpCode);
+      console.log("forget password verified otp:", otpCode);
+      console.log("reset password session data:", { email, otp: otpCode });
+      navigate("/reset-password");
       return;
     }
 
@@ -240,6 +257,7 @@ function VerifyOtp() {
         sessionStorage.removeItem("influencerStepOneData");
         sessionStorage.removeItem("influencerStepTwoData");
         sessionStorage.removeItem("otpPurpose");
+        sessionStorage.removeItem("otpEmail");
         localStorage.removeItem("otpEmail");
 
         navigate(
@@ -254,6 +272,7 @@ function VerifyOtp() {
         const verifiedUser = resolveVerifiedUser(response);
 
         sessionStorage.removeItem("otpPurpose");
+        sessionStorage.removeItem("otpEmail");
         localStorage.removeItem("otpEmail");
 
         navigate(
@@ -266,6 +285,7 @@ function VerifyOtp() {
 
       if (otpPurpose === "login-verification") {
         sessionStorage.removeItem("otpPurpose");
+        sessionStorage.removeItem("otpEmail");
         localStorage.removeItem("otpEmail");
 
         const verifiedUser = resolveVerifiedUser(response);
@@ -283,13 +303,8 @@ function VerifyOtp() {
         return;
       }
 
-      if (otpPurpose === "forget-password") {
-        localStorage.setItem("resetOtp", otpCode);
-        navigate("/reset-password");
-        return;
-      }
-
-      localStorage.setItem("resetOtp", otpCode);
+      sessionStorage.setItem("resetOtp", otpCode);
+      console.log("verified otp:", otpCode);
       navigate("/reset-password");
     } catch (error) {
       console.log(error);

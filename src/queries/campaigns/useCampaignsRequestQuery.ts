@@ -9,6 +9,6 @@ import type {
 export function useCampaignRequestsQuery(params?: CampaignRequestsQueryParams) {
   return useQuery<CampaignRequestsResponse, Error>({
     queryKey: queryKeys.campaigns.request(params),
-    queryFn: () => campaignService.getCampaignRequests(params),
+    queryFn: () => campaignService.getCampaignRequests("1", params),
   });
 }

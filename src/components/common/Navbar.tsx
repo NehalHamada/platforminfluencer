@@ -76,7 +76,7 @@ function Navbar() {
     },
     {
       label: t("nav.influencerRequest"),
-      path: "/dashboard/company/request",
+      path: "/dashboard/company/campaign-requests",
     },
     { label: t("nav.campaigns"), path: "/dashboard/company/campaigns" },
     { label: t("nav.messages"), path: "/dashboard/company/messages" },
@@ -86,7 +86,7 @@ function Navbar() {
     },
     {
       label: t("nav.contactUs"),
-      path: "/dashboard/company/contactus",
+      path: "/dashboard/company/contact",
     },
     {
       label: t("nav.whoAreWe"),

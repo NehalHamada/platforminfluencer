@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import hero from "/assets/Hero.png";
 
@@ -11,9 +12,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useBudgetRangesQuery } from "@/queries/masterData/useBudgetRangesQuery";
+import { useCampaignTypesQuery } from "@/queries/masterData/useCampaignTypesQuery";
+import { useExecutionTimesQuery } from "@/queries/masterData/useExecutionTimesQuery";
+import { useInfluencerCountRangesQuery } from "@/queries/masterData/useInfluencerCountRangesQuery";
+import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
+import { useTargetAudiencesQuery } from "@/queries/masterData/useTargetAudiencesQuery";
+import { useTargetLocationsQuery } from "@/queries/masterData/useTargetLocationsQuery";
 import { campaignSchema, type CampaignSchema } from "@/schema/campaign.schema";
 import { campaignService } from "@/services/campaign.service";
-import type { CampaignInputFieldProps } from "@/types/campaign.types";
+import type {
+  CampaignInputFieldProps,
+  CampaignPayload,
+} from "@/types/campaign.types";
 
 function CampaignInputField({
   name,
@@ -40,7 +51,7 @@ function CampaignInputField({
         id={name}
         {...register(name)}
         placeholder={placeholder}
-        aria-invalid={error ? "true" : "false"}
+        aria-invalid={error ? "true" : undefined}
         className={cn(
           "h-11 rounded-full border-[#d9d7cf] bg-white px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:ring-1 focus-visible:ring-[#9aa883]",
           isRTL ? "text-right" : "text-left",
@@ -63,6 +74,14 @@ function CampaignInputField({
 function CreateCampaign() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const navigate = useNavigate();
+  const platformsQuery = usePlatformsQuery();
+  const targetAudiencesQuery = useTargetAudiencesQuery();
+  const targetLocationsQuery = useTargetLocationsQuery();
+  const executionTimesQuery = useExecutionTimesQuery();
+  const campaignTypesQuery = useCampaignTypesQuery();
+  const budgetRangesQuery = useBudgetRangesQuery();
+  const influencerCountRangesQuery = useInfluencerCountRangesQuery();
 
   const {
     register,
@@ -72,22 +91,37 @@ function CreateCampaign() {
   } = useForm<CampaignSchema>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
-      campaignName: "",
-      campaignIdea: "",
-      platform: "",
-      targetAge: "",
-      targetCountry: "",
-      campaignDuration: "",
-      campaignType: "",
-      estimatedBudget: "",
-      influencersCount: "",
+      name: "",
+      idea: "",
+      platform_id: "",
+      target_audience_id: "",
+      target_location_id: "",
+      execution_time_id: "",
+      campaign_type_id: "",
+      budget_range_id: "",
+      influencer_count_range_id: "",
     },
   });
 
   const onSubmit = async (data: CampaignSchema) => {
+    const payload: CampaignPayload = {
+      name: data.name,
+      idea: data.idea,
+      platform_id: Number(data.platform_id),
+      target_audience_id: Number(data.target_audience_id),
+      target_location_id: Number(data.target_location_id),
+      execution_time_id: Number(data.execution_time_id),
+      campaign_type_id: Number(data.campaign_type_id),
+      budget_range_id: Number(data.budget_range_id),
+      influencer_count_range_id: Number(data.influencer_count_range_id),
+    };
+
+    console.log("create campaign payload:", payload);
+
     try {
-      const response = await campaignService.createCampaign(data);
+      const response = await campaignService.createCampaign(payload);
       console.log(response);
+      navigate("/dashboard/company");
     } catch (error) {
       console.error(error);
     }
@@ -123,117 +157,247 @@ function CreateCampaign() {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                   <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
                     <CampaignInputField
-                      name="campaignName"
+                      name="name"
                       label={t("createCampaign.campaignName")}
                       placeholder={t("createCampaign.campaignNamePlaceholder")}
                       register={register}
-                      error={errors.campaignName}
+                      error={errors.name}
                       isRTL={isRTL}
                     />
 
                     <CampaignInputField
-                      name="campaignIdea"
+                      name="idea"
                       label={t("createCampaign.campaignIdea")}
                       placeholder={t("createCampaign.campaignIdeaPlaceholder")}
                       register={register}
-                      error={errors.campaignIdea}
+                      error={errors.idea}
                       isRTL={isRTL}
                     />
 
                     <SelectField
-                      name="platform"
+                      name="platform_id"
                       label={t("createCampaign.platform")}
-                      placeholder={t("createCampaign.platformPlaceholder")}
-                      options={[
-                        { label: "Tiktok", value: "Tiktok" },
-                        { label: "Instagram", value: "Instagram" },
-                      ]}
+                      placeholder={t("createCampaign.loadingPlatforms")}
+                      options={
+                        platformsQuery.data?.map((platform) => ({
+                          label: t(
+                            `masterData.platforms.${platform.id}`,
+                            platform.label,
+                          ),
+                          value: platform.id.toString(),
+                        })) ?? []
+                      }
                       control={control}
-                      error={errors.platform}
+                      error={errors.platform_id}
                       isRTL={isRTL}
                     />
+                    {platformsQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t("createCampaign.platformsError")}
+                      </p>
+                    ) : null}
 
                     <SelectField
-                      name="targetAge"
+                      name="target_audience_id"
                       label={t("createCampaign.targetAge")}
-                      placeholder={t("createCampaign.targetAgePlaceholder")}
-                      options={[
-                        {
-                          label: "Young Adults (25 - 34)",
-                          value: "young-adults-25-34",
-                        },
-                      ]}
+                      placeholder={t("createCampaign.loadingTargetAudiences")}
+                      options={
+                        targetAudiencesQuery.data?.map((audience) => ({
+                          label: t(
+                            `masterData.targetAudiences.${audience.id}`,
+                            audience.label,
+                          ),
+                          value: audience.id.toString(),
+                        })) ?? []
+                      }
                       control={control}
-                      error={errors.targetAge}
+                      error={errors.target_audience_id}
                       isRTL={isRTL}
                     />
+                    {targetAudiencesQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t("createCampaign.targetAudiencesError")}
+                      </p>
+                    ) : null}
 
                     <SelectField
-                      name="targetCountry"
+                      name="target_location_id"
                       label={t("createCampaign.targetCountry")}
-                      placeholder={t("createCampaign.targetCountryPlaceholder")}
-                      options={[
-                        { label: "All Saudi regions", value: "all-saudi" },
-                      ]}
+                      placeholder={t("createCampaign.loadingTargetLocations")}
+                      options={
+                        targetLocationsQuery.data?.map((location) => ({
+                          label: t(
+                            `masterData.targetLocations.${location.id}`,
+                            location.label,
+                          ),
+                          value: location.id.toString(),
+                        })) ?? []
+                      }
                       control={control}
-                      error={errors.targetCountry}
+                      error={errors.target_location_id}
                       isRTL={isRTL}
                     />
+                    {targetLocationsQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t("createCampaign.targetLocationsError")}
+                      </p>
+                    ) : null}
 
                     <SelectField
-                      name="campaignDuration"
+                      name="execution_time_id"
                       label={t("createCampaign.campaignDuration")}
-                      placeholder={t(
-                        "createCampaign.campaignDurationPlaceholder",
-                      )}
-                      options={[
-                        { label: "Within one month", value: "within-month" },
-                      ]}
+                      placeholder={
+                        executionTimesQuery.isLoading
+                          ? t("createCampaign.loadingExecutionTimes")
+                          : t("createCampaign.campaignDurationPlaceholder")
+                      }
+                      options={
+                        executionTimesQuery.data?.map((time) => ({
+                          label: t(
+                            `masterData.executionTimes.${time.id}`,
+                            time.label,
+                          ),
+                          value: time.id.toString(),
+                        })) ?? []
+                      }
                       control={control}
-                      error={errors.campaignDuration}
+                      error={errors.execution_time_id}
                       isRTL={isRTL}
                     />
+                    {executionTimesQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t("createCampaign.executionTimesError")}
+                      </p>
+                    ) : null}
 
                     <SelectField
-                      name="campaignType"
+                      name="campaign_type_id"
                       label={t("createCampaign.campaignType")}
-                      placeholder={t("createCampaign.campaignTypePlaceholder")}
-                      options={[{ label: "Lifestyle", value: "lifestyle" }]}
+                      placeholder={
+                        campaignTypesQuery.isLoading
+                          ? t(
+                              "createCampaign.loadingCampaignTypes",
+                              "Loading campaign types...",
+                            )
+                          : t("createCampaign.campaignTypePlaceholder")
+                      }
+                      options={
+                        campaignTypesQuery.data?.map((type) => ({
+                          label: t(
+                            `masterData.campaignTypes.${type.id}`,
+                            type.label,
+                          ),
+                          value: type.id.toString(),
+                        })) ?? []
+                      }
                       control={control}
-                      error={errors.campaignType}
+                      error={errors.campaign_type_id}
                       isRTL={isRTL}
                     />
+                    {campaignTypesQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t(
+                          "createCampaign.campaignTypesError",
+                          "Could not load campaign types",
+                        )}
+                      </p>
+                    ) : null}
 
                     <SelectField
-                      name="estimatedBudget"
+                      name="budget_range_id"
                       label={t("createCampaign.estimatedBudget")}
-                      placeholder={t(
-                        "createCampaign.estimatedBudgetPlaceholder",
-                      )}
-                      options={[
-                        {
-                          label: "Less than 5000 SAR",
-                          value: "less-than-5000",
-                        },
-                      ]}
+                      placeholder={
+                        budgetRangesQuery.isLoading
+                          ? t(
+                              "createCampaign.loadingBudgetRanges",
+                              "Loading budget ranges...",
+                            )
+                          : t("createCampaign.estimatedBudgetPlaceholder")
+                      }
+                      options={
+                        budgetRangesQuery.data?.map((range) => ({
+                          label: t(
+                            `masterData.budgetRanges.${range.id}`,
+                            range.label,
+                          ),
+                          value: range.id.toString(),
+                        })) ?? []
+                      }
                       control={control}
-                      error={errors.estimatedBudget}
+                      error={errors.budget_range_id}
                       isRTL={isRTL}
                     />
+                    {budgetRangesQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t(
+                          "createCampaign.budgetRangesError",
+                          "Could not load budget ranges",
+                        )}
+                      </p>
+                    ) : null}
 
                     <div className="md:col-span-2 md:max-w-[48.5%]">
                       <SelectField
-                        name="influencersCount"
+                        name="influencer_count_range_id"
                         label={t("createCampaign.influencersCount")}
-                        placeholder={t(
-                          "createCampaign.influencersCountPlaceholder",
-                        )}
-                        options={[{ label: "2", value: "2" }]}
+                        placeholder={
+                          influencerCountRangesQuery.isLoading
+                            ? t(
+                                "createCampaign.loadingInfluencerCountRanges",
+                                "Loading influencer count ranges...",
+                              )
+                            : t("createCampaign.influencersCountPlaceholder")
+                        }
+                        options={
+                          influencerCountRangesQuery.data?.map((range) => ({
+                            label: t(
+                              `masterData.influencerCountRanges.${range.id}`,
+                              range.label,
+                            ),
+                            value: range.id.toString(),
+                          })) ?? []
+                        }
                         control={control}
-                        error={errors.influencersCount}
+                        error={errors.influencer_count_range_id}
                         isRTL={isRTL}
                       />
                     </div>
+                    {influencerCountRangesQuery.isError ? (
+                      <p
+                        className={cn(
+                          "-mt-3 text-xs font-medium text-destructive md:col-span-2",
+                          isRTL ? "text-right" : "text-left",
+                        )}>
+                        {t(
+                          "createCampaign.influencerCountRangesError",
+                          "Could not load influencer count ranges",
+                        )}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div

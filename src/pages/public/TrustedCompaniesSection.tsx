@@ -1,43 +1,139 @@
 import CompanyCard from "@/components/common/CompanyCard";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
 import "../../index.css";
+import type { LandingSection } from "@/types/landing.types";
+import { getString, isRecord, sectionText } from "@/utils/landing";
 
-function TrustedCompaniesSection() {
+type TrustedCompaniesSectionProps = {
+  data?: LandingSection | null;
+};
+
+type CompanyRowItem = {
+  id: number;
+  icon: string;
+  name: string;
+  sub: string;
+};
+
+function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const apiCompanies = Array.isArray(data?.content?.companies)
+    ? data.content.companies.filter(isRecord)
+    : [];
 
-  const firstRow = [
-    { id: 1, icon: "puzzle" },
-    { id: 2, icon: "grid" },
-    { id: 3, icon: "bars" },
-    { id: 4, icon: "circle" },
-    { id: 1, icon: "puzzle" },
+  const fallbackFirstRow: CompanyRowItem[] = [
+    {
+      id: 1,
+      icon: "puzzle",
+      name: t("trustedCompanies.items.1.name"),
+      sub: t("trustedCompanies.items.1.sub"),
+    },
+    {
+      id: 2,
+      icon: "grid",
+      name: t("trustedCompanies.items.2.name"),
+      sub: t("trustedCompanies.items.2.sub"),
+    },
+    {
+      id: 3,
+      icon: "bars",
+      name: t("trustedCompanies.items.3.name"),
+      sub: t("trustedCompanies.items.3.sub"),
+    },
+    {
+      id: 4,
+      icon: "circle",
+      name: t("trustedCompanies.items.4.name"),
+      sub: t("trustedCompanies.items.4.sub"),
+    },
+    {
+      id: 1,
+      icon: "puzzle",
+      name: t("trustedCompanies.items.1.name"),
+      sub: t("trustedCompanies.items.1.sub"),
+    },
   ];
 
-  const secondRow = [
-    { id: 5, icon: "grid" },
-    { id: 6, icon: "circle" },
-    { id: 7, icon: "puzzle" },
-    { id: 8, icon: "grid" },
-    { id: 5, icon: "grid" },
+  const fallbackSecondRow: CompanyRowItem[] = [
+    {
+      id: 5,
+      icon: "grid",
+      name: t("trustedCompanies.items.5.name"),
+      sub: t("trustedCompanies.items.5.sub"),
+    },
+    {
+      id: 6,
+      icon: "circle",
+      name: t("trustedCompanies.items.6.name"),
+      sub: t("trustedCompanies.items.6.sub"),
+    },
+    {
+      id: 7,
+      icon: "puzzle",
+      name: t("trustedCompanies.items.7.name"),
+      sub: t("trustedCompanies.items.7.sub"),
+    },
+    {
+      id: 8,
+      icon: "grid",
+      name: t("trustedCompanies.items.8.name"),
+      sub: t("trustedCompanies.items.8.sub"),
+    },
+    {
+      id: 5,
+      icon: "grid",
+      name: t("trustedCompanies.items.5.name"),
+      sub: t("trustedCompanies.items.5.sub"),
+    },
   ];
+  const apiRows = apiCompanies.map((company, index) => ({
+    id: typeof company.id === "number" ? company.id : index + 1,
+    icon: typeof company.icon === "string" ? company.icon : "grid",
+    name:
+      getString(company, "name") ||
+      t(`trustedCompanies.items.${(index % 8) + 1}.name`),
+    sub:
+      getString(company, "sub") ||
+      getString(company, "description") ||
+      t(`trustedCompanies.items.${(index % 8) + 1}.sub`),
+  }));
+  const firstRow = isRTL && apiRows.length ? apiRows.slice(0, 5) : fallbackFirstRow;
+  const secondRow =
+    isRTL && apiRows.length ? apiRows.slice(5, 10) : fallbackSecondRow;
+  const title = sectionText(data, "title", "", isRTL);
+  const description = sectionText(
+    data,
+    "description",
+    t("trustedCompanies.desc"),
+    isRTL,
+  );
 
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="mt-4 overflow-hidden bg-[#f4f4f2] py-14 md:py-20">
+      className="overflow-hidden bg-[#f4f4f2] py-12 md:py-16">
       <div className="mx-auto max-w-6xl px-4">
         <Card className="border-0 bg-transparent py-0 shadow-none">
           <CardContent className="p-0">
             <div className="mx-auto text-center">
               <CardTitle className="text-[28px] font-bold leading-tight text-[#2f3133] sm:text-[34px] md:text-[58px]">
-                {t("trustedCompanies.title1")}{" "}
-                <span className="text-[#aeb98e]">
-                  {t("trustedCompanies.count")}
-                </span>{" "}
-                {t("trustedCompanies.title2")}
+                {title || (
+                  <>
+                    {t("trustedCompanies.title1")}{" "}
+                    <span className="text-[#aeb98e]">
+                      {t("trustedCompanies.count")}
+                    </span>{" "}
+                    {t("trustedCompanies.title2")}
+                  </>
+                )}
               </CardTitle>
 
               <CardTitle className="mt-2 text-[28px] font-bold leading-[1.2] text-[#2f3133] sm:text-[34px] md:text-[58px]">
@@ -45,7 +141,7 @@ function TrustedCompaniesSection() {
               </CardTitle>
 
               <CardDescription className="mx-auto mt-6 max-w-175 text-[13px] leading-6 text-[#6f7174] sm:text-[14px] md:text-[16px]">
-                {t("trustedCompanies.desc")}
+                {description}
               </CardDescription>
             </div>
           </CardContent>
@@ -61,8 +157,8 @@ function TrustedCompaniesSection() {
             {firstRow.map((item, index) => (
               <CompanyCard
                 key={`row1-a-${item.id}-${index}`}
-                name={t(`trustedCompanies.items.${item.id}.name`)}
-                sub={t(`trustedCompanies.items.${item.id}.sub`)}
+                name={item.name}
+                sub={item.sub}
                 icon={item.icon}
               />
             ))}
@@ -79,8 +175,8 @@ function TrustedCompaniesSection() {
             {secondRow.map((item, index) => (
               <CompanyCard
                 key={`row2-a-${item.id}-${index}`}
-                name={t(`trustedCompanies.items.${item.id}.name`)}
-                sub={t(`trustedCompanies.items.${item.id}.sub`)}
+                name={item.name}
+                sub={item.sub}
                 icon={item.icon}
               />
             ))}

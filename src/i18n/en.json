@@ -16,7 +16,18 @@
     "influencerRequest": "Influencer Request",
     "cooperation": "Collaberate",
     "contactUs": "Contact US",
-    "whoAreWe": "Who are we"
+    "whoAreWe": "Who are we",
+    "profile": "Profile",
+    "logout": "Logout",
+    "loggingOut": "Logging out...",
+    "logoutSuccess": "Logged out successfully",
+    "logoutError": "Could not log out. Please try again."
+  },
+  "logout": {
+    "label": "Logout",
+    "success": "Logged out successfully",
+    "error": "Could not log out. Please try again.",
+    "loading": "Logging out..."
   },
   "errorTitle": "Something went wrong",
   "errorDescription": "Unable to load landing page data.",
@@ -406,18 +417,27 @@
       "8": "Entertainment"
     },
     "targetLocations": {
-      "1": "Egypt",
+      "1": "Cairo, Egypt",
       "2": "Saudi Arabia",
       "3": "United Arab Emirates"
     },
     "targetAudiences": {
-      "1": "Young Adults (25 - 34)"
+      "1": "Young Adults (25 - 34)",
+      "2": "Gen Z"
     },
     "executionTimes": {
-      "1": "Within one month"
+      "1": "Within one week",
+      "2": "Within one month"
     },
     "campaignTypes": {
-      "1": "Lifestyle"
+      "1": "Lifestyle",
+      "2": "Conversion"
+    },
+    "budgetRanges": {
+      "1": "500 - 2000 EGP"
+    },
+    "influencerCountRanges": {
+      "1": "1 - 5 influencers"
     }
   },
   "completeCompanyProfile": {
@@ -575,6 +595,17 @@
     "platform": "Platform",
     "followers": "Followers",
     "budget": "Budget",
+    "deadline": "Deadline",
+    "campaignName": "Campaign name",
+    "currentTask": "Current task",
+    "contentType": "Content type",
+    "date": "Date",
+    "suggestedBudget": "Suggested budget",
+    "showLess": "Show less",
+    "showAll": "Show all",
+    "recommendedCampaigns": "Campaigns That Match Your Audience",
+    "targetAudience": "Target audience",
+    "applyToCampaign": "Apply to campaign",
     "loading": "Loading...",
     "error": "Something went wrong while loading data",
     "empty": "No data available right now",
@@ -738,7 +769,9 @@
     "totalRequests": "",
     "reviewAll": "Review all",
     "creatorLabel": "Verified creator",
+    "platforms": "Platforms",
     "followers": "Followers",
+    "note": "Note",
     "requestedPrice": "Requested price",
     "accept": "Accept",
     "reject": "Reject",

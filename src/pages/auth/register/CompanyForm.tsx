@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
-import LanguageToggle from "@/components/common/LanguageToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -136,10 +135,6 @@ function CompanyForm() {
         className="absolute inset-0 h-full w-full object-cover lg:hidden"
       />
       <div className="absolute inset-0 bg-black/70 lg:hidden" />
-
-      <div className="absolute top-4 inset-s-4 z-10 lg:hidden">
-        <LanguageToggle />
-      </div>
 
       <div className="relative z-10 flex w-full justify-center lg:w-1/2">
         <Card className="w-full max-w-md border-0 bg-transparent py-0 shadow-none ring-0">

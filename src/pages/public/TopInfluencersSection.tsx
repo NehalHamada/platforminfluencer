@@ -13,13 +13,42 @@ import { FaInstagram, FaTiktok } from "react-icons/fa";
 import inf1 from "/assets/tImg1.png";
 import inf2 from "/assets/tImg2.png";
 import inf3 from "/assets/tImg3.png";
+import type { LandingCollection } from "@/types/landing.types";
+import { isRecord, sectionText } from "@/utils/landing";
 
-function TopInfluencersSection() {
+type TopInfluencersSectionProps = {
+  data?: LandingCollection | null;
+};
+
+function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const influencers = [
+  const apiInfluencers =
+    data?.users
+      ?.map((user, index) => {
+        if (!isRecord(user)) return null;
+        return {
+          id: typeof user.id === "number" ? user.id : index + 1,
+          image: [inf1, inf2, inf3][index % 3],
+          name:
+            typeof user.name === "string"
+              ? user.name
+              : t(`topInfluencers2.items.${(index % 3) + 1}.name`),
+          followers:
+            typeof user.followers === "string"
+              ? user.followers
+              : typeof user.followers_count === "number"
+                ? `${user.followers_count}`
+                : t(`topInfluencers2.items.${(index % 3) + 1}.followers`),
+        };
+      })
+      .filter((user): user is NonNullable<typeof user> => !!user) ?? [];
+
+  const influencers = apiInfluencers.length
+    ? apiInfluencers
+    : [
     {
       id: 1,
       image: inf1,
@@ -39,6 +68,18 @@ function TopInfluencersSection() {
       followers: t("topInfluencers2.items.3.followers"),
     },
   ];
+  const title = sectionText(
+    data?.info,
+    "title",
+    t("topInfluencers2.title"),
+    isRTL,
+  );
+  const description = sectionText(
+    data?.info,
+    "description",
+    t("topInfluencers2.desc"),
+    isRTL,
+  );
 
   const goPrev = () => {
     setCurrentIndex((prev) => (prev <= 0 ? influencers.length - 1 : prev - 1));
@@ -51,15 +92,15 @@ function TopInfluencersSection() {
   const activeInfluencer = influencers[currentIndex];
 
   return (
-    <section dir={isRTL ? "rtl" : "ltr"} className="px-4 py-10 md:py-16">
+    <section dir={isRTL ? "rtl" : "ltr"} className="px-4 py-10 md:py-14">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="mx-auto max-w-[18rem] wrap-break-words text-center text-[28px] font-bold text-[#202020] sm:max-w-md md:max-w-none md:text-[36px]">
-            {t("topInfluencers2.title")}
+            {title}
           </h2>
 
           <p className="mx-auto mt-4 max-w-[20rem] wrap-break-words text-center text-xl font-semibold leading-[1.8] text-[#383838] sm:max-w-136 md:max-w-none md:text-[34px]">
-            {t("topInfluencers2.desc")}
+            {description}
           </p>
         </div>
 

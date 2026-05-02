@@ -15,6 +15,11 @@ export type AuthResponse = {
   };
 };
 
+export type LogoutResponse = {
+  success: boolean;
+  message: string;
+};
+
 export type AuthStore = {
   user: AuthUser | null;
   token: string | null;

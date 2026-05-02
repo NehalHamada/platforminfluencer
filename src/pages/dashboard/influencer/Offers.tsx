@@ -14,22 +14,37 @@ import {
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useApplyCampaignMutation } from "@/queries/campaigns/useApplyCampaignMutation";
+import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
 import { offerSchema, type OfferSchema } from "@/schema/offer.schema";
-import { campaignService } from "@/services/campaign.service";
 import type { CampaignApplyPayload } from "@/types/campaign.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import hero from "/assets/Hero.png";
 
 function Offers() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isRTL = i18n.dir() === "rtl";
   const { campaignId: campaignIdParam } = useParams();
-  const campaignId = campaignIdParam;
+  const [searchParams] = useSearchParams();
+  const storedCampaignId =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("selectedCampaignId")
+      : null;
+  const { data: dashboardData, isLoading: isCampaignsLoading } =
+    useInfluencerDashboardQuery();
+  const firstAvailableCampaignId = dashboardData?.upcomingCampaigns[0]?.id;
+  const campaignId =
+    campaignIdParam ??
+    searchParams.get("campaignId") ??
+    storedCampaignId ??
+    (firstAvailableCampaignId ? String(firstAvailableCampaignId) : null);
+  const applyCampaignMutation = useApplyCampaignMutation();
 
   const form = useForm<OfferSchema>({
     resolver: zodResolver(offerSchema),
@@ -44,7 +59,8 @@ function Offers() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    reset,
+    formState: { errors },
   } = form;
 
   const fields: Array<{
@@ -74,7 +90,7 @@ function Offers() {
     },
   ];
 
-  const onSubmit = async (data: OfferSchema) => {
+  const onSubmit = (data: OfferSchema) => {
     if (!campaignId) {
       toast.error(t("campaign.campaignIdRequired"));
       return;
@@ -87,19 +103,22 @@ function Offers() {
       is_ready: data.is_ready === "0" ? 0 : 1,
     };
 
-    console.log("campaign apply payload:", payload);
-
-    try {
-      const response = await campaignService.applyToCampaign(
+    applyCampaignMutation.mutate(
+      {
         campaignId,
         payload,
-      );
-      console.log(response);
-      toast.success(t("campaign.applySuccess"));
-    } catch (error) {
-      console.error(error);
-      toast.error(t("campaign.applyError"));
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("campaign.applySuccess"));
+          reset();
+          navigate("/dashboard/influencer");
+        },
+        onError: () => {
+          toast.error(t("campaign.applyError"));
+        },
+      },
+    );
   };
 
   const inputClass = (hasError?: boolean) =>
@@ -138,7 +157,17 @@ function Offers() {
             </CardHeader>
 
             <CardContent className="px-3 pb-5 sm:px-8 sm:pb-8">
-              {!campaignId ? (
+              {isCampaignsLoading && !campaignId ? (
+                <p
+                  className={cn(
+                    "mx-auto mb-4 max-w-4xl rounded-2xl bg-[#f4f6ef] px-4 py-3 text-sm text-[#7f8d69]",
+                    isRTL ? "text-right" : "text-left",
+                  )}>
+                  {t("campaign.loadingCampaign")}
+                </p>
+              ) : null}
+
+              {!isCampaignsLoading && !campaignId ? (
                 <p
                   className={cn(
                     "mx-auto mb-4 max-w-4xl rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600",
@@ -233,7 +262,11 @@ function Offers() {
                     )}>
                     <Button
                       type="submit"
-                      disabled={isSubmitting || !campaignId}
+                      disabled={
+                        applyCampaignMutation.isPending ||
+                        isCampaignsLoading ||
+                        !campaignId
+                      }
                       variant="brand"
                       className={cn(
                         "h-6 rounded-full px-2.5 text-[9px] font-medium shadow-none disabled:cursor-not-allowed sm:h-13 sm:px-6 sm:text-sm sm:shadow-[0_10px_30px_rgba(170,180,143,0.3)]",
@@ -247,7 +280,9 @@ function Offers() {
                         )}
                       </span>
                       <span>
-                        {t("offer.submit")}
+                        {applyCampaignMutation.isPending
+                          ? t("campaign.applySubmitting")
+                          : t("offer.submit")}
                       </span>
                     </Button>
                   </div>

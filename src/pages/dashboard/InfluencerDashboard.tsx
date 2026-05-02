@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 import hero from "/assets/Hero.png";
 
@@ -10,7 +10,74 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
+import { useAuthStore } from "@/store/auth.store";
+import type { AuthUser } from "@/types/auth.types";
 import type { InfluencerDashboardResponse } from "@/types/dashboard.types";
+
+const avatarColors = [
+  "bg-[#8FA36A]",
+  "bg-[#C07A59]",
+  "bg-[#6F8FAF]",
+  "bg-[#A66A8A]",
+  "bg-[#7C8C5A]",
+  "bg-[#B08A4A]",
+];
+
+const getAvatarColor = (seed: string) => {
+  const total = seed
+    .split("")
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
+  return avatarColors[total % avatarColors.length];
+};
+
+const getStoredUser = (): AuthUser | null => {
+  if (typeof window === "undefined") return null;
+
+  const parseUser = (value: string | null): AuthUser | null => {
+    if (!value) return null;
+
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      const user =
+        parsed && typeof parsed === "object" && "state" in parsed
+          ? (parsed as { state?: { user?: unknown } }).state?.user
+          : parsed;
+
+      if (!user || typeof user !== "object") return null;
+
+      const candidate = user as { id?: unknown; name?: unknown; type?: unknown };
+      const id =
+        typeof candidate.id === "number"
+          ? candidate.id
+          : typeof candidate.id === "string"
+            ? Number(candidate.id)
+            : NaN;
+
+      if (
+        Number.isFinite(id) &&
+        typeof candidate.name === "string" &&
+        (candidate.type === "company" || candidate.type === "influencer")
+      ) {
+        return {
+          id,
+          name: candidate.name,
+          type: candidate.type,
+        };
+      }
+    } catch {
+      return null;
+    }
+
+    return null;
+  };
+
+  return (
+    parseUser(localStorage.getItem("user")) ||
+    parseUser(localStorage.getItem("auth-storage"))
+  );
+};
 
 function SectionTitle({
   title,
@@ -37,14 +104,22 @@ function InfluencerDashboard() {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const [showAllUpcomingMobile, setShowAllUpcomingMobile] = useState(false);
+  const authUser = useAuthStore((state) => state.user);
+  const {
+    data: dashboardData,
+    isLoading,
+    isError,
+  } = useInfluencerDashboardQuery();
 
   const isRTL = i18n.dir() === "rtl";
+  const storedUser = getStoredUser();
+  const storedProfileName = storedUser?.name || authUser?.name || "";
+  const fallbackProfileName = isRTL ? "سارة حامد" : "Sara Hamed";
 
-  const data: InfluencerDashboardResponse = {
+  const fallbackData: InfluencerDashboardResponse = {
     profile: {
-      name: isRTL ? "سارة حامد" : "Sara Hamed",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80",
+      name: storedProfileName || fallbackProfileName,
+      avatar: null,
     },
     currentInfo: [
       {
@@ -159,6 +234,61 @@ function InfluencerDashboard() {
     },
   ];
 
+  const data: InfluencerDashboardResponse = {
+    ...fallbackData,
+    ...dashboardData,
+    profile: {
+      ...fallbackData.profile,
+      ...dashboardData?.profile,
+      name:
+        storedProfileName ||
+        dashboardData?.profile.name ||
+        fallbackData.profile.name,
+    },
+    currentInfo: dashboardData ? dashboardData.currentInfo : fallbackData.currentInfo,
+    upcomingCampaigns: dashboardData
+      ? dashboardData.upcomingCampaigns
+      : fallbackData.upcomingCampaigns,
+    activities: dashboardData ? dashboardData.activities : fallbackData.activities,
+  };
+  const profileInitial = data.profile.name.trim().charAt(0).toUpperCase() || "U";
+  const avatarColor = getAvatarColor(
+    `${storedUser?.id ?? authUser?.id ?? ""}${data.profile.name}`,
+  );
+  const getMasterDataTranslation = (
+    group: string,
+    id: number | undefined,
+    fallback: string,
+  ) =>
+    id
+      ? t(`masterData.${group}.${id}`, {
+          defaultValue: fallback,
+        })
+      : fallback;
+  const recommendedCampaignCards = data.upcomingCampaigns.length
+    ? data.upcomingCampaigns.map((campaign, index) => ({
+        id: campaign.id,
+        image: index % 2 === 0 ? "/assets/choImg3.png" : "/assets/choImg4.png",
+        title: campaign.type,
+        platform: getMasterDataTranslation(
+          "platforms",
+          campaign.platformId,
+          "Instagram",
+        ).toUpperCase(),
+        followers: getMasterDataTranslation(
+          "targetAudiences",
+          campaign.targetAudienceId,
+          isRTL ? "نساء 18 - 30 سنة" : "Women 18 - 30",
+        ),
+        budget: getMasterDataTranslation(
+          "budgetRanges",
+          campaign.budgetId,
+          campaign.budget,
+        ),
+        typeId: campaign.typeId,
+      }))
+    : recommendedCampaigns;
+
   if (location.pathname !== "/dashboard/influencer") {
     return <Outlet />;
   }
@@ -196,16 +326,23 @@ function InfluencerDashboard() {
                   {data.profile.name}
                 </p>
                 <p className="mt-0.5 text-[8px] font-medium text-[#8a9f68] sm:hidden">
-                  {t("influencerDashboard.verify")}
+                  {isLoading
+                    ? t("influencerDashboard.loading")
+                    : isError
+                      ? t("influencerDashboard.error")
+                      : t("influencerDashboard.verify")}
                 </p>
               </div>
 
               <Avatar className="h-7 w-7 sm:h-9 sm:w-9">
                 <AvatarImage
-                  src={data.profile.avatar}
+                  src={data.profile.avatar || undefined}
                   alt={data.profile.name}
                 />
-                <AvatarFallback>{data.profile.name.slice(0, 1)}</AvatarFallback>
+                <AvatarFallback
+                  className={cn("text-xs font-semibold text-white", avatarColor)}>
+                  {profileInitial}
+                </AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -216,7 +353,7 @@ function InfluencerDashboard() {
             </div>
             <div className={cn("mb-6 hidden sm:block text-center")}>
               <h2 className="inline-block  border-b border-[#1f1f1f] pb-1 text-base font-bold text-[#232323]">
-                مهامك الحالية
+                {t("influencerDashboard.currentInfo")}
               </h2>
             </div>
 
@@ -227,7 +364,7 @@ function InfluencerDashboard() {
                     <CardContent className="px-2 py-1.5 sm:px-0 sm:py-0">
                       <div className="mb-1.5 bg-[#e2e4dd] py-1 text-center text-[8px] text-[#8c8c8c] sm:mb-0 sm:bg-[#dedede] sm:px-5 sm:py-2 sm:text-[12px]">
                         <span className="hidden text-[#879b6d] sm:inline">
-                          الموعد النهائي للتنفيذ :
+                          {t("influencerDashboard.deadline", "Deadline")} :
                         </span>{" "}
                         {item.date}
                       </div>
@@ -239,13 +376,13 @@ function InfluencerDashboard() {
                         )}>
                         <p>
                           <span className="hidden font-bold text-[#282828] sm:inline">
-                            اسم الحملة :
+                            {t("influencerDashboard.campaignName", "Campaign name")} :
                           </span>{" "}
                           {item.title}
                         </p>
                         <p>
                           <span className="hidden font-bold text-[#282828] sm:inline">
-                            المهمة الحالية :
+                            {t("influencerDashboard.currentTask", "Current task")} :
                           </span>{" "}
                           {item.company}
                         </p>
@@ -279,7 +416,7 @@ function InfluencerDashboard() {
                   <Card className="rounded-[10px] border border-[#eceee9] bg-linear-to-b from-white to-[#eef2e8] py-0 shadow-[0_6px_18px_rgba(0,0,0,0.06)] sm:rounded-[8px] sm:border-0 sm:bg-linear-to-b sm:from-white sm:to-[#eef2e8] sm:shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
                     <CardContent className="px-4 py-4 text-center sm:grid sm:min-h-25 sm:grid-cols-[15rem_1fr] sm:items-center sm:gap-8 sm:px-4 sm:py-3 sm:text-right">
                       <div className="text-[15px] font-bold tracking-tight text-[#161616] sm:hidden">
-                        FINANCE
+                        {item.brand}
                       </div>
 
                       <div
@@ -288,27 +425,39 @@ function InfluencerDashboard() {
                           isRTL ? "sm:text-right" : "sm:text-left",
                         )}>
                         <strong className="hidden shrink-0 text-lg font-black tracking-[-0.04em] text-[#090909] sm:block">
-                          FINANCE
+                          {item.brand}
                         </strong>
 
                         <div className="space-y-3 sm:space-y-2">
                           <p>
                             <span className="font-bold text-[#242424]">
-                              نوع المحتوى :
+                              {t("influencerDashboard.contentType", "Content type")} :
                             </span>{" "}
-                            {item.type}
+                            {getMasterDataTranslation(
+                              "campaignTypes",
+                              item.typeId,
+                              item.type,
+                            )}
                           </p>
                           <p>
                             <span className="font-bold text-[#242424]">
-                              الموعد :
+                              {t("influencerDashboard.date", "Date")} :
                             </span>{" "}
-                            {item.date}
+                            {getMasterDataTranslation(
+                              "executionTimes",
+                              item.dateId,
+                              item.date,
+                            )}
                           </p>
                           <p>
                             <span className="font-bold text-[#242424]">
-                              الميزانية المقترحة :
+                              {t("influencerDashboard.suggestedBudget", "Suggested budget")} :
                             </span>{" "}
-                            {item.budget}
+                            {getMasterDataTranslation(
+                              "budgetRanges",
+                              item.budgetId,
+                              item.budget,
+                            )}
                           </p>
                         </div>
                       </div>
@@ -344,7 +493,9 @@ function InfluencerDashboard() {
                     type="button"
                     onClick={() => setShowAllUpcomingMobile((value) => !value)}
                     className="mx-auto bg-transparent mt-4 block text-xs text-[#8b9870] underline underline-offset-2 sm:hidden">
-                    {showAllUpcomingMobile ? "عرض أقل" : "عرض الكل"}
+                    {showAllUpcomingMobile
+                      ? t("influencerDashboard.showLess", "Show less")
+                      : t("influencerDashboard.showAll", "Show all")}
                   </Button>
                 </div>
               ))}
@@ -403,20 +554,24 @@ function InfluencerDashboard() {
             <div className="sm:hidden">
               <SectionTitle
                 title={
-                  isRTL
-                    ? "حملات تناسب جمهورك"
-                    : "Campaigns That Match Your Audience"
+                  t(
+                    "influencerDashboard.recommendedCampaigns",
+                    "Campaigns That Match Your Audience",
+                  )
                 }
               />
             </div>
             <div className="mb-8 hidden text-center sm:block">
               <h2 className="inline-block border-b border-[#1f1f1f] pb-1 text-base font-bold text-[#232323]">
-                حملات تناسب جمهورك
+                {t(
+                  "influencerDashboard.recommendedCampaigns",
+                  "Campaigns That Match Your Audience",
+                )}
               </h2>
             </div>
 
             <div className="-mx-2 flex snap-x gap-3 overflow-x-auto px-2 pb-1 [scrollbar-width:none] sm:mx-auto sm:grid sm:max-w-147.5 sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0">
-              {recommendedCampaigns.map((campaign) => (
+              {recommendedCampaignCards.map((campaign) => (
                 <Card
                   key={campaign.id}
                   className="w-[88%] shrink-0 snap-center overflow-hidden rounded-sm border border-[#ecece7] bg-white py-0 shadow-sm sm:w-auto sm:rounded-[8px] sm:shadow-[0_4px_12px_rgba(0,0,0,0.03)]">
@@ -442,16 +597,26 @@ function InfluencerDashboard() {
                       )}>
                       <div>
                         <h3 className="text-[8px] font-bold leading-4 text-[#252525] sm:text-[12px]">
-                          {campaign.title}
+                          {"typeId" in campaign
+                            ? getMasterDataTranslation(
+                                "campaignTypes",
+                                typeof campaign.typeId === "number"
+                                  ? campaign.typeId
+                                  : undefined,
+                                campaign.title,
+                              )
+                            : campaign.title}
                         </h3>
                         <div className="mt-1.5 space-y-0.5 text-[7px] leading-3.5 text-[#7a7a7a] sm:mt-3 sm:space-y-3 sm:text-[11px] sm:leading-5">
-                          <p className="sm:text-[#9a9a9a]">الجمهور المطلوب :</p>
+                          <p className="sm:text-[#9a9a9a]">
+                            {t("influencerDashboard.targetAudience", "Target audience")} :
+                          </p>
                           <p className="bg-[#f8f8f5] py-1 text-[#7a7a7a]">
                             {campaign.followers}
                           </p>
                           <p>{campaign.platform}</p>
                           <p>
-                            الميزانية :{" "}
+                            {t("influencerDashboard.budget")} :{" "}
                             <span className="font-bold text-[#1d1d1d]">
                               {campaign.budget}
                             </span>
@@ -460,10 +625,19 @@ function InfluencerDashboard() {
                       </div>
 
                       <Button
-                        type="button"
+                        asChild
                         variant="outline"
                         className="h-6 rounded-none border-[#d9d9d9] bg-white px-2 text-[8px] font-semibold text-[#454545] shadow-none hover:bg-[#f8f8f5] sm:h-9 sm:text-[12px]">
-                        {isRTL ? "التقديم علي الحملة" : "Apply to campaign"}
+                        <Link
+                          to="/dashboard/influencer/offers"
+                          onClick={() => {
+                            sessionStorage.setItem(
+                              "selectedCampaignId",
+                              String(campaign.id),
+                            );
+                          }}>
+                          {t("influencerDashboard.applyToCampaign", "Apply to campaign")}
+                        </Link>
                       </Button>
                     </div>
                   </CardContent>

@@ -11,12 +11,21 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import style from "/assets/image2.png";
 import us from "/assets/user1.png";
+import type { LandingCollection } from "@/types/landing.types";
+import { sectionText } from "@/utils/landing";
 
 const images = [style, style, style, style, us, us, us, us];
 
-function ResultsLanding() {
+type ResultsLandingProps = {
+  data?: LandingCollection | null;
+};
+
+function ResultsLanding({ data }: ResultsLandingProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const resultImages = images;
+  const title = sectionText(data?.info, "title", t("resultsTitle"), isRTL);
+  const description = sectionText(data?.info, "description", t("resultsDesc"), isRTL);
   const [currentPage, setCurrentPage] = useState(0);
   const [imagesPerPage, setImagesPerPage] = useState(
     typeof window !== "undefined" && window.innerWidth < 640 ? 2 : 4,
@@ -31,13 +40,13 @@ function ResultsLanding() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const totalPages = Math.ceil(images.length / imagesPerPage);
+  const totalPages = Math.ceil(resultImages.length / imagesPerPage);
 
   const pages = useMemo(() => {
     return Array.from({ length: totalPages }, (_, i) =>
-      images.slice(i * imagesPerPage, (i + 1) * imagesPerPage),
+      resultImages.slice(i * imagesPerPage, (i + 1) * imagesPerPage),
     );
-  }, [imagesPerPage, totalPages]);
+  }, [imagesPerPage, resultImages, totalPages]);
 
   const safeCurrentPage = currentPage >= totalPages ? 0 : currentPage;
   const isMobile = imagesPerPage === 2;
@@ -45,9 +54,9 @@ function ResultsLanding() {
   const previousPage =
     safeCurrentPage === 0 ? totalPages - 1 : safeCurrentPage - 1;
   const nextPage = safeCurrentPage === totalPages - 1 ? 0 : safeCurrentPage + 1;
-  const activeMobileImage = pages[safeCurrentPage]?.[0] ?? images[0];
-  const previousMobileImage = pages[previousPage]?.[0] ?? images[0];
-  const nextMobileImage = pages[nextPage]?.[0] ?? images[0];
+  const activeMobileImage = pages[safeCurrentPage]?.[0] ?? resultImages[0];
+  const previousMobileImage = pages[previousPage]?.[0] ?? resultImages[0];
+  const nextMobileImage = pages[nextPage]?.[0] ?? resultImages[0];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -66,15 +75,15 @@ function ResultsLanding() {
   };
 
   return (
-    <section className="mt-10 w-full overflow-x-hidden bg-[rgba(130,140,114,0.06)] p-3 sm:p-5 md:p-6">
+    <section className="w-full overflow-x-hidden bg-[rgba(130,140,114,0.06)] px-3 py-8 sm:px-5 md:px-6">
       <div className="mx-auto max-w-[20rem] text-center sm:max-w-lg md:max-w-3xl">
         <Card className="border-0 bg-transparent py-0 shadow-none">
           <CardContent className="p-0">
             <CardTitle className="mx-auto wrap-break-words text-xl font-bold text-[#899A6D] underline sm:text-2xl">
-              {t("resultsTitle")}
+              {title}
             </CardTitle>
             <CardDescription className="mx-auto mt-3 wrap-break-words text-sm leading-7 text-[#686868] sm:text-base sm:leading-8">
-              {t("resultsDesc")}
+              {description}
             </CardDescription>
           </CardContent>
         </Card>

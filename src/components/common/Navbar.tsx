@@ -1,10 +1,30 @@
-import { useState } from "react";
-import { CircleUser, Dot, Menu, Search, X } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  ArrowLeft,
+  ChevronDown,
+  CircleUser,
+  Dot,
+  Globe,
+  LogOut,
+  Menu,
+  Search,
+  X,
+} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -12,6 +32,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { authService } from "@/services/auth.service";
+import { useAuthStore } from "@/store/auth.store";
 import logo from "/assets/logo.svg";
 
 import LanguageToggle from "./LanguageToggle";
@@ -26,11 +48,36 @@ type HomeLink = {
   href: string;
 };
 
+const avatarColors = [
+  "bg-[#8FA36A]",
+  "bg-[#C07A59]",
+  "bg-[#6F8FAF]",
+  "bg-[#A66A8A]",
+  "bg-[#7C8C5A]",
+  "bg-[#B08A4A]",
+];
+
+const getAvatarColor = (seed: string) => {
+  const total = seed
+    .split("")
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
+  return avatarColors[total % avatarColors.length];
+};
+
 function Navbar() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const profileMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
   const authRoutes = [
     "/login",
@@ -50,6 +97,8 @@ function Navbar() {
     location.pathname.includes("influencer") && !isCompanyProfilePage;
   const isCompanyPath =
     location.pathname.includes("company") || isCompanyProfilePage;
+  const userInitial = user?.name?.trim().charAt(0).toUpperCase() || "U";
+  const avatarColor = getAvatarColor(`${user?.id ?? ""}${user?.name ?? ""}`);
 
   const homeNavLinks: HomeLink[] = [
     { label: t("nav.platform"), href: "#platform" },
@@ -86,15 +135,113 @@ function Navbar() {
     },
     {
       label: t("nav.contactUs"),
-      path: "/dashboard/company/contact",
+      path: "/contact",
     },
     {
       label: t("nav.whoAreWe"),
-      path: "/dashboard/company/whoarewe",
+      path: "/about",
     },
   ];
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const changeLanguage = () => {
+    void i18n.changeLanguage(isArabic ? "en" : "ar");
+  };
+
+  const openProfileMenu = () => {
+    if (profileMenuCloseTimer.current) {
+      clearTimeout(profileMenuCloseTimer.current);
+      profileMenuCloseTimer.current = null;
+    }
+
+    setIsProfileMenuOpen(true);
+  };
+
+  const closeProfileMenu = () => {
+    profileMenuCloseTimer.current = setTimeout(() => {
+      setIsProfileMenuOpen(false);
+    }, 100);
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+      await authService.logout();
+      toast.success(t("logout.success"));
+    } catch {
+      toast.error(t("logout.error"));
+    } finally {
+      sessionStorage.clear();
+      sessionStorage.setItem("logoutRedirect", "home");
+      localStorage.removeItem("otpEmail");
+      clearAuth();
+      setIsLoggingOut(false);
+      closeMenu();
+      window.location.replace("/");
+    }
+  };
+
+  const renderProfileMenu = () => {
+    if (!isAuthenticated || !user) {
+      return (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => navigate("/login")}
+          className="hidden cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white md:inline-flex"
+          aria-label={t("nav.login", "Login")}>
+          <CircleUser className="text-white" />
+        </Button>
+      );
+    }
+
+    return (
+      <DropdownMenu
+        modal={false}
+        open={isProfileMenuOpen}
+        onOpenChange={setIsProfileMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onPointerEnter={openProfileMenu}
+            onPointerLeave={closeProfileMenu}
+            className="hidden cursor-pointer rounded-full p-0 text-white hover:bg-white/10 hover:text-white md:inline-flex"
+            aria-label={t("nav.profile", "Profile")}>
+            <Avatar className="h-9 w-9 border border-white/35">
+              <AvatarFallback
+                className={cn("text-sm font-semibold text-white", avatarColor)}>
+                {userInitial}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align={isArabic ? "start" : "end"}
+          onPointerEnter={openProfileMenu}
+          onPointerLeave={closeProfileMenu}
+          onCloseAutoFocus={(event) => event.preventDefault()}
+          className="min-w-48 border-white/10 bg-white text-[#202020]">
+          <DropdownMenuLabel className="truncate">
+            {user.name}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700">
+            <LogOut size={16} />
+            {isLoggingOut ? t("logout.loading") : t("logout.label")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   const renderSearch = () => (
     <div className="relative">
@@ -113,6 +260,41 @@ function Navbar() {
         )}
       />
     </div>
+  );
+
+  const renderMobileProfileIcon = () => {
+    if (!isAuthenticated || !user) {
+      return (
+        <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white/80 text-white">
+          <CircleUser size={16} />
+        </span>
+      );
+    }
+
+    return (
+      <Avatar className="h-9 w-9 border border-white/35">
+        <AvatarFallback
+          className={cn("text-sm font-semibold text-white", avatarColor)}>
+          {userInitial}
+        </AvatarFallback>
+      </Avatar>
+    );
+  };
+
+  const renderMobileLanguageToggle = () => (
+    <Button
+      type="button"
+      variant="ghost"
+      onClick={changeLanguage}
+      className="h-12 w-full justify-between rounded-md bg-white/10 px-4 text-white hover:bg-white/15 hover:text-white">
+      <span className="flex items-center gap-2">
+        <Globe size={24} />
+      </span>
+      <span className="flex items-center gap-3 text-base font-medium">
+        {isArabic ? "العربية" : "English"}
+        <ChevronDown size={18} />
+      </span>
+    </Button>
   );
 
   const renderDesktopLinks = (links: DashboardLink[], compact = false) => (
@@ -198,41 +380,63 @@ function Navbar() {
             active: false,
           }));
 
+    const showAuthLogin = !isAuthenticated && !isAuth;
+
     return (
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <SheetContent
           side={isArabic ? "left" : "right"}
-          className="w-[92vw] border-white/10 bg-[rgba(104,139,52,0.94)] p-0 text-white backdrop-blur-xl sm:max-w-sm"
+          className="w-full border-0 bg-[#171917] p-0 text-white sm:max-w-sm"
           showCloseButton={false}>
-          <div dir={isArabic ? "rtl" : "ltr"} className="flex h-full flex-col">
-            <SheetHeader className="border-b border-white/10 px-5 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <SheetTitle className="text-white">
-                  {t("nav.messages")}
-                </SheetTitle>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={closeMenu}
-                  aria-label="Close menu"
-                  className="rounded-full cursor-pointer text-white hover:bg-white/10 hover:text-white">
-                  <X size={18} />
-                </Button>
-              </div>
+          <div
+            dir={isArabic ? "rtl" : "ltr"}
+            className="flex h-full flex-col px-5 py-7">
+            <SheetHeader className="sr-only">
+              <SheetTitle>{t("nav.messages")}</SheetTitle>
             </SheetHeader>
 
-            <div className="flex-1 px-4 py-4">
-              {isHome && <div className="mb-4">{renderSearch()}</div>}
+            <div
+              className={cn(
+                "flex h-14 items-center justify-between rounded-full border border-white/25 bg-[rgba(78,89,64,0.75)] px-5 shadow-[0_8px_24px_rgba(0,0,0,0.25)]",
+                isArabic ? "flex-row-reverse" : "flex-row",
+              )}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={closeMenu}
+                aria-label="Close menu"
+                className="rounded-full cursor-pointer text-white hover:bg-white/10 hover:text-white">
+                <Menu size={26} />
+              </Button>
 
-              <div className="flex flex-col gap-2">
+              <img
+                src={logo}
+                alt="logo"
+                className="h-9 w-auto object-contain"
+              />
+
+              {renderMobileProfileIcon()}
+            </div>
+
+            <div className="flex flex-1 flex-col pt-7">
+              {isHome && <div className="mb-5">{renderSearch()}</div>}
+
+              <div
+                className={cn(
+                  "flex flex-col gap-2",
+                  isArabic ? "items-end text-right" : "items-start text-left",
+                )}>
                 {mobileLinks.map((link) =>
                   link.href ? (
                     <a
                       key={link.key}
                       href={link.href}
                       onClick={link.action}
-                      className="rounded-2xl px-4 py-3 text-white/95 transition hover:bg-white/10">
+                      className={cn(
+                        "w-full rounded-md py-2 text-lg font-semibold text-white/90 transition hover:text-white",
+                        isArabic ? "text-right" : "text-left",
+                      )}>
                       {link.label}
                     </a>
                   ) : (
@@ -243,17 +447,24 @@ function Navbar() {
                       onClick={link.action}
                       aria-current={link.active ? "page" : undefined}
                       className={cn(
-                        "h-auto justify-start cursor-pointer rounded-2xl px-4 py-3 text-start",
+                        "h-auto w-full cursor-pointer rounded-md px-0 py-2 text-lg font-semibold",
+                        isArabic
+                          ? "justify-end text-right"
+                          : "justify-start text-left",
                         link.active
-                          ? "bg-white/15 text-white hover:bg-white/15 hover:text-white"
-                          : "text-white/95 hover:bg-white/10 hover:text-white",
+                          ? "text-white hover:bg-transparent hover:text-white"
+                          : "text-white/90 hover:bg-transparent hover:text-white",
                       )}>
                       {link.label}
                     </Button>
                   ),
                 )}
+              </div>
 
-                {!isAuth && !isInfluencerPath && !isCompanyPath && (
+              <div className="mt-auto space-y-6 pb-3">
+                {renderMobileLanguageToggle()}
+
+                {showAuthLogin && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -261,8 +472,21 @@ function Navbar() {
                       navigate("/login");
                       closeMenu();
                     }}
-                    className="h-auto cursor-pointer justify-start rounded-2xl px-4 py-3 text-start text-white/95 hover:bg-white/10 hover:text-white">
+                    className="mx-auto h-auto rounded-none px-0 text-lg font-semibold text-white underline underline-offset-4 hover:bg-transparent hover:text-white/85">
                     {t("nav.login", "Login")}
+                    <ArrowLeft size={20} />
+                  </Button>
+                )}
+
+                {isAuthenticated && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="mx-auto h-auto rounded-none px-0 text-lg font-semibold text-white underline underline-offset-4 hover:bg-transparent hover:text-white/85">
+                    {isLoggingOut ? t("logout.loading") : t("logout.label")}
+                    <ArrowLeft size={20} />
                   </Button>
                 )}
               </div>
@@ -353,16 +577,7 @@ function Navbar() {
             {brandButton("/dashboard/influencer")}
             {renderDesktopLinks(influencerNavLinks)}
             <div className="flex items-center gap-3 text-white">
-              {!isAuth && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="hidden cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white md:inline-flex"
-                  aria-label="Profile">
-                  <CircleUser size={20} />
-                </Button>
-              )}
+              {renderProfileMenu()}
               <LanguageToggle />
               {mobileMenuButton}
             </div>
@@ -382,17 +597,8 @@ function Navbar() {
           <div className="flex items-center justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(104,139,52,0.45)] px-2 py-1 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-5 md:py-4">
             {brandButton("/dashboard/company")}
             {renderDesktopLinks(companyNavLinks, true)}
-            <div className="flex shrink-0 items-center text-white">
-              {!isAuth && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="hidden cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white md:inline-flex"
-                  aria-label="Profile">
-                  <CircleUser size={20} />
-                </Button>
-              )}
+            <div className="flex shrink-0 items-center gap-3 text-white">
+              {renderProfileMenu()}
               <LanguageToggle />
               {mobileMenuButton}
             </div>
@@ -416,17 +622,7 @@ function Navbar() {
 
         <div className="me-3 flex items-center gap-3">
           <LanguageToggle />
-          {!isAuth && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => navigate("/login")}
-              className="hidden cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white md:inline-flex"
-              aria-label="Login">
-              <CircleUser className="text-white" />
-            </Button>
-          )}
+          {!isAuth && renderProfileMenu()}
         </div>
       </div>
     </header>

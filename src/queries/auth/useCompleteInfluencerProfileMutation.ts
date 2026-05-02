@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/store/auth.store";
+import { setPendingAuth } from "@/utils/pendingAuth";
 import type {
   SharedRegisterData,
   CompleteInfluencerProfilePayload,
@@ -12,12 +12,10 @@ type Payload = {
 };
 
 export function useCompleteInfluencerProfileMutation() {
-  const setAuth = useAuthStore((state) => state.setAuth);
-
   return useMutation({
     mutationFn: async ({ registerData, completeProfileData }: Payload) => {
       const registerResponse = await authService.register(registerData);
-      setAuth({
+      setPendingAuth({
         user: registerResponse.data.user,
         token: registerResponse.data.token,
       });

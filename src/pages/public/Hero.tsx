@@ -21,6 +21,7 @@ import us3 from "/assets/huser3.png";
 import us4 from "/assets/huser4.png";
 import us5 from "/assets/huser5.png";
 import type { LandingSection } from "@/types/landing.types";
+import { sectionText } from "@/utils/landing";
 
 const images = [us1, us2, us3, us4, us5];
 
@@ -96,14 +97,16 @@ function Hero({ data }: HeroProps) {
   const navigate = useNavigate();
 
   const content = data.content;
-  // const apiImages = Array.isArray(content?.images)
-  //   ? (content.images as string[])
-  //   : [];
   const visitCount =
     typeof content?.visit_count === "string" ? content.visit_count : "95k+";
-  const visitText = t("JoinUsToday");
+  const visitText =
+    isArabic && typeof content?.visit_text === "string"
+      ? content.visit_text
+      : t("JoinUsToday");
 
-  // const heroImage = apiImages[0] || hero;
+  const navigateToLoginForRole = (role: "company" | "influencer") => {
+    navigate(`/login?role=${role}`);
+  };
 
   const apiIconNames = Array.isArray(content?.icons)
     ? (content.icons as string[])
@@ -122,7 +125,7 @@ function Hero({ data }: HeroProps) {
   return (
     <section
       dir={isArabic ? "rtl" : "ltr"}
-      className="relative -mt-24 min-h-screen overflow-hidden px-4 pb-10 pt-28 sm:px-6 lg:px-8 lg:pt-32">
+      className="relative -mt-24 min-h-[560px] overflow-hidden px-4 pb-8 pt-28 sm:min-h-[620px] sm:px-6 lg:min-h-[680px] lg:px-8 lg:pt-32">
       <img
         src={hero}
         alt="hero"
@@ -130,7 +133,7 @@ function Hero({ data }: HeroProps) {
       />
       <div className="absolute inset-0 bg-black/50" />
 
-      <div className="relative z-10 flex min-h-[calc(100vh-3rem)] items-end pb-12 sm:items-center sm:pb-0">
+      <div className="relative z-10 flex min-h-[500px] items-end pb-10 sm:min-h-[560px] sm:items-center sm:pb-0 lg:min-h-[620px]">
         <div
           className={cn(
             "w-full max-w-92 sm:max-w-xl lg:max-w-2xl",
@@ -138,12 +141,12 @@ function Hero({ data }: HeroProps) {
               ? "mx-auto text-center sm:mx-0 sm:mr-0 sm:text-right"
               : "mx-auto text-center sm:mx-0 sm:ml-0 sm:text-left",
           )}>
-          <h1 className="text-[2rem] leading-normal font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
-            {isArabic ? data.title || t("heroTitle") : t("heroTitle")}
+          <h1 className="text-[1.9rem] leading-normal font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
+            {sectionText(data, "title", t("heroTitle"), isArabic)}
           </h1>
 
           <p className="mt-3 max-w-lg text-base leading-8 text-white/90 sm:mt-4 sm:text-base md:text-lg lg:text-xl">
-            {isArabic ? data.description || t("heroDesc") : t("heroDesc")}
+            {sectionText(data, "description", t("heroDesc"), isArabic)}
           </p>
 
           <div
@@ -154,7 +157,7 @@ function Hero({ data }: HeroProps) {
                 : "flex-row justify-center sm:justify-start",
             )}>
             <Button
-              onClick={() => navigate("/login")}
+              onClick={() => navigateToLoginForRole("influencer")}
               variant="brand"
               className={cn(
                 "relative z-10 h-12 min-w-0 flex-1 rounded-full px-4 text-base shadow-[0_10px_30px_rgba(167,183,142,0.25)] sm:w-auto sm:flex-none sm:px-5",
@@ -165,7 +168,7 @@ function Hero({ data }: HeroProps) {
             </Button>
 
             <Button
-              onClick={() => navigate("/login")}
+              onClick={() => navigateToLoginForRole("company")}
               variant="outline"
               className={cn(
                 "h-12 min-w-0 flex-1 rounded-full border-[rgba(255,219,195,1)] bg-black/20 px-4 text-base text-[rgba(167,183,142,1)] hover:bg-white/10 hover:text-[rgba(167,183,142,1)] sm:w-auto sm:flex-none sm:px-5",

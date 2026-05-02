@@ -1,12 +1,15 @@
 import { Outlet, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import Footer from "@/components/common/Footer";
-import Navbar from "@/components/common/Navbar";
+import LanguageToggle from "@/components/common/LanguageToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 function AuthLayout() {
   const location = useLocation();
+  const { i18n } = useTranslation();
+  const isArabic = i18n.language === "ar";
 
   const isFullBleedAuthPage =
     [
@@ -17,7 +20,13 @@ function AuthLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F9F9F9]">
-      <Navbar />
+      <div
+        className={cn(
+          "fixed top-4 z-[80]",
+          isArabic ? "left-4" : "right-4",
+        )}>
+        <LanguageToggle className="me-0 bg-black/20 backdrop-blur-sm hover:bg-black/30" />
+      </div>
 
       <main
         className={cn(

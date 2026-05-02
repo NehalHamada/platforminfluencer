@@ -13,6 +13,17 @@ function CampaignsRequests() {
   const isRTL = i18n.dir() === "rtl";
   const requestsQuery = useCampaignRequestsQuery();
   const requests = requestsQuery.data?.data ?? [];
+  const getPlatformLabel = (
+    request: (typeof requests)[number],
+    index: number,
+  ) => {
+    const platformId = request.platformIds?.[index];
+    const fallback = request.platforms[index] ?? "-";
+
+    return platformId
+      ? t(`masterData.platforms.${platformId}`, { defaultValue: fallback })
+      : fallback;
+  };
 
   return (
     <section
@@ -43,7 +54,7 @@ function CampaignsRequests() {
               {requests.map((request) => (
                 <Card
                   key={request.id}
-                  className="rounded-[4px] border border-[#ece9e1] bg-white py-0 shadow-none sm:rounded-xl sm:shadow-sm">
+                  className="rounded-lg border border-[#ece9e1] bg-white py-0 shadow-none sm:rounded-xl sm:shadow-sm">
                   <CardContent className="space-y-3 p-3 sm:space-y-4 sm:p-4">
                     {/* Header */}
                     <div
@@ -77,16 +88,19 @@ function CampaignsRequests() {
                     {/* Platforms */}
                     <div className={isRTL ? "text-right" : "text-left"}>
                       <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
+                        {t("campaignsRequest.platforms")}:
+                      </p>
+                      <p className="hidden text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
                         {isRTL ? "المنصات :" : "Platforms:"}
                       </p>
 
                       <div className="mt-2 grid grid-cols-3 gap-1 sm:flex sm:flex-wrap sm:gap-2">
-                        {request.platforms.map((platform) => (
+                        {request.platforms.map((platform, index) => (
                           <Badge
                             key={platform}
                             variant="secondary"
                             className="justify-center rounded-sm bg-[#f7f7f4] px-2 py-1 text-[8px] font-normal text-[#55554f] shadow-none sm:rounded-full sm:text-xs">
-                            {platform}
+                            {getPlatformLabel(request, index)}
                           </Badge>
                         ))}
                         {request.platforms.length === 0 ? (
@@ -102,10 +116,15 @@ function CampaignsRequests() {
                     {/* Followers */}
                     <div className={isRTL ? "text-right" : "text-left"}>
                       <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
-                        {t("campaignsRequest.followers")}:
+                        {request.followers !== "-"
+                          ? t("campaignsRequest.followers")
+                          : t("campaignsRequest.note")}
+                        :
                       </p>
                       <p className="text-[9px] text-[#55554f] sm:text-sm">
-                        {request.followers}
+                        {request.followers !== "-"
+                          ? request.followers
+                          : request.note || "-"}
                       </p>
                     </div>
 

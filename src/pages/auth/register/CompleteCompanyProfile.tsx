@@ -34,8 +34,8 @@ import {
 import { cn } from "@/lib/utils";
 import hero from "/assets/Hero.png";
 import { authService } from "@/services/auth.service";
-import { useAuthStore } from "@/store/auth.store";
 import { logOtpFromResponse } from "@/utils/logOtp";
+import { setPendingAuth } from "@/utils/pendingAuth";
 import { useContentTypesQuery } from "@/queries/masterData/useContentTypesQuery";
 import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import type {
@@ -86,7 +86,6 @@ const isValidRegisterData = (
 function CompleteCompanyProfile() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
   const isArabic = i18n.language === "ar";
   const platformsQuery = usePlatformsQuery();
   const contentTypesQuery = useContentTypesQuery();
@@ -166,7 +165,7 @@ function CompleteCompanyProfile() {
       });
       logOtpFromResponse("company register otp:", registerResponse);
 
-      setAuth({
+      setPendingAuth({
         user: registerResponse.data.user,
         token: registerResponse.data.token,
       });

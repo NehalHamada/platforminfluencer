@@ -9,8 +9,15 @@ export type UpcomingCampaignItem = {
   id: number;
   brand: string;
   type: string;
+  typeId?: number;
   date: string;
+  dateId?: number;
   budget: string;
+  budgetId?: number;
+  platformId?: number;
+  targetAudienceId?: number;
+  targetLocationId?: number;
+  influencerCountRangeId?: number;
   status: "pending" | "rejected" | "accepted";
 };
 
@@ -44,7 +51,7 @@ export type ActivityItem = {
 export type InfluencerDashboardResponse = {
   profile: {
     name: string;
-    avatar: string;
+    avatar?: string | null;
   };
   currentInfo: CurrentInfoItem[];
   upcomingCampaigns: UpcomingCampaignItem[];

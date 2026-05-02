@@ -9,25 +9,40 @@ import bgImg from "/assets/platImg2.png";
 import centerImg from "/assets/platImg.png";
 import profileImg from "/assets/platImg1.png";
 import logoImg from "/assets/platLogo.png";
+import type { LandingSection } from "@/types/landing.types";
+import { getString, sectionText } from "@/utils/landing";
 
-function AboutPlatformSection() {
+type AboutPlatformSectionProps = {
+  data?: LandingSection | null;
+};
+
+function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const content = data?.content;
+  const cardTitle =
+    (isRTL && getString(content, "about_title")) || t("aboutPlatform.cardTitle");
+  const cardDesc =
+    (isRTL && getString(content, "about_desc")) ||
+    sectionText(data, "description", t("aboutPlatform.cardDesc"), isRTL);
 
   const stats = [
     {
       id: 1,
-      value: t("aboutPlatform.stats.1.value"),
+      value: getString(content, "exp_years") || t("aboutPlatform.stats.1.value"),
       label: t("aboutPlatform.stats.1.label"),
     },
     {
       id: 2,
-      value: t("aboutPlatform.stats.2.value"),
+      value:
+        getString(content, "campaigns_count") ||
+        t("aboutPlatform.stats.2.value"),
       label: t("aboutPlatform.stats.2.label"),
     },
     {
       id: 3,
-      value: t("aboutPlatform.stats.3.value"),
+      value:
+        getString(content, "happy_clients") || t("aboutPlatform.stats.3.value"),
       label: t("aboutPlatform.stats.3.label"),
     },
   ];
@@ -35,7 +50,7 @@ function AboutPlatformSection() {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative mt-5 overflow-hidden bg-[#f5f5f2] px-4 py-8 sm:px-6 lg:px-8">
+      className="relative overflow-hidden bg-[#f5f5f2] px-4 py-8 sm:px-6 lg:px-8">
       <div className="relative mx-auto max-w-6xl">
         <div className="md:hidden">
           <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,246,241,0.9))] px-5 py-6 shadow-[0_12px_34px_rgba(0,0,0,0.06)]">
@@ -52,7 +67,7 @@ function AboutPlatformSection() {
                   isRTL ? "flex-row" : "flex-row-reverse",
                 )}>
                 <h3 className="shrink-0 text-[2rem] font-bold text-[#24245a]">
-                  {t("aboutPlatform.cardTitle")}
+                  {cardTitle}
                 </h3>
                 <Separator className="h-0.5 flex-1 bg-[#24245a]" />
               </div>
@@ -60,7 +75,7 @@ function AboutPlatformSection() {
               <div
                 className={cn("space-y-5", isRTL ? "text-right" : "text-left")}>
                 <p className="text-[1.35rem] leading-[1.9] text-[#5b5b76]">
-                  {t("aboutPlatform.cardDesc")}
+                  {cardDesc}
                 </p>
 
                 <div className="relative overflow-hidden rounded-[26px] bg-[#1c1c1c]">
@@ -151,7 +166,7 @@ function AboutPlatformSection() {
                 <div className="relative mx-auto w-full max-w-[20rem] sm:max-w-md lg:max-w-117.5">
                   <Card className="relative overflow-hidden rounded-[28px] border-0 bg-[#1c1c1c] py-0 shadow-[0_12px_30px_rgba(0,0,0,0.14)]">
                     <img
-                      src={centerImg}
+                    src={centerImg}
                       alt={t("aboutPlatform.centerAlt")}
                       className="h-64 w-full object-cover opacity-85 sm:h-72 md:h-80"
                     />
@@ -202,7 +217,7 @@ function AboutPlatformSection() {
                     <CardContent className="p-5 pt-14">
                       <div className="mb-4 flex items-center justify-center gap-3 lg:justify-start">
                         <h4 className="text-[20px] font-bold text-[#233a8b] md:text-[24px]">
-                          {t("aboutPlatform.cardTitle")}
+                          {cardTitle}
                         </h4>
                         <Separator className="h-0.5 flex-1 bg-[#6d6de3]" />
                       </div>
@@ -212,7 +227,7 @@ function AboutPlatformSection() {
                           "text-center text-[13px] leading-7 text-[#505050]",
                           isRTL ? "lg:text-right" : "lg:text-left",
                         )}>
-                        {t("aboutPlatform.cardDesc")}
+                        {cardDesc}
                       </p>
 
                       <div className="mt-4 flex justify-center lg:justify-start">

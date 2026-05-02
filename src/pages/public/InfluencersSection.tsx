@@ -13,16 +13,64 @@ import { FaFacebook, FaInstagram } from "react-icons/fa";
 import inf1 from "/assets/infImg1.png";
 import inf2 from "/assets/infImg2.png";
 import inf3 from "/assets/infImg3.png";
+import type { LandingCollection } from "@/types/landing.types";
+import { isRecord, sectionText } from "@/utils/landing";
 
-function InfluencersSection() {
+type InfluencersSectionProps = {
+  data?: LandingCollection | null;
+};
+
+function InfluencersSection({ data }: InfluencersSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < 768 : false,
   );
 
-  const influencers = useMemo(
-    () => [
+  const influencers = useMemo(() => {
+    const apiUsers =
+      data?.users
+        ?.map((user, index) => {
+          if (!isRecord(user)) return null;
+          const name =
+            typeof user.name === "string"
+              ? user.name
+              : t(`Influencers.items.${(index % 3) + 1}.name`);
+          const image = [inf1, inf2, inf3][index % 3];
+          const followers =
+            typeof user.followers === "string"
+              ? user.followers
+              : typeof user.followers_count === "number"
+                ? `${user.followers_count}`
+                : t(`Influencers.items.${(index % 3) + 1}.followers`);
+
+          return {
+            id: typeof user.id === "number" ? user.id : index + 1,
+            image,
+            name,
+            handle:
+              typeof user.username === "string"
+                ? `@${user.username}`
+                : typeof user.handle === "string"
+                  ? user.handle
+                  : t(`Influencers.items.${(index % 3) + 1}.handle`),
+            category1:
+              typeof user.content_field === "string"
+                ? user.content_field
+                : t(`Influencers.items.${(index % 3) + 1}.category1`),
+            category2:
+              typeof user.type === "string"
+                ? user.type
+                : t(`Influencers.items.${(index % 3) + 1}.category2`),
+            followers,
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          };
+        })
+        .filter((user): user is NonNullable<typeof user> => !!user) ?? [];
+
+    return apiUsers.length
+      ? apiUsers
+      : [
       {
         id: 1,
         image: inf1,
@@ -83,8 +131,15 @@ function InfluencersSection() {
         followers: t("Influencers.items.3.followers"),
         accent: "bg-[rgba(199,199,199,0.13)]",
       },
-    ],
-    [t],
+    ];
+  }, [data?.users, t]);
+
+  const title = sectionText(data?.info, "title", t("Influencers.title"), isRTL);
+  const description = sectionText(
+    data?.info,
+    "description",
+    t("Influencers.desc"),
+    isRTL,
   );
 
   useEffect(() => {
@@ -126,15 +181,15 @@ function InfluencersSection() {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="mt-5 mb-5 overflow-hidden bg-[#f3f3f3] px-4 py-14 md:py-20">
+      className="overflow-hidden bg-[#f3f3f3] px-4 py-12 md:py-16">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-3xl text-center sm:p-7">
           <h2 className="mx-auto max-w-[18rem] wrap-break-words text-center text-3xl font-bold leading-tight text-[#2f2f2f] sm:max-w-md md:max-w-none md:text-5xl">
-            {t("Influencers.title")}
+            {title}
           </h2>
 
           <p className="mx-auto mt-4 max-w-[20rem] wrap-break-words text-center text-base leading-8 text-[#555] sm:max-w-lg sm:text-lg md:max-w-none md:text-[22px]">
-            {t("Influencers.desc")}
+            {description}
           </p>
         </div>
 

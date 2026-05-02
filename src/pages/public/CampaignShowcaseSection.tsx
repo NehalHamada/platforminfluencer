@@ -7,15 +7,33 @@ import orbImg from "/assets/cc2.png";
 import phone1 from "/assets/iphone1.png";
 import phone2 from "/assets/iphone2.png";
 import phone3 from "/assets/iphone3.png";
+import type { LandingCollection } from "@/types/landing.types";
+import { sectionText } from "@/utils/landing";
 
-function CampaignShowcaseSection() {
+type CampaignShowcaseSectionProps = {
+  data?: LandingCollection | null;
+};
+
+function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const title = sectionText(
+    data?.info,
+    "title",
+    `${t("campaignShowcase.title1")} ${t("campaignShowcase.title2")}`,
+    isRTL,
+  );
+  const description = sectionText(
+    data?.info,
+    "description",
+    t("campaignShowcase.desc"),
+    isRTL,
+  );
 
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="mb-4 bg-[#171717] px-4 py-8 sm:px-5 md:py-12">
+      className="bg-[#171717] px-4 py-8 sm:px-5 md:py-12">
       <div className="mx-auto max-w-6xl">
         <Card className="relative overflow-hidden border-0 bg-transparent py-0 shadow-none">
           <div className="absolute inset-y-0 left-0 hidden w-45 bg-[radial-gradient(circle_at_left_center,rgba(182,192,131,0.35),transparent_60%)] md:block" />
@@ -65,13 +83,11 @@ function CampaignShowcaseSection() {
                   : "order-1 text-center md:order-2 md:text-left",
               )}>
               <h2 className="text-2xl font-bold leading-normal text-white sm:text-3xl md:text-[52px] md:leading-[1.35]">
-                {t("campaignShowcase.title1")}
-                <br />
-                {t("campaignShowcase.title2")}
+                {title}
               </h2>
 
               <p className="mt-4 text-sm leading-7 text-[#7e7e7e] sm:mt-6 sm:text-base sm:leading-8 md:max-w-105 md:text-[26px] md:leading-[1.8] lg:text-[30px]">
-                {t("campaignShowcase.desc")}
+                {description}
               </p>
 
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:mt-8 sm:gap-4 md:justify-start">

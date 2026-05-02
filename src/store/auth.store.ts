@@ -22,6 +22,7 @@ export const useAuthStore = create<AuthStore>()(
       clearAuth: () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        sessionStorage.removeItem("pendingAuth");
         set({
           user: null,
           token: null,

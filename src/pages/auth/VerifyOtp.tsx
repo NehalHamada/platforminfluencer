@@ -7,14 +7,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import LanguageToggle from "@/components/common/LanguageToggle";
 import { cn } from "@/lib/utils";
 import { useResendOtpMutation } from "@/queries/auth/useResendOtpMutation";
 import { useVerifyOtpMutation } from "@/queries/auth/useVerifyOtpMutation";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
-import type { AuthResponse, AuthUser } from "@/types/auth.types";
+import type { AuthResponse } from "@/types/auth.types";
 import { getOtpFromResponse, logOtpFromResponse } from "@/utils/logOtp";
+import { clearPendingAuth, getPendingAuth } from "@/utils/pendingAuth";
 
 import logphoto from "/assets/login-register.png";
 
@@ -31,42 +31,11 @@ const isAuthResponse = (response: unknown): response is AuthResponse => {
   return Boolean(value.data?.token && value.data.user);
 };
 
-const isAuthUser = (value: unknown): value is AuthUser => {
-  if (!value || typeof value !== "object") return false;
-
-  const user = value as Partial<AuthUser>;
-
-  return Boolean(
-    typeof user.id === "number" &&
-      user.name &&
-      (user.type === "company" || user.type === "influencer"),
-  );
-};
-
-const getStoredAuth = () => {
-  const token = localStorage.getItem("token");
-  const userText = localStorage.getItem("user");
-
-  if (!token || !userText) return null;
-
-  try {
-    const user = JSON.parse(userText) as unknown;
-
-    if (!isAuthUser(user)) return null;
-
-    return { user, token };
-  } catch {
-    return null;
-  }
-};
-
 function VerifyOtp() {
   const verifyOtpMutation = useVerifyOtpMutation();
   const resendOtpMutation = useResendOtpMutation();
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const currentUser = useAuthStore((state) => state.user);
-  const currentToken = useAuthStore((state) => state.token);
   const { t, i18n } = useTranslation();
 
   const isArabic = i18n.language === "ar";
@@ -99,19 +68,16 @@ function VerifyOtp() {
     if (isAuthResponse(response)) {
       const { user, token } = response.data;
       setAuth({ user, token });
+      clearPendingAuth();
       return user;
     }
 
-    if (currentUser && currentToken) {
-      setAuth({ user: currentUser, token: currentToken });
-      return currentUser;
-    }
+    const pendingAuth = getPendingAuth();
 
-    const storedAuth = getStoredAuth();
-
-    if (storedAuth) {
-      setAuth(storedAuth);
-      return storedAuth.user;
+    if (pendingAuth) {
+      setAuth(pendingAuth);
+      clearPendingAuth();
+      return pendingAuth.user;
     }
 
     return null;
@@ -271,6 +237,8 @@ function VerifyOtp() {
       if (otpPurpose === "company-register") {
         const verifiedUser = resolveVerifiedUser(response);
 
+        sessionStorage.removeItem("registerData");
+        sessionStorage.removeItem("companyRegisterStep1");
         sessionStorage.removeItem("otpPurpose");
         sessionStorage.removeItem("otpEmail");
         localStorage.removeItem("otpEmail");
@@ -327,10 +295,6 @@ function VerifyOtp() {
         className="absolute inset-0 h-full w-full object-cover lg:hidden"
       />
       <div className="absolute inset-0 bg-black/70 lg:hidden" />
-
-      <div className="absolute top-4 inset-s-4 z-10 lg:hidden">
-        <LanguageToggle />
-      </div>
 
       <div className="relative z-10 flex w-full justify-center lg:w-1/2">
         <Card className="w-full max-w-md border-0 bg-transparent py-0 shadow-none ring-0">

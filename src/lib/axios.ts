@@ -2,6 +2,13 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { env } from "@/config/env";
 
 const attachToken = (config: InternalAxiosRequestConfig) => {
+  const skipAuth = config.headers["X-Skip-Auth"];
+  delete config.headers["X-Skip-Auth"];
+
+  if (skipAuth) {
+    return config;
+  }
+
   const token = localStorage.getItem("token");
 
   if (token) {
@@ -24,10 +31,12 @@ const handleResponseError = (error: AxiosError) => {
     console.error("API Error:", error.response.data);
 
     if (error.response.status === 401) {
+      const isLogoutRequest = error.config?.url?.includes("/api/logout");
+
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
-      if (window.location.pathname !== "/login") {
+      if (!isLogoutRequest && window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
     }

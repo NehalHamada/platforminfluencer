@@ -6,11 +6,28 @@ import chI1 from "/assets/choImg1.png";
 import chI2 from "/assets/choImg2.png";
 import chI3 from "/assets/choImg3.png";
 import chI4 from "/assets/choImg4.png";
+import type { LandingSection } from "@/types/landing.types";
+import { getString, isRecord } from "@/utils/landing";
 
-function WhyChooseUs() {
+type WhyChooseUsProps = {
+  data?: LandingSection | null;
+};
+
+function WhyChooseUs({ data }: WhyChooseUsProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
-  const features = [t("feature1"), t("feature2"), t("feature3"), t("feature4")];
+  const apiPoints = Array.isArray(data?.content?.points)
+    ? data.content.points.filter(isRecord)
+    : [];
+  const features =
+    isRTL && apiPoints.length
+      ? apiPoints.map(
+          (point, index) =>
+            getString(point, "title") ||
+            getString(point, "desc") ||
+            t(`feature${(index % 4) + 1}`),
+        )
+      : [t("feature1"), t("feature2"), t("feature3"), t("feature4")];
 
   return (
     <section
@@ -52,7 +69,7 @@ function WhyChooseUs() {
                 isRTL ? "md:text-right" : "md:text-left",
               )}>
               <CardTitle className="mb-6 text-3xl font-bold text-white underline">
-                {t("whyChooseUs")}
+                {(isRTL && data?.title) || t("whyChooseUs")}
               </CardTitle>
 
               <ul className="space-y-4">

@@ -11,6 +11,7 @@ export const landingServices = {
         },
         headers: {
           "Accept-Language": lang,
+          "X-Skip-Auth": "true",
         },
       },
     );

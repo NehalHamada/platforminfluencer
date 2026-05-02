@@ -6,6 +6,7 @@ import type {
   CompleteInfluencerProfilePayload,
   ForgotPasswordPayload,
   LoginPayload,
+  LogoutResponse,
   ResendOtpPayload,
   ResetPasswordPayload,
   SharedRegisterData,
@@ -15,6 +16,11 @@ import type {
 export const authService = {
   login: async (data: LoginPayload): Promise<AuthResponse> => {
     const response = await authClients.post("/api/login", data);
+    return response.data;
+  },
+
+  logout: async (): Promise<LogoutResponse> => {
+    const response = await authClients.post("/api/logout");
     return response.data;
   },
 

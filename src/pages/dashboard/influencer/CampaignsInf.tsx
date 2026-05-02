@@ -179,6 +179,7 @@ function CampaignsInf() {
                   </div>
                 </div>
               </div>
+
               <div className="mt-6 rounded-full bg-[#eef2ef] px-4 py-2.5 text-center text-xs leading-5 text-[#595c55] sm:mt-8 sm:rounded-[12px] sm:px-4 sm:py-4 sm:text-sm">
                 {campaign.completedText}
               </div>

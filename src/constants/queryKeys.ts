@@ -7,6 +7,9 @@ export const queryKeys = {
     details: (campaignId: string) =>
       ["campaigns", "details", campaignId] as const,
     request: (params?: unknown) => ["campaigns", "request", params] as const,
+    myApplications: (params?: unknown) =>
+      ["campaigns", "my-applications", params] as const,
+    allApplications: () => ["campaigns", "all-applications"] as const,
     applications: (campaignId: string | number) =>
       ["campaigns", "applications", campaignId] as const,
   },

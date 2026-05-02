@@ -5,6 +5,11 @@ function ProtectedRoute() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const location = useLocation();
   if (!isAuthenticated) {
+    if (sessionStorage.getItem("logoutRedirect") === "home") {
+      sessionStorage.removeItem("logoutRedirect");
+      return <Navigate to="/" replace />;
+    }
+
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
   return <Outlet />;

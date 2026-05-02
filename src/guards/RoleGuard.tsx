@@ -9,6 +9,11 @@ type RoleGuardProps = {
 function RoleGuard({ allowedRoles }: RoleGuardProps) {
   const user = useAuthStore((state) => state.user);
   if (!user) {
+    if (sessionStorage.getItem("logoutRedirect") === "home") {
+      sessionStorage.removeItem("logoutRedirect");
+      return <Navigate to="/" replace />;
+    }
+
     return <Navigate to="/login" replace />;
   }
   if (allowedRoles.indexOf(user.type) === -1) {

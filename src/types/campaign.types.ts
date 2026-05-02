@@ -91,7 +91,11 @@ export type CampaignRequest = {
   title: string;
   image: string;
   platforms: string[];
+  platformIds?: number[];
   followers: string;
+  note?: string;
+  executionDate?: string;
+  status?: string;
   requestedPrice: string;
 };
 

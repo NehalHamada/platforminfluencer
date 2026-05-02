@@ -2,9 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
-import LanguageToggle from "@/components/common/LanguageToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -31,16 +35,22 @@ import {
 } from "lucide-react";
 import type { SharedRegisterData, UserRole } from "@/types/auth.types";
 
+const getUserRole = (role: string | null): UserRole | null => {
+  if (role === "company" || role === "influencer") return role;
+  return null;
+};
+
 function Register() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const isArabic = i18n.language === "ar";
   const isBaseRegisterPage = location.pathname === "/register";
+  const selectedRole = getUserRole(searchParams.get("role"));
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showRolePopup, setShowRolePopup] = useState(false);
   const [pendingData, setPendingData] = useState<RegisterSchemaType | null>(
     null,
@@ -62,21 +72,12 @@ function Register() {
     formState: { errors, isSubmitting },
   } = form;
 
-  const onContinue = (data: RegisterSchemaType) => {
-    setPendingData(data);
-    setShowRolePopup(true);
-  };
-
-  const onError = () => {};
-
-  const handleChooseRole = (role: UserRole) => {
-    if (!pendingData) return;
-
+  const continueWithRole = (data: RegisterSchemaType, role: UserRole) => {
     const payload: SharedRegisterData = {
-      name: pendingData.name,
-      email: pendingData.email,
-      password: pendingData.password,
-      password_confirmation: pendingData.confirmPassword,
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      password_confirmation: data.confirmPassword,
       type: role,
     };
 
@@ -92,6 +93,23 @@ function Register() {
       navigate("/register/influencer");
       return;
     }
+  };
+
+  const onContinue = (data: RegisterSchemaType) => {
+    if (selectedRole) {
+      continueWithRole(data, selectedRole);
+      return;
+    }
+
+    setPendingData(data);
+    setShowRolePopup(true);
+  };
+
+  const onError = () => {};
+
+  const handleChooseRole = (role: UserRole) => {
+    if (!pendingData) return;
+    continueWithRole(pendingData, role);
   };
 
   return (
@@ -111,10 +129,6 @@ function Register() {
             className="absolute inset-0 h-full w-full object-cover lg:hidden"
           />
           <div className="absolute inset-0 bg-black/70 lg:hidden" />
-
-          <div className="absolute top-4 inset-s-4 z-10 lg:hidden">
-            <LanguageToggle />
-          </div>
 
           <div className="relative z-10 flex w-full justify-center lg:w-1/2">
             <Card className="w-full max-w-md border-0 bg-transparent py-0 shadow-none ring-0">
@@ -228,24 +242,6 @@ function Register() {
                             isArabic ? "right-3" : "left-3",
                           )}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((prev) => !prev)}
-                          aria-label={
-                            showPassword
-                              ? t("login.hidePassword", "Hide password")
-                              : t("login.showPassword", "Show password")
-                          }
-                          className={cn(
-                            "absolute top-1/2 -translate-y-1/2 cursor-pointer text-white/75 transition hover:text-white lg:text-gray-400 lg:hover:text-gray-500",
-                            isArabic ? "left-3" : "right-3",
-                          )}>
-                          {showPassword ? (
-                            <EyeOff size={18} />
-                          ) : (
-                            <Eye size={18} />
-                          )}
-                        </button>
                         <Input
                           id="register-password"
                           type={showPassword ? "text" : "password"}
@@ -263,6 +259,25 @@ function Register() {
                               : "pl-10 pr-10 text-left",
                           )}
                         />
+                        <button
+                          type="button"
+                          tabIndex={-1}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          aria-label={
+                            showPassword
+                              ? t("login.hidePassword", "Hide password")
+                              : t("login.showPassword", "Show password")
+                          }
+                          className={cn(
+                            "absolute top-1/2 -translate-y-1/2 cursor-pointer text-white/75 transition hover:text-white lg:text-gray-400 lg:hover:text-gray-500",
+                            isArabic ? "left-3" : "right-3",
+                          )}>
+                          {showPassword ? (
+                            <EyeOff size={18} />
+                          ) : (
+                            <Eye size={18} />
+                          )}
+                        </button>
                       </div>
                       {errors.password?.message ? (
                         <p
@@ -291,29 +306,9 @@ function Register() {
                             isArabic ? "right-3" : "left-3",
                           )}
                         />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowConfirmPassword((prev) => !prev)
-                          }
-                          aria-label={
-                            showConfirmPassword
-                              ? t("login.hidePassword", "Hide password")
-                              : t("login.showPassword", "Show password")
-                          }
-                          className={cn(
-                            "absolute top-1/2 -translate-y-1/2 cursor-pointer text-white/75 transition hover:text-white lg:text-gray-400 lg:hover:text-gray-500",
-                            isArabic ? "left-3" : "right-3",
-                          )}>
-                          {showConfirmPassword ? (
-                            <EyeOff size={18} />
-                          ) : (
-                            <Eye size={18} />
-                          )}
-                        </button>
                         <Input
                           id="register-confirm-password"
-                          type={showConfirmPassword ? "text" : "password"}
+                          type={showPassword ? "text" : "password"}
                           autoComplete="new-password"
                           {...register("confirmPassword")}
                           aria-invalid={!!errors.confirmPassword}
@@ -328,6 +323,25 @@ function Register() {
                               : "pl-10 pr-10 text-left",
                           )}
                         />
+                        <button
+                          type="button"
+                          tabIndex={-1}
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          aria-label={
+                            showPassword
+                              ? t("login.hidePassword", "Hide password")
+                              : t("login.showPassword", "Show password")
+                          }
+                          className={cn(
+                            "absolute top-1/2 -translate-y-1/2 cursor-pointer text-white/75 transition hover:text-white lg:text-gray-400 lg:hover:text-gray-500",
+                            isArabic ? "left-3" : "right-3",
+                          )}>
+                          {showPassword ? (
+                            <EyeOff size={18} />
+                          ) : (
+                            <Eye size={18} />
+                          )}
+                        </button>
                       </div>
                       {errors.confirmPassword?.message ? (
                         <p

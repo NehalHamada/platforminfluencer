@@ -11,6 +11,8 @@ import type {
   VerifyOtpPayload,
 } from "@/types/auth.types";
 import { useAuthStore } from "@/store/auth.store";
+import { logOtpFromResponse } from "@/utils/logOtp";
+import { setPendingAuth } from "@/utils/pendingAuth";
 
 function useAuth() {
   const navigate = useNavigate();
@@ -20,27 +22,30 @@ function useAuth() {
 
   const register = async (data: SharedRegisterData) => {
     const response = await registerMutation.mutateAsync(data);
-
-    if (response.data.user.type === "company") {
-      navigate("/dashboard/company");
-    } else {
-      navigate("/dashboard/influencer");
-    }
+    logOtpFromResponse("register otp:", response);
+    setPendingAuth(response.data);
+    sessionStorage.setItem(
+      "otpPurpose",
+      `${response.data.user.type}-register`,
+    );
+    localStorage.setItem("otpEmail", data.email);
+    navigate("/verify-otp");
   };
 
   const login = async (data: LoginPayload) => {
     const response = await loginMutation.mutateAsync(data);
-    if (response.data.user.type === "company") {
-      navigate("/dashboard/company");
-    } else {
-      navigate("/dashboard/influencer");
-    }
+    logOtpFromResponse("login otp:", response);
+    setPendingAuth(response.data);
+    sessionStorage.setItem("otpPurpose", "login-verification");
+    localStorage.setItem("otpEmail", data.email);
+    navigate("/verify-otp");
   };
 
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const logout = () => {
+    sessionStorage.setItem("logoutRedirect", "home");
     clearAuth();
-    navigate("/login");
+    window.location.replace("/");
   };
 
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);

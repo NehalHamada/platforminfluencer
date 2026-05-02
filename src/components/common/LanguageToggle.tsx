@@ -6,8 +6,13 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
-function LanguageToggle() {
+type LanguageToggleProps = {
+  className?: string;
+};
+
+function LanguageToggle({ className }: LanguageToggleProps) {
   const { i18n } = useTranslation();
   const currentLanguage = i18n.language === "ar" ? "ar" : "en";
 
@@ -31,7 +36,10 @@ function LanguageToggle() {
           variant="ghost"
           size="icon-sm"
           aria-label="Change language"
-          className="me-3 cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white focus-visible:ring-white/30">
+          className={cn(
+            "me-3 cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white focus-visible:ring-white/30",
+            className,
+          )}>
           <Globe className="text-white" />
         </Button>
       </DropdownMenuTrigger>

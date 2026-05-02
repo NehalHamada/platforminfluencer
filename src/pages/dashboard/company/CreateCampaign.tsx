@@ -53,7 +53,7 @@ function CampaignInputField({
         placeholder={placeholder}
         aria-invalid={error ? "true" : undefined}
         className={cn(
-          "h-11 rounded-full border-[#d9d7cf] bg-white px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:ring-1 focus-visible:ring-[#9aa883]",
+          "h-11 rounded-full border-[#d9d7cf] px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:ring-1 focus-visible:ring-[#9aa883]",
           isRTL ? "text-right" : "text-left",
         )}
       />
@@ -130,7 +130,7 @@ function CreateCampaign() {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative -mt-24 overflow-hidden bg-[#f3f3f1]">
+      className="relative -mt-24 overflow-hidden ">
       <div className="relative h-48 overflow-hidden sm:h-56 lg:h-85">
         <img
           src={hero}
@@ -152,7 +152,7 @@ function CreateCampaign() {
               </p>
             </div>
 
-            <Card className="rounded-[28px] border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(243,243,241,0.98)_100%)] shadow-[0_18px_50px_rgba(34,34,31,0.06)]">
+            <Card className="rounded-[28px] border-white/70  shadow-[0_18px_50px_rgba(34,34,31,0.06)]">
               <CardContent className="p-4 sm:p-6 lg:p-8">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                   <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
@@ -411,7 +411,7 @@ function CreateCampaign() {
                       className="group relative inline-flex h-12 min-w-42.5 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70">
                       <span
                         className={cn(
-                          "absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-[#eef2e7] text-[#8c9878]",
+                          "absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  text-[#8c9878]",
                           isRTL ? "left-2" : "right-2",
                         )}>
                         {isRTL ? (

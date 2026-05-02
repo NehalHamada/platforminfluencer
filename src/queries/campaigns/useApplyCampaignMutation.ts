@@ -30,6 +30,10 @@ export function useApplyCampaignMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.dashboard.influencer(),
       });
+
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.myApplications(),
+      });
     },
   });
 }

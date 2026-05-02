@@ -15,12 +15,60 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import type { LandingSection } from "@/types/landing.types";
+import { isRecord, sectionText } from "@/utils/landing";
 
-function OverviewSection() {
+type OverviewSectionProps = {
+  data?: LandingSection | null;
+};
+
+function OverviewSection({ data }: OverviewSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const apiPlatforms = Array.isArray(data?.content?.platforms)
+    ? data.content.platforms.filter(isRecord)
+    : [];
 
-  const platforms = [
+  const getPlatformIcon = (icon: unknown) => {
+    const iconName = typeof icon === "string" ? icon.toLowerCase() : "";
+    if (iconName.includes("yt") || iconName.includes("youtube")) {
+      return <FaYoutube className="text-[28px] text-white" />;
+    }
+    if (iconName.includes("fb") || iconName.includes("facebook")) {
+      return <FaFacebookF className="text-[28px] text-white" />;
+    }
+    if (iconName.includes("tt") || iconName.includes("tiktok")) {
+      return <FaTiktok className="text-[28px] text-black" />;
+    }
+    return <FaInstagram className="text-[28px] text-white" />;
+  };
+
+  const getPlatformBg = (icon: unknown) => {
+    const iconName = typeof icon === "string" ? icon.toLowerCase() : "";
+    if (iconName.includes("yt") || iconName.includes("youtube")) return "bg-[#FF0000]";
+    if (iconName.includes("fb") || iconName.includes("facebook")) return "bg-[#1877F2]";
+    if (iconName.includes("tt") || iconName.includes("tiktok")) return "bg-white";
+    return "bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45]";
+  };
+
+  const getPlatformLabel = (platform: Record<string, unknown>) => {
+    if (isRTL && typeof platform.type === "string") return platform.type;
+
+    const iconName =
+      typeof platform.icon === "string" ? platform.icon.toLowerCase() : "";
+    if (iconName.includes("yt") || iconName.includes("youtube")) {
+      return t("overview.cards.youtube.label");
+    }
+    if (iconName.includes("fb") || iconName.includes("facebook")) {
+      return t("overview.cards.facebook.label");
+    }
+    if (iconName.includes("tt") || iconName.includes("tiktok")) {
+      return t("overview.cards.tiktok.label");
+    }
+    return t("overview.cards.instagram.label");
+  };
+
+  const fallbackPlatforms = [
     {
       id: 1,
       icon: <FaInstagram className="text-[28px] text-white" />,
@@ -71,14 +119,34 @@ function OverviewSection() {
     },
   ];
 
+  const platforms = apiPlatforms.length
+    ? apiPlatforms.map((platform, index) => ({
+        id: index + 1,
+        icon: getPlatformIcon(platform.icon),
+        bg: getPlatformBg(platform.icon),
+        followers:
+          typeof platform.followers === "string"
+            ? platform.followers
+            : t("overview.cards.instagram.followers"),
+        label:
+          getPlatformLabel(platform),
+        link:
+          typeof platform.link === "string"
+            ? platform.link
+            : t("overview.cards.instagram.link"),
+      }))
+    : fallbackPlatforms;
+
+  const sideText = sectionText(data, "description", t("overview.sideCard"), isRTL);
+
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="mb-5 overflow-hidden px-4 py-8 sm:px-5 sm:py-10 md:px-6 md:py-16">
+      className="overflow-hidden px-4 py-8 sm:px-5 sm:py-10 md:px-6 md:py-14">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
           <h2 className="text-2xl font-bold text-[#202020] sm:text-[28px] md:text-[34px]">
-            {t("overview.title")}
+            {sectionText(data, "title", t("overview.title"), isRTL)}
           </h2>
           <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
           <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
@@ -139,7 +207,7 @@ function OverviewSection() {
                   "mx-auto max-w-[20rem] text-xl font-semibold leading-[1.7] sm:text-[22px] md:text-[26px] lg:mx-0 lg:max-w-none lg:text-[30px]",
                   isRTL ? "lg:text-right" : "lg:text-left",
                 )}>
-                {t("overview.sideCard")}
+                {sideText}
               </p>
             </CardContent>
           </Card>

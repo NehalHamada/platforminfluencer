@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
 
 import AboutPlatformSection from "./AboutPlatformSection";
@@ -58,16 +57,31 @@ function Landing() {
 
   const sections = [
     { id: "hero", component: <Hero data={data.hero} /> },
-    { id: "photoes", component: <Photoes /> },
-    { id: "results", component: <ResultsLanding /> },
-    { id: "about-platform", component: <AboutPlatformSection /> },
-    { id: "influencers", component: <InfluencersSection /> },
-    { id: "campaign-showcase", component: <CampaignShowcaseSection /> },
-    { id: "overview", component: <OverviewSection /> },
-    { id: "top-influencers", component: <TopInfluencersSection /> },
-    { id: "features", component: <FeaturesSection /> },
-    { id: "why-choose-us", component: <WhyChooseUs /> },
-    { id: "trusted-companies", component: <TrustedCompaniesSection /> },
+    { id: "photoes", component: <Photoes data={data.part2} /> },
+    { id: "results", component: <ResultsLanding data={data.success_results} /> },
+    {
+      id: "about-platform",
+      component: <AboutPlatformSection data={data.footer_info} />,
+    },
+    {
+      id: "influencers",
+      component: <InfluencersSection data={data.famous_influencers} />,
+    },
+    {
+      id: "campaign-showcase",
+      component: <CampaignShowcaseSection data={data.impact_campaigns} />,
+    },
+    { id: "overview", component: <OverviewSection data={data.platform_overview} /> },
+    {
+      id: "top-influencers",
+      component: <TopInfluencersSection data={data.latest_stars} />,
+    },
+    { id: "features", component: <FeaturesSection data={data.part8} /> },
+    { id: "why-choose-us", component: <WhyChooseUs data={data.our_diff} /> },
+    {
+      id: "trusted-companies",
+      component: <TrustedCompaniesSection data={data.trusted_by} />,
+    },
   ];
 
   return (
@@ -76,7 +90,7 @@ function Landing() {
       className="min-h-screen w-full bg-background">
       <Card className="min-h-screen rounded-none border-0 bg-transparent py-0 shadow-none ring-0">
         <CardContent className="space-y-0 px-0">
-          {sections.map((section, index) => (
+          {sections.map((section) => (
             <div key={section.id}>
               <section
                 aria-labelledby={`${section.id}-section`}
@@ -86,13 +100,6 @@ function Landing() {
                 </div>
                 {section.component}
               </section>
-
-              {index < sections.length - 1 ? (
-                <Separator
-                  className="mx-auto max-w-6xl bg-border/40"
-                  decorative
-                />
-              ) : null}
             </div>
           ))}
         </CardContent>

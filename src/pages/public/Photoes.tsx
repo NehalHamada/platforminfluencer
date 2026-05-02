@@ -11,18 +11,26 @@ import style from "/assets/style.png";
 import us1 from "/assets/user1.png";
 import us2 from "/assets/user2.png";
 import us3 from "/assets/user3.png";
+import type { LandingSection } from "@/types/landing.types";
+import { sectionText } from "@/utils/landing";
 
 const avatarsTop = [us1, us2, us3];
 const avatarsBottom = [us1, us2, us3];
 
-function Photoes() {
+type PhotoesProps = {
+  data?: LandingSection | null;
+};
+
+function Photoes({ data }: PhotoesProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language.startsWith("ar");
+  const title = sectionText(data, "title", t("campaignTitle"), isRTL);
+  const description = sectionText(data, "description", t("campaignDesc"), isRTL);
 
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative overflow-hidden bg-[#f3f3f3] py-8 sm:py-10 lg:py-14">
+      className="relative overflow-hidden bg-[#f3f3f3] py-7 sm:py-9 lg:py-12">
       <img
         src={style}
         alt=""
@@ -50,11 +58,11 @@ function Photoes() {
 
                   <div className="relative z-10 w-full max-w-84">
                     <h2 className="text-[1.9rem] font-bold leading-[1.6]">
-                      {t("campaignTitle")}
+                      {title}
                     </h2>
 
                     <p className="mt-4 text-base leading-8 text-white/85">
-                      {t("campaignDesc")}
+                      {description}
                     </p>
                   </div>
                 </CardContent>
@@ -109,11 +117,11 @@ function Photoes() {
                 )}>
                 <div className="w-full max-w-[92%]">
                   <h2 className="text-2xl font-bold leading-normal">
-                    {t("campaignTitle")}
+                    {title}
                   </h2>
 
                   <p className="mt-8 text-xl leading-10 text-white/85">
-                    {t("campaignDesc")}
+                    {description}
                   </p>
                 </div>
 

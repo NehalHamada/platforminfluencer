@@ -9,16 +9,35 @@ import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import featImg from "/assets/featImg.jpg";
+import type { LandingSection } from "@/types/landing.types";
+import { getString, isRecord } from "@/utils/landing";
 
-function FeaturesSection() {
+type FeaturesSectionProps = {
+  data?: LandingSection | null;
+};
+
+function FeaturesSection({ data }: FeaturesSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
 
-  const features = [{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }];
+  const apiPoints = Array.isArray(data?.content?.points)
+    ? data.content.points.filter(isRecord)
+    : [];
+  const features = isRTL && apiPoints.length
+    ? apiPoints.map((point, index) => ({
+        id: String(index + 1),
+        title: getString(point, "title") || t(`features.items.${(index % 4) + 1}.title`),
+        desc: getString(point, "desc") || t(`features.items.${(index % 4) + 1}.desc`),
+      }))
+    : [{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }].map((item) => ({
+        id: item.id,
+        title: t(`features.items.${item.id}.title`),
+        desc: t(`features.items.${item.id}.desc`),
+      }));
 
   return (
     <section
-      className="mb-8 overflow-hidden bg-[#e7e6dc] px-4 py-8"
+      className="overflow-hidden bg-[#e7e6dc] px-4 py-8"
       dir={isRTL ? "rtl" : "ltr"}>
       <div className="mx-auto max-w-6xl">
         <Card className="relative overflow-hidden rounded-2xl border-0 py-0 shadow-none">
@@ -51,7 +70,7 @@ function FeaturesSection() {
                     </div>
 
                     <CardTitle className="min-w-0 max-w-[16rem] wrap-break-words text-center text-[16px] font-medium leading-normal text-[#2b2b2b] sm:max-w-[20rem] sm:text-[19px] md:max-w-none md:text-start md:text-[22px]">
-                      {t(`features.items.${item.id}.title`)}
+                      {item.title}
                     </CardTitle>
 
                     <ChevronDown
@@ -63,7 +82,7 @@ function FeaturesSection() {
 
                 <div className={cn(isRTL ? "md:pr-10" : "md:pl-10")}>
                   <CardDescription className="mx-auto max-w-[18rem] wrap-break-words text-center text-[13px] leading-7 text-[#55554f] sm:max-w-88 sm:text-[14px] md:mx-0 md:max-w-xl md:text-start md:text-[15px]">
-                    {t(`features.items.${item.id}.desc`)}
+                    {item.desc}
                   </CardDescription>
                 </div>
 

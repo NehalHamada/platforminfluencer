@@ -3,12 +3,15 @@ import type {
   CompanyDashboardResponse,
   ConvertCampaignPayload,
   ConvertCampaignResponse,
+  CurrentInfoItem,
+  ActivityItem,
   InfluencerDiscoveryItem,
   InfluencerDiscoveryQueryParams,
   InfluencerDiscoveryResponse,
   InfluencerChatPayload,
   InfluencerChatResponse,
   InfluencerDashboardResponse,
+  UpcomingCampaignItem,
 } from "@/types/dashboard.types";
 
 type ApiObject = Record<string, unknown>;
@@ -46,6 +49,201 @@ const getNestedString = (value: unknown, keys: string[], fallback = "") => {
   }
 
   return fallback;
+};
+
+const getArray = (value: unknown, keys: string[]) => {
+  if (Array.isArray(value)) return value;
+  if (!isObject(value)) return [];
+
+  for (const key of keys) {
+    const item = value[key];
+    if (Array.isArray(item)) return item;
+    if (isObject(item) && Array.isArray(item.data)) return item.data;
+  }
+
+  return [];
+};
+
+const unwrapData = (value: unknown) => {
+  if (isObject(value) && "data" in value) return value.data;
+  return value;
+};
+
+const formatDate = (value: unknown) => {
+  const date = getString(value, "");
+  if (!date) return "";
+
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return date;
+
+  return parsedDate.toLocaleDateString("en-GB");
+};
+
+const getNumber = (value: unknown) => {
+  const numberValue =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : NaN;
+
+  return Number.isFinite(numberValue) ? numberValue : undefined;
+};
+
+const normalizeStatus = (value: unknown): "pending" | "rejected" | "accepted" => {
+  const status = getString(value, "pending").toLowerCase();
+  if (status === "accepted" || status === "approved" || status === "active") {
+    return "accepted";
+  }
+  if (status === "rejected" || status === "declined") return "rejected";
+  return "pending";
+};
+
+const getUserProfile = (data: unknown): InfluencerDashboardResponse["profile"] => {
+  const value = isObject(data) ? data : {};
+  const profile = isObject(value.profile) ? value.profile : undefined;
+  const user = isObject(value.user) ? value.user : undefined;
+  const influencer = isObject(value.influencer) ? value.influencer : undefined;
+
+  return {
+    name: getString(
+      profile?.name ??
+        profile?.full_name ??
+        user?.name ??
+        user?.full_name ??
+        influencer?.name ??
+        influencer?.full_name,
+      "Influencer",
+    ),
+    avatar: getString(
+      profile?.avatar ??
+        profile?.image ??
+        profile?.photo ??
+        profile?.profile_image ??
+        user?.avatar ??
+        user?.image ??
+        influencer?.avatar ??
+        influencer?.image,
+      "",
+    ),
+  };
+};
+
+const mapCurrentInfo = (item: unknown, index: number): CurrentInfoItem | null => {
+  if (!isObject(item)) return null;
+
+  return {
+    id: Number(item.id ?? index + 1),
+    date:
+      getNestedString(item, ["execution_time", "executionTime"]) ||
+      formatDate(item.date ?? item.execution_date ?? item.deadline ?? item.due_date),
+    title: getNestedString(
+      item,
+      ["campaign", "campaign_name", "title"],
+      getString(item.title ?? item.name ?? item.campaignName, ""),
+    ),
+    company: getNestedString(
+      item,
+      ["company", "task", "current_task"],
+      getString(item.company ?? item.company_name ?? item.task ?? item.status_text, ""),
+    ),
+  };
+};
+
+const mapUpcomingCampaign = (
+  item: unknown,
+  index: number,
+): UpcomingCampaignItem | null => {
+  if (!isObject(item)) return null;
+
+  return {
+    id: Number(item.id ?? index + 1),
+    brand: getNestedString(
+      item,
+      ["brand", "company", "user"],
+      getString(item.brand ?? item.company_name ?? item.companyName, "FINANCE"),
+    ),
+    type: getNestedString(
+      item,
+      ["type", "campaign_type", "campaignType", "content_type", "contentType"],
+      getString(
+        item.type ??
+          item.campaign_type_name ??
+          item.content_type_name ??
+          item.content_type ??
+          item.idea,
+        "",
+      ),
+    ),
+    typeId: getNumber(item.campaign_type_id),
+    date:
+      getNestedString(item, ["execution_time", "executionTime"]) ||
+      formatDate(item.date ?? item.execution_date ?? item.deadline ?? item.created_at),
+    dateId: getNumber(item.execution_time_id),
+    budget: getNestedString(
+      item,
+      ["budget_range", "budgetRange"],
+      getString(item.budget ?? item.price ?? item.amount ?? item.suggested_budget, ""),
+    ),
+    budgetId: getNumber(item.budget_range_id),
+    platformId: getNumber(item.platform_id),
+    targetAudienceId: getNumber(item.target_audience_id),
+    targetLocationId: getNumber(item.target_location_id),
+    influencerCountRangeId: getNumber(item.influencer_count_range_id),
+    status: normalizeStatus(item.status),
+  };
+};
+
+const mapActivity = (item: unknown, index: number): ActivityItem | null => {
+  if (!isObject(item)) return null;
+
+  return {
+    id: Number(item.id ?? index + 1),
+    image: getString(item.image ?? item.photo ?? item.thumbnail, "/assets/platImg.png"),
+    title: getString(item.title ?? item.name ?? item.campaign_name, ""),
+    platform: getNestedString(
+      item,
+      ["platform"],
+      getString(item.platform ?? item.platform_name, ""),
+    ),
+    followers: getString(item.followers ?? item.followers_count ?? item.audience, ""),
+    budget: getString(item.budget ?? item.price ?? item.amount, ""),
+  };
+};
+
+const mapInfluencerDashboard = (responseData: unknown): InfluencerDashboardResponse => {
+  const data = unwrapData(responseData);
+  const value = isObject(data) ? data : {};
+
+  return {
+    profile: getUserProfile(value),
+    currentInfo: getArray(value, [
+      "currentInfo",
+      "current_info",
+      "current_tasks",
+      "active_tasks",
+      "tasks",
+    ])
+      .map(mapCurrentInfo)
+      .filter((item): item is CurrentInfoItem => Boolean(item)),
+    upcomingCampaigns: getArray(value, [
+      "upcomingCampaigns",
+      "upcoming_campaigns",
+      "available_campaigns",
+      "campaigns",
+      "upcoming",
+    ])
+      .map(mapUpcomingCampaign)
+      .filter((item): item is UpcomingCampaignItem => Boolean(item)),
+    activities: getArray(value, [
+      "activities",
+      "latest_activities",
+      "latestActivities",
+      "recent_posts",
+    ])
+      .map(mapActivity)
+      .filter((item): item is ActivityItem => Boolean(item)),
+  };
 };
 
 const getInfluencerDiscoveryList = (responseData: unknown): unknown[] => {
@@ -116,8 +314,8 @@ const mapInfluencerDiscoveryItem = (
 
 export const dashboardService = {
   async getInfluencerDashboard(): Promise<InfluencerDashboardResponse> {
-    const response = await api.get("/dashboard/influencer");
-    return response.data.data;
+    const response = await api.get("/api/influencer/home");
+    return mapInfluencerDashboard(response.data);
   },
 
   async createInfluencerChat(

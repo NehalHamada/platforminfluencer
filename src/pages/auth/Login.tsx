@@ -1,4 +1,3 @@
-import LanguageToggle from "@/components/common/LanguageToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -10,21 +9,63 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import logphoto from "/assets/login-register.png";
 import { Eye, EyeOff, KeyRound, Mail } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLoginMutation } from "@/queries/auth/useLoginMutation";
 import { Button } from "@/components/ui/Button";
 import axios from "axios";
 import { logOtpFromResponse } from "@/utils/logOtp";
+import { setPendingAuth } from "@/utils/pendingAuth";
+import type { AuthResponse, AuthUser, UserRole } from "@/types/auth.types";
 
 type LoginVerificationError = {
   message?: string;
   requires_verification?: boolean;
+  data?: Partial<AuthResponse["data"]>;
+};
+
+const getAuthUser = (value: unknown): AuthUser | null => {
+  if (!value || typeof value !== "object") return null;
+
+  const user = value as { id?: unknown; name?: unknown; type?: unknown };
+  const id =
+    typeof user.id === "number"
+      ? user.id
+      : typeof user.id === "string"
+        ? Number(user.id)
+        : NaN;
+
+  if (
+    Number.isFinite(id) &&
+    typeof user.name === "string" &&
+    (user.type === "company" || user.type === "influencer")
+  ) {
+    return {
+      id,
+      name: user.name,
+      type: user.type,
+    };
+  }
+
+  return null;
+};
+
+const storePendingAuthFromResponse = (response: {
+  data?: Partial<AuthResponse["data"]>;
+}) => {
+  const user = response.data?.user;
+  const token = response.data?.token;
+  const authUser = getAuthUser(user);
+
+  if (authUser && typeof token === "string" && token) {
+    setPendingAuth({ user: authUser, token });
+  }
 };
 
 function Login() {
   const loginMutation = useLoginMutation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
   const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -44,17 +85,11 @@ function Login() {
       setServerError("");
       loginMutation.mutate(data, {
         onSuccess: (response) => {
-          const role = response.data.user.type;
-          if (role === "company") {
-            navigate("/dashboard/company");
-            return;
-          }
-
-          if (role === "influencer") {
-            navigate("/dashboard/influencer");
-            return;
-          }
-          navigate("/");
+          logOtpFromResponse("login otp:", response);
+          storePendingAuthFromResponse(response);
+          localStorage.setItem("otpEmail", data.email);
+          sessionStorage.setItem("otpPurpose", "login-verification");
+          navigate("/verify-otp");
         },
         onError: (error) => {
           if (axios.isAxiosError<LoginVerificationError>(error)) {
@@ -65,6 +100,7 @@ function Login() {
               responseData?.requires_verification
             ) {
               logOtpFromResponse("login otp:", responseData);
+              storePendingAuthFromResponse(responseData ?? {});
               localStorage.setItem("otpEmail", data.email);
               sessionStorage.setItem("otpPurpose", "login-verification");
               navigate("/verify-otp");
@@ -84,6 +120,14 @@ function Login() {
   };
 
   const isArabic = i18n.language === "ar";
+  const selectedRole = searchParams.get("role");
+  const selectedUserRole: UserRole | null =
+    selectedRole === "company" || selectedRole === "influencer"
+      ? selectedRole
+      : null;
+  const registerPath = selectedUserRole
+    ? `/register?role=${selectedUserRole}`
+    : "/register";
 
   return (
     <section
@@ -100,10 +144,6 @@ function Login() {
         className="absolute inset-0 h-full w-full object-cover lg:hidden"
       />
       <div className="absolute inset-0 bg-black/70 lg:hidden" />
-
-      <div className="absolute top-4 inset-s-4 z-10 lg:hidden">
-        <LanguageToggle />
-      </div>
 
       <div className="relative z-10 flex w-full justify-center lg:w-1/2">
         <Card className="w-full max-w-md border-0 bg-transparent py-0 shadow-none ring-0">
@@ -173,6 +213,7 @@ function Login() {
                   <div className="relative">
                     <button
                       type="button"
+                      tabIndex={-1}
                       onClick={() => setShowPassword((prev) => !prev)}
                       aria-label={
                         showPassword
@@ -256,7 +297,7 @@ function Login() {
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => navigate("/register")}
+                onClick={() => navigate(registerPath)}
                 className="h-auto bg-transparent px-0 text-sm text-white underline underline-offset-4 hover:bg-transparent hover:text-white/80 lg:text-gray-400 lg:hover:text-gray-500">
                 {t("login.createAccount")}
               </Button>

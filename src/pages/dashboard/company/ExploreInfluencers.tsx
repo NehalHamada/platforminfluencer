@@ -1,3 +1,18 @@
+import {
+  BadgeCheck,
+  Bookmark,
+  ChevronDown,
+  MessageCircle,
+  Search,
+  SlidersHorizontal,
+  Star,
+} from "lucide-react";
+import { FaInstagram, FaTiktok } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -16,16 +31,11 @@ import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDi
 import { useContentTypesQuery } from "@/queries/masterData/useContentTypesQuery";
 import { useFollowerRangesQuery } from "@/queries/masterData/useFollowerRangesQuery";
 import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
-import type { InfluencerDiscoveryQueryParams } from "@/types/dashboard.types";
-import {
-  Bookmark,
-  ChevronDown,
-  Search,
-  SlidersHorizontal,
-  Star,
-} from "lucide-react";
-import { useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import type {
+  InfluencerDiscoveryItem,
+  InfluencerDiscoveryQueryParams,
+} from "@/types/dashboard.types";
+
 import hero from "/assets/Hero.png";
 import emptySearchImage from "/assets/search.png";
 
@@ -33,6 +43,121 @@ type FilterOption = {
   label: string;
   value: string;
 };
+
+function PlatformIcon({ platform }: { platform: string }) {
+  const lower = platform.toLowerCase();
+  if (lower.includes("tiktok")) {
+    return (
+      <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-black text-white">
+        <FaTiktok className="text-[9px]" />
+      </div>
+    );
+  }
+  if (lower.includes("instagram")) {
+    return (
+      <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)] text-white">
+        <FaInstagram className="text-[9px]" />
+      </div>
+    );
+  }
+  return null;
+}
+
+function InfluencerCard({
+  item,
+  isRTL,
+}: {
+  item: InfluencerDiscoveryItem;
+  isRTL: boolean;
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/influencer-profile/${item.id}`);
+  };
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate("/dashboard/company/contact");
+  };
+
+  return (
+    <div
+      onClick={handleCardClick}
+      className="group cursor-pointer overflow-hidden rounded-[18px] border border-[#e5e2db] bg-white shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex min-h-38" dir="ltr">
+        <div
+          className="flex flex-1 flex-col justify-between p-3.5"
+          dir={isRTL ? "rtl" : "ltr"}>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="flex-1 truncate text-[13px] font-semibold text-[#1d1d1a]">
+              {item.name}
+            </h3>
+            <button
+              type="button"
+              onClick={(e) => e.stopPropagation()}
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[#b5c09a] hover:bg-[#f3f5ef]"
+              aria-label="Bookmark">
+              <Bookmark className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-1 pe-3">
+              <p className="text-[15px] font-bold leading-none text-[#1d1d1a]">
+                {item.followers || "—"}
+              </p>
+              <p className="mt-0.5 text-[10px] text-[#8b8b84]">
+                {t("exploreInfluencers.followersLabel")}
+              </p>
+            </div>
+            <div className="flex-1 border-s border-[#ebebeb] ps-3">
+              <div className="flex items-center gap-0.5">
+                <p className="text-[15px] font-bold leading-none text-[#1d1d1a]">
+                  {item.engagement || "—"}
+                </p>
+                <Star className="h-3 w-3 fill-[#f5c518] text-[#f5c518]" />
+              </div>
+              <p className="mt-0.5 text-[10px] text-[#8b8b84]">
+                {t("exploreInfluencers.engagementLabel")}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="truncate text-[11px] text-[#6f6e67]">
+              {item.category || item.audience || "—"}
+            </span>
+            <BadgeCheck className="h-3.5 w-3.5 shrink-0 fill-[#a7b78e] text-white" />
+          </div>
+
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-7 w-fit gap-1.5 rounded-full border-[#d5dbc9] px-3 text-[11px] text-[#617047] hover:bg-[#f2f5ec]"
+            onClick={handleButtonClick}>
+            <MessageCircle className="h-3 w-3" />
+            {t("exploreInfluencers.sendMessage")}
+          </Button>
+        </div>
+
+        {/* Image — right side, full card height, no padding */}
+        <div className="relative w-[38%] shrink-0 overflow-hidden">
+          <img
+            src={item.image}
+            alt={item.name}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          />
+          {item.platform ? (
+            <div className="absolute bottom-2.5 left-2.5">
+              <PlatformIcon platform={item.platform} />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ExploreInfluencers() {
   const { t, i18n } = useTranslation();
@@ -121,7 +246,7 @@ function ExploreInfluencers() {
     },
     {
       key: "fame_level_id",
-      label: t("exploreInfluencers.fameLevel", "Fame Level"),
+      label: t("exploreInfluencers.fameLevel"),
       value: selectedFameLevel,
       onChange: setSelectedFameLevel,
       options: withAllOption([
@@ -152,6 +277,37 @@ function ExploreInfluencers() {
     setSelectedContentType("");
   };
 
+  useEffect(() => {
+    const fetchInfluencers = async () => {
+      try {
+        const params = {
+          search: searchQuery.trim() || undefined,
+          platform_id: selectedPlatform || undefined,
+          follower_range_id: selectedFollowers || undefined,
+          engagement_rate_id: selectedEngagement || undefined,
+          fame_level_id: selectedFameLevel || undefined,
+          content_type_id: selectedContentType || undefined,
+        };
+
+        const response = await axios.get("/api/influencer-discovery", {
+          params,
+        });
+        console.log("Fetched influencers:", response.data);
+      } catch (error) {
+        console.error("Error fetching influencers:", error);
+      }
+    };
+
+    fetchInfluencers();
+  }, [
+    searchQuery,
+    selectedPlatform,
+    selectedFollowers,
+    selectedEngagement,
+    selectedFameLevel,
+    selectedContentType,
+  ]);
+
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
@@ -163,6 +319,7 @@ function ExploreInfluencers() {
 
       <div className="relative z-10 -mt-10 rounded-t-[34px] bg-[#f3f3f1] px-4 pb-12 pt-8 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-6xl space-y-6">
+          {/* Search */}
           <div className="mx-auto max-w-md">
             <div className="relative">
               <Search
@@ -184,6 +341,7 @@ function ExploreInfluencers() {
             </div>
           </div>
 
+          {/* Filters */}
           <div className="flex flex-wrap items-center justify-center gap-2">
             {filterConfigs.map((filter) => (
               <DropdownMenu key={filter.key}>
@@ -225,6 +383,7 @@ function ExploreInfluencers() {
             </DropdownMenu>
           </div>
 
+          {/* Error */}
           {discoveryQuery.isError ? (
             <Card className="border-destructive/20 bg-destructive/5">
               <CardContent className="px-6 py-5 text-center text-sm font-medium text-destructive">
@@ -236,6 +395,7 @@ function ExploreInfluencers() {
             </Card>
           ) : null}
 
+          {/* Loading */}
           {discoveryQuery.isLoading ? (
             <Card className="border-0 bg-transparent py-0 shadow-none">
               <CardContent className="px-6 py-12 text-center text-sm text-[#6f6e67]">
@@ -244,89 +404,16 @@ function ExploreInfluencers() {
             </Card>
           ) : null}
 
+          {/* Grid */}
           {!discoveryQuery.isLoading && influencers.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {influencers.map((item) => (
-                <Card key={item.id} className="group transition hover:shadow-md">
-                  <CardContent className="flex gap-4 p-4">
-                    <div className="flex flex-1 flex-col justify-between space-y-3">
-                      <div
-                        className={cn(
-                          "flex items-start justify-between",
-                          isRTL && "flex-row-reverse",
-                        )}>
-                        <div className={isRTL ? "text-right" : "text-left"}>
-                          <h3 className="text-sm font-semibold">
-                            {item.name}
-                          </h3>
-                          {item.platform ? (
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {item.platform}
-                            </p>
-                          ) : null}
-                        </div>
-
-                        <Button size="icon" variant="ghost">
-                          <Bookmark size={16} />
-                        </Button>
-                      </div>
-
-                      <div
-                        className={cn(
-                          "flex items-center gap-6 text-sm",
-                          isRTL && "flex-row-reverse",
-                        )}>
-                        <div>
-                          <p className="text-muted-foreground text-xs">
-                            {t("exploreInfluencers.followersLabel")}
-                          </p>
-                          <p className="font-semibold">{item.followers || "-"}</p>
-                        </div>
-
-                        <div>
-                          <p className="text-muted-foreground text-xs">
-                            {t("exploreInfluencers.engagementLabel")}
-                          </p>
-                          <div className="flex items-center gap-1">
-                            <span className="font-semibold">
-                              {item.engagement || "-"}
-                            </span>
-                            <Star className="h-3 w-3 fill-primary text-primary" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground">
-                        {item.category || item.audience || "-"}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        <Button size="sm" className="rounded-full">
-                          {t("exploreInfluencers.viewProfile")}
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-full">
-                          {t("exploreInfluencers.sendMessage")}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="relative w-28 shrink-0 overflow-hidden rounded-xl">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-full w-full object-cover transition group-hover:scale-105"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                <InfluencerCard key={item.id} item={item} isRTL={isRTL} />
               ))}
             </div>
           ) : null}
 
+          {/* Empty state */}
           {!discoveryQuery.isLoading && influencers.length === 0 ? (
             <Card className="border-0 bg-transparent py-0 shadow-none">
               <CardContent className="flex flex-col items-center justify-center px-6 py-10 text-center">

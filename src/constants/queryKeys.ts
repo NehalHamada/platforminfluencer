@@ -15,7 +15,9 @@ export const queryKeys = {
   },
   dashboard: {
     company: () => ["dashboard", "company"] as const,
+    companyHome: () => ["dashboard", "company", "home"] as const,
     influencer: () => ["dashboard", "influencer"] as const,
+    influencerPosts: () => ["dashboard", "influencer", "posts"] as const,
   },
   influencers: {
     list: (params?: unknown) => ["influencers", "list", params] as const,

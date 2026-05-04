@@ -1,155 +1,24 @@
 import {
+  BadgeCheck,
+  Bookmark,
   ChevronLeft,
   ChevronRight,
-  Eye,
-  Heart,
+  MessageCircle,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { FaInstagram, FaTiktok } from "react-icons/fa";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useCompanyHomeQuery } from "@/queries/dashboard/useCompanyHomeQuery";
+import type { SuggestedInfluencer } from "@/types/dashboard.types";
 
 import hero from "/assets/Hero.png";
-
-type DashboardCopy = {
-  featuredTitle: string;
-  featuredSubtitle: string;
-  currentCampaignsTitle: string;
-  campaignStatus: string;
-  campaignTitle: string;
-  campaignSubtitle: string;
-  ctaText: string;
-  ctaButton: string;
-  monitorTitle: string;
-  monitorSubtitle: string;
-  whyTitle: string;
-  whySubtitle: string;
-  profileButton: string;
-};
-
-const copy = (isRTL: boolean): DashboardCopy =>
-  isRTL
-    ? {
-        featuredTitle: "مؤثرون متميزون لك",
-        featuredSubtitle: "ابحث عن المؤثر الأنسب لحملتك بسهولة",
-        currentCampaignsTitle: "حملاتك الحالية المفعلة",
-        campaignStatus: "نشطة الآن",
-        campaignTitle: "إدارة حملاتك أصبحت أوضح",
-        campaignSubtitle:
-          "تابع الأداء والميزانية والمراحل الجارية من واجهة واحدة منظمة",
-        ctaText:
-          "أنشئ حملتك القادمة وحدد المؤثرين والميزانية والجمهور المستهدف من مكان واحد.",
-        ctaButton: "ابدأ الآن",
-        monitorTitle: "نظام متابعة فعال",
-        monitorSubtitle: "لإدارة حملاتك",
-        whyTitle: "لماذا منصتنا؟",
-        whySubtitle: "حل متكامل لإدارة التعاونات مع المؤثرين باحترافية وأمان",
-        profileButton: "عرض الملف",
-      }
-    : {
-        featuredTitle: "Featured creators for you",
-        featuredSubtitle: "Find the right influencer for your next campaign",
-        currentCampaignsTitle: "Your active campaigns",
-        campaignStatus: "Active now",
-        campaignTitle: "Campaign management made clearer",
-        campaignSubtitle:
-          "Track performance, budget, and live execution stages from one place",
-        ctaText:
-          "Launch your next campaign with clear goals, curated creators, and a tighter workflow.",
-        ctaButton: "Start now",
-        monitorTitle: "Powerful tracking system",
-        monitorSubtitle: "to manage your campaigns",
-        whyTitle: "Why our platform?",
-        whySubtitle:
-          "A complete solution to manage influencer collaborations with clarity and confidence",
-        profileButton: "View profile",
-      };
-
-const featuredInfluencers = (isRTL: boolean) => [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80",
-    name: isRTL ? "يوسف" : "Yousef",
-    category: isRTL ? "تقنية" : "Tech",
-    followers: "10k",
-    engagement: "2.1%",
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80",
-    name: isRTL ? "سارة" : "Sara",
-    category: isRTL ? "موضة" : "Fashion",
-    followers: "12k",
-    engagement: "2.8%",
-  },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=500&q=80",
-    name: isRTL ? "نور" : "Nour",
-    category: isRTL ? "جمال" : "Beauty",
-    followers: "9k",
-    engagement: "2.4%",
-  },
-];
-
-const whyPlatformItems = (isRTL: boolean) => [
-  {
-    id: 1,
-    text: isRTL
-      ? "جميع المؤثرين مرشحون لضمان الجودة والمصداقية."
-      : "All influencers are curated to ensure quality and credibility.",
-  },
-  {
-    id: 2,
-    text: isRTL
-      ? "تواصل مع المؤثرين بدون وسطاء أو تعقيد."
-      : "Connect with creators directly without middle layers.",
-  },
-  {
-    id: 3,
-    text: isRTL
-      ? "تابع التعاونات والميزانيات والنتائج من لوحة واحدة."
-      : "Track collaborations, budgets, and results from one dashboard.",
-  },
-];
-
-const monitorItems = (isRTL: boolean) => [
-  {
-    title: isRTL ? "تقارير مستمرة" : "Continuous reports",
-    description: isRTL
-      ? "اعرف مستوى الوصول والتفاعل وحالة التنفيذ أولاً بأول."
-      : "See reach, engagement, and execution progress in real time.",
-  },
-  {
-    title: isRTL ? "اختيار أسرع" : "Faster selection",
-    description: isRTL
-      ? "قارن بين المؤثرين بناءً على بيانات واضحة ومباشرة."
-      : "Compare influencers using clear and direct performance data.",
-  },
-  {
-    title: isRTL ? "قرار أوضح" : "Sharper decisions",
-    description: isRTL
-      ? "تحكم أفضل في الميزانية والنتائج والمرحلة الحالية للحملة."
-      : "Make better calls around budget, outcomes, and current campaign stage.",
-  },
-];
-
-const campaignImages = [
-  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80",
-];
 
 function SectionHeader({
   title,
@@ -178,27 +47,211 @@ function SectionHeader({
   );
 }
 
+function PlatformIcons() {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="flex h-3.5 w-3.5 items-center justify-center rounded-[3px] bg-[linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)] text-white">
+        <FaInstagram className="text-[9px]" aria-hidden="true" />
+      </span>
+      <span className="flex h-3.5 w-3.5 items-center justify-center rounded-[3px] bg-black text-white">
+        <FaTiktok className="text-[8px]" aria-hidden="true" />
+      </span>
+    </div>
+  );
+}
+
+function SuggestedInfluencerCard({
+  item,
+  isRTL,
+  className,
+}: {
+  item: SuggestedInfluencer;
+  isRTL: boolean;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Card
+      className={cn(
+        "h-full overflow-hidden rounded-[12px] border border-[#ecebe6] bg-white py-0 shadow-[0_4px_12px_rgba(28,28,22,0.04)]",
+        className,
+      )}>
+      <div className="px-2.5 pt-2.5">
+        <img
+          src={item.profile_image ?? ""}
+          alt={item.name}
+          className="h-56 w-full rounded-[9px] object-cover object-center sm:h-44 lg:h-33"
+        />
+      </div>
+
+      <CardContent className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2">
+        <div className="flex items-center justify-between gap-2">
+          <PlatformIcons />
+          <h3 className="truncate text-[10px] font-medium text-[#111111]">
+            {item.name}
+          </h3>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 text-[#161616]">
+          <div className="space-y-0.5 text-right">
+            <p className="text-[11px] font-medium leading-none">
+              {item.followers_count != null ? String(item.followers_count) : "—"}
+            </p>
+            <p className="text-[10px] text-[#4f4f4b]">
+              {t("companyDashboard.followers")}
+            </p>
+          </div>
+          <div className="space-y-0.5 border-s border-[#eeeef0] text-right">
+            <p className="text-[11px] font-medium leading-none">
+              {item.engagement_rate != null ? String(item.engagement_rate) : "—"}
+            </p>
+            <p className="text-[10px] text-[#4f4f4b]">
+              {t("companyDashboard.engagementRate")}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3 flex items-center justify-center gap-1 text-[11px] text-[#62625d]">
+          <span>{item.category ?? ""}</span>
+          <BadgeCheck className="h-3 w-3 fill-[#a7b78e] text-white" />
+        </div>
+
+        <div
+          className={cn(
+            "mt-auto flex items-center gap-2 pt-5",
+            isRTL && "flex-row",
+          )}>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xs"
+            aria-label={t("companyDashboard.saveInfluencer")}
+            className="h-6.5 w-6.5 rounded-[6px] border-[#d9d98f] bg-white text-[#8f9d75] hover:bg-[#fbfbf3]">
+            <Bookmark className="h-3.5 w-3.5" />
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="h-6.5 flex-1 gap-1 rounded-[6px] border-0 bg-[#eef1e9] px-2 text-[10px] font-normal text-[#7f8c67] hover:bg-[#e7ecdf]">
+            {t("companyDashboard.sendMessage")}
+            <MessageCircle className="h-3 w-3" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function BrowseAllInfluencersCard({
+  suggested,
+  isRTL,
+}: {
+  suggested: SuggestedInfluencer[];
+  isRTL: boolean;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Card className="relative min-h-full overflow-hidden rounded-[12px] border-0 bg-[#fbf8ee] py-0 shadow-none">
+      <CardContent className="relative flex h-full min-h-71 flex-col items-center justify-center px-5 py-8 text-center">
+        <div className="absolute left-7 top-31 h-12 w-12 rotate-45 rounded-lg bg-[#bfceb0]" />
+        <div className="absolute left-10 top-43 h-6 w-6 rotate-45 rounded-[3px] bg-[#bfceb0]" />
+
+        <Button
+          type="button"
+          size="icon-sm"
+          aria-label={t("companyDashboard.browseAll")}
+          className="mb-7 h-6 w-6 rounded-full bg-[#fde58f] text-[#9aa172] hover:bg-[#f9dc78]">
+          {isRTL ? (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
+        </Button>
+
+        <p className="text-[13px] font-medium text-[#1d1d19]">
+          {t("companyDashboard.browseAll")}
+        </p>
+        <p className="mt-2 text-[13px] text-[#a7b78e]">
+          {t("companyDashboard.browseAllCount")}
+        </p>
+
+        <div className="absolute bottom-9 right-8 h-15 w-15 overflow-hidden rounded-full border-4 border-[#fbf8ee]">
+          <img
+            src={suggested[0]?.profile_image ?? ""}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="absolute bottom-8 right-21 h-7 w-7 overflow-hidden rounded-full border-3 border-[#fbf8ee]">
+          <img
+            src={suggested[1]?.profile_image ?? ""}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="absolute bottom-5 right-15 h-9 w-9 overflow-hidden rounded-full border-3 border-[#fbf8ee]">
+          <img
+            src={suggested[2]?.profile_image ?? ""}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function CompanyDashboard() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const location = useLocation();
   const [featuredIndex, setFeaturedIndex] = useState(0);
-  const text = copy(isRTL);
-  const featured = featuredInfluencers(isRTL);
-  const whyItems = whyPlatformItems(isRTL);
-  const monitor = monitorItems(isRTL);
+  const navigate = useNavigate();
+
+  const { data: homeData } = useCompanyHomeQuery();
+  const { suggested_influencers = [], latest_campaign_posts = [] } =
+    homeData?.data ?? {};
 
   if (location.pathname !== "/dashboard/company") {
     return <Outlet />;
   }
 
-  const activeFeatured = featured[featuredIndex];
+  const activeFeatured = suggested_influencers[featuredIndex];
   const goFeaturedPrev = () => {
-    setFeaturedIndex((prev) => (prev <= 0 ? featured.length - 1 : prev - 1));
+    setFeaturedIndex((prev) =>
+      prev <= 0 ? suggested_influencers.length - 1 : prev - 1,
+    );
   };
   const goFeaturedNext = () => {
-    setFeaturedIndex((prev) => (prev + 1) % featured.length);
+    setFeaturedIndex((prev) => (prev + 1) % suggested_influencers.length);
   };
+
+  const monitorItems = [
+    {
+      id: "1",
+      title: t("companyDashboard.monitor.1.title"),
+      desc: t("companyDashboard.monitor.1.desc"),
+    },
+    {
+      id: "2",
+      title: t("companyDashboard.monitor.2.title"),
+      desc: t("companyDashboard.monitor.2.desc"),
+    },
+    {
+      id: "3",
+      title: t("companyDashboard.monitor.3.title"),
+      desc: t("companyDashboard.monitor.3.desc"),
+    },
+  ];
+
+  const whyItems = [
+    { id: "1", text: t("companyDashboard.why.1") },
+    { id: "2", text: t("companyDashboard.why.2") },
+    { id: "3", text: t("companyDashboard.why.3") },
+  ];
 
   return (
     <div
@@ -215,137 +268,88 @@ function CompanyDashboard() {
 
       <main className="relative -mt-5 rounded-t-[26px] bg-[#f7f6f2] px-3 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[34px] sm:px-4 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 lg:space-y-8">
-          <section>
-            <SectionHeader
-              title={text.featuredTitle}
-              subtitle={text.featuredSubtitle}
-              isRTL={isRTL}
-            />
 
-            <div className="mt-3 md:hidden">
-              <Card className="overflow-hidden rounded-[24px] border-0 bg-white py-0 shadow-[0_10px_24px_rgba(26,26,20,0.06)]">
-                <img
-                  src={activeFeatured.image}
-                  alt={activeFeatured.name}
-                  className="h-64 w-full object-cover"
-                />
+          {suggested_influencers.length > 0 && (
+            <section className="pt-1 sm:pt-2">
+              <header className="mx-auto max-w-2xl text-center">
+                <h2 className="text-[19px] font-bold leading-tight text-[#232320] sm:text-3xl">
+                  {t("companyDashboard.suggestedTitle")}
+                </h2>
+                <p className="mt-4 text-[11px] leading-5 text-[#565650] sm:text-sm">
+                  {t("companyDashboard.suggestedSubtitle")}
+                </p>
+              </header>
 
-                <CardContent className="p-4">
-                  <div
-                    className={cn(
-                      "flex items-start justify-between gap-3",
-                      isRTL && "flex-row  ",
-                    )}>
-                    <div
-                      className={cn(
-                        "flex items-center gap-2",
-                        isRTL && "flex-row",
-                      )}>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#ffeff0] text-[#eb4d5c]">
-                        <Heart className="h-4 w-4" />
-                      </div>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#f4f2fb] text-[#121212]">
-                        <Eye className="h-4 w-4" />
-                      </div>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "space-y-1",
-                        isRTL ? "text-right" : "text-left",
-                      )}>
-                      <h3 className="text-[1.1rem] font-semibold text-[#262622]">
-                        {activeFeatured.name}
-                      </h3>
-                      <p className="text-sm text-[#7c7a72]">
-                        {activeFeatured.category}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid grid-cols-2 gap-3 rounded-[18px] bg-[#fbfaf7] px-4 py-4">
-                    <div
-                      className={cn(
-                        "space-y-1",
-                        isRTL ? "text-right" : "text-left",
-                      )}>
-                      <p className="text-[1.2rem] font-semibold text-[#1f1f1a]">
-                        4.8
-                      </p>
-                      <p className="text-sm text-[#7a786f]">
-                        {isRTL ? "معدل التفاعل" : "Engagement"}
-                      </p>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "space-y-1 border-s border-[#ebe7db] ps-4",
-                        isRTL ? "text-right" : "text-left",
-                      )}>
-                      <p className="text-[1.2rem] font-semibold text-[#1f1f1a]">
-                        250k
-                      </p>
-                      <p className="text-sm text-[#7a786f]">
-                        {isRTL ? "متابع" : "Followers"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className={cn(
-                      "mt-4 flex items-center justify-between gap-3 rounded-[18px] border border-[#efede4] bg-[#fcfbf8] px-3 py-3",
-                      isRTL && "flex-row-reverse",
-                    )}>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-11 w-11 rounded-[14px] border-[#eadf95] bg-white text-[#7f8d69] hover:bg-[#fffdf5]">
-                      <Heart className="h-4 w-4" />
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-11 flex-1 rounded-[14px] border-0 bg-[#eef1e8] text-[#7f8d69] hover:bg-[#e6ebdd]">
-                      {isRTL ? "إرسال رساله" : "Send message"}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="mt-6 grid grid-cols-1 items-stretch gap-4 sm:mt-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <div className="sm:hidden">
+                  {activeFeatured && (
+                    <SuggestedInfluencerCard
+                      item={activeFeatured}
+                      isRTL={isRTL}
+                    />
+                  )}
+                </div>
+                {suggested_influencers[0] && (
+                  <SuggestedInfluencerCard
+                    item={suggested_influencers[0]}
+                    isRTL={isRTL}
+                    className="hidden sm:flex"
+                  />
+                )}
+                {suggested_influencers[1] && (
+                  <SuggestedInfluencerCard
+                    item={suggested_influencers[1]}
+                    isRTL={isRTL}
+                    className="hidden sm:flex"
+                  />
+                )}
+                <div className="hidden lg:flex lg:flex-col">
+                  <BrowseAllInfluencersCard
+                    suggested={suggested_influencers}
+                    isRTL={isRTL}
+                  />
+                </div>
+                {suggested_influencers[2] && (
+                  <SuggestedInfluencerCard
+                    item={suggested_influencers[2]}
+                    isRTL={isRTL}
+                    className="hidden md:flex"
+                  />
+                )}
+              </div>
 
               <div
                 className={cn(
-                  "mt-4 flex items-center justify-center gap-4",
+                  "mt-5 flex items-center justify-center gap-5 sm:hidden",
                   isRTL && "flex-row-reverse",
                 )}>
                 <Button
                   type="button"
-                  size="icon-sm"
+                  size="icon-xs"
                   variant="outline"
                   onClick={isRTL ? goFeaturedNext : goFeaturedPrev}
-                  className="h-8 w-8 rounded-full border-[#98a77e] text-[#7d8b65] hover:bg-white">
+                  aria-label={t("companyDashboard.prev")}
+                  className="h-4 w-4 rounded-full border-[#9baa81] bg-transparent p-0 text-[#83936c] hover:bg-white">
                   {isRTL ? (
-                    <ChevronRight size={16} />
+                    <ChevronRight className="h-2.5 w-2.5" />
                   ) : (
-                    <ChevronLeft size={16} />
+                    <ChevronLeft className="h-2.5 w-2.5" />
                   )}
                 </Button>
 
-                <div className="flex items-center gap-2">
-                  {featured.map((_, index) => (
+                <div className="flex items-center gap-1.5">
+                  {suggested_influencers.map((_, index) => (
                     <Button
                       key={index}
                       type="button"
-                      size="icon-xs"
-                      variant="ghost"
                       onClick={() => setFeaturedIndex(index)}
+                      aria-label={`${t("companyDashboard.showInfluencer")} ${index + 1}`}
                       aria-pressed={featuredIndex === index}
                       className={cn(
-                        "rounded-full p-0 transition-all duration-300 hover:bg-transparent",
+                        "h-1.5 rounded-full transition-all",
                         featuredIndex === index
-                          ? "h-1.5 w-10 bg-[#cfd6bd]"
-                          : "h-2.5 w-2.5 bg-[#d8ddcf]",
+                          ? "w-9 bg-[#d8ddca]"
+                          : "w-1.5 bg-[#d8ddca]",
                       )}
                     />
                   ))}
@@ -353,199 +357,132 @@ function CompanyDashboard() {
 
                 <Button
                   type="button"
-                  size="icon-sm"
+                  size="icon-xs"
                   variant="outline"
                   onClick={isRTL ? goFeaturedPrev : goFeaturedNext}
-                  className="h-8 w-8 rounded-full border-[#98a77e] text-[#7d8b65] hover:bg-white">
+                  aria-label={t("companyDashboard.next")}
+                  className="h-4 w-4 rounded-full border-[#9baa81] bg-transparent p-0 text-[#83936c] hover:bg-white">
                   {isRTL ? (
-                    <ChevronLeft size={16} />
+                    <ChevronLeft className="h-2.5 w-2.5" />
                   ) : (
-                    <ChevronRight size={16} />
+                    <ChevronRight className="h-2.5 w-2.5" />
                   )}
                 </Button>
               </div>
-            </div>
+            </section>
+          )}
 
-            <div className="mt-3 hidden md:grid md:grid-cols-2 md:gap-4 xl:grid-cols-3">
-              {featured.map((item) => (
-                <Card
-                  key={item.id}
-                  className="overflow-hidden rounded-[18px] border-0 bg-white py-0 shadow-[0_10px_24px_rgba(26,26,20,0.06)] sm:rounded-[22px]">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="h-36 w-full object-cover sm:h-52"
+          {latest_campaign_posts.length > 0 && (
+            <section>
+              <Card className="overflow-hidden rounded-[24px] border-0 bg-white py-0 shadow-[0_12px_26px_rgba(26,26,20,0.06)] sm:rounded-[30px]">
+                <CardContent className="relative px-3 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+                  <div
+                    aria-hidden="true"
+                    className="absolute -inset-e-10 -top-6 hidden h-32 w-32 rounded-full border-18 border-[#ecebe6] opacity-80 lg:block"
                   />
+                  <div className="md:hidden">
+                    <div className="text-center">
+                      <h3 className="text-[2rem] font-bold leading-tight text-[#20201d] underline underline-offset-4">
+                        {t("companyDashboard.latestCampaignsTitle")}
+                      </h3>
+                    </div>
 
-                  <CardContent className="p-3 sm:p-4">
-                    <div
-                      className={cn(
-                        "flex items-start justify-between gap-3",
-                        isRTL && "flex-row",
-                      )}>
-                      <div
-                        className={cn(
-                          "space-y-1",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        <h3 className="text-sm font-semibold text-[#262622] sm:text-base">
-                          {item.name}
-                        </h3>
-                        <p className="text-xs text-[#8a877f] sm:text-sm">
-                          {item.category}
-                        </p>
+                    <div className="relative mx-auto mt-8 h-72 w-full max-w-84">
+                      <div className="absolute left-7 top-[4.9rem] z-10 h-36 w-[4.6rem] overflow-hidden rounded-[1.6rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-md">
+                        <img
+                          src={latest_campaign_posts[4]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
 
-                      <Badge className="rounded-full bg-[#eef2e6] px-2.5 py-1 text-[11px] text-[#718059] hover:bg-[#eef2e6] sm:px-3 sm:text-xs">
-                        {item.followers}
-                      </Badge>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "mt-3 flex items-center justify-between text-xs text-[#6e6d67] sm:mt-4 sm:text-sm",
-                        isRTL && "flex-row-reverse",
-                      )}>
-                      <div
-                        className={cn(
-                          "flex items-center gap-1.5",
-                          isRTL && "flex-row-reverse",
-                        )}>
-                        <Heart className="h-3.5 w-3.5 text-[#8b87a9] sm:h-4 sm:w-4" />
-                        <span>{item.engagement}</span>
+                      <div className="absolute left-18 top-[2.15rem] z-20 h-[10.6rem] w-23 overflow-hidden rounded-[1.8rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-lg">
+                        <img
+                          src={latest_campaign_posts[3]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
 
-                      <div
-                        className={cn(
-                          "flex items-center gap-1.5",
-                          isRTL && "flex-row-reverse",
-                        )}>
-                        <Eye className="h-3.5 w-3.5 text-[#8b87a9] sm:h-4 sm:w-4" />
-                        <span>{item.followers}</span>
+                      <div className="absolute left-45 top-0 z-30 h-[12.2rem] w-[6.6rem] -translate-x-1/2 overflow-hidden rounded-[2rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-xl">
+                        <img
+                          src={latest_campaign_posts[2]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      <div className="absolute right-11 top-[2.15rem] z-20 h-[10.6rem] w-23 overflow-hidden rounded-[1.8rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-lg">
+                        <img
+                          src={latest_campaign_posts[1]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      <div className="absolute right-0 top-[4.9rem] z-10 h-36 w-[4.6rem] overflow-hidden rounded-[1.6rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-md">
+                        <img
+                          src={latest_campaign_posts[0]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
                     </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="mt-3 h-9 w-full rounded-full border-[#dbd7cd] bg-white text-xs text-[#44443e] hover:bg-[#faf8f2] sm:mt-4 sm:h-11 sm:text-sm">
-                      {text.profileButton}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <Card className="overflow-hidden rounded-[24px] border-0 bg-white py-0 shadow-[0_12px_26px_rgba(26,26,20,0.06)] sm:rounded-[30px]">
-              <CardContent className="relative px-3 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-                <div
-                  aria-hidden="true"
-                  className="absolute -inset-e-10 -top-6 hidden h-32 w-32 rounded-full border-18 border-[#ecebe6] opacity-80 lg:block"
-                />
-                <div className="md:hidden">
-                  <div className="text-center">
-                    <h3 className="text-[2rem] font-bold leading-tight text-[#20201d] underline underline-offset-4">
-                      {isRTL ? "شاهد احدث حملاتنا" : "See our latest campaigns"}
-                    </h3>
                   </div>
 
-                  <div className="relative mx-auto mt-8 h-72 w-full max-w-84">
-                    <div className="absolute left-7 top-[4.9rem] z-10 h-36 w-[4.6rem] overflow-hidden rounded-[1.6rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-md">
-                      <img
-                        src={campaignImages[4]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
+                  <div className="hidden md:block">
+                    <div className="text-center">
+                      <h3 className="text-3xl font-bold text-[#20201d] underline underline-offset-4 lg:text-[2.3rem]">
+                        {t("companyDashboard.latestCampaignsTitle")}
+                      </h3>
                     </div>
 
-                    <div className="absolute left-18 top-[2.15rem] z-20 h-[10.6rem] w-23 overflow-hidden rounded-[1.8rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-lg">
-                      <img
-                        src={campaignImages[3]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                    <div className="relative mx-auto mt-10 h-96 w-full max-w-176 lg:h-104 lg:max-w-3xl">
+                      <div className="absolute right-135 top-[7.2rem] z-10 h-46 w-[6.4rem] overflow-hidden rounded-[2.1rem] border-4 border-[#1f1f1c] bg-white shadow-md lg:left-30 lg:h-50 lg:w-28">
+                        <img
+                          src={latest_campaign_posts[0]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
 
-                    <div className="absolute left-45 top-0 z-30 h-[12.2rem] w-[6.6rem] -translate-x-1/2 overflow-hidden rounded-[2rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-xl">
-                      <img
-                        src={campaignImages[2]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                      <div className="absolute right-105 top-12 z-20 h-64 w-36 overflow-hidden rounded-[2.5rem] border-4 border-[#1f1f1c] bg-white shadow-lg lg:left-50 lg:h-68 lg:w-[9.6rem]">
+                        <img
+                          src={latest_campaign_posts[1]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
 
-                    <div className="absolute right-11 top-[2.15rem] z-20 h-[10.6rem] w-23 overflow-hidden rounded-[1.8rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-lg">
-                      <img
-                        src={campaignImages[1]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                      <div className="absolute left-1/2 top-0 z-30 h-72 w-[10.2rem] -translate-x-1/2 overflow-hidden rounded-[2.7rem] border-4 border-[#1f1f1c] bg-white shadow-xl lg:h-78 lg:w-44">
+                        <img
+                          src={latest_campaign_posts[2]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
 
-                    <div className="absolute right-0 top-[4.9rem] z-10 h-36 w-[4.6rem] overflow-hidden rounded-[1.6rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-md">
-                      <img
-                        src={campaignImages[0]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
-                </div>
+                      <div className="absolute right-80 top-12 z-20 h-64 w-36 overflow-hidden rounded-[2.5rem] border-4 border-[#1f1f1c] bg-white shadow-lg lg:right-50 lg:h-68 lg:w-[9.6rem]">
+                        <img
+                          src={latest_campaign_posts[3]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
 
-                <div className="hidden md:block">
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold text-[#20201d] underline underline-offset-4 lg:text-[2.3rem]">
-                      {isRTL ? "شاهد احدث حملاتنا" : "See our latest campaigns"}
-                    </h3>
-                  </div>
-
-                  <div className="relative mx-auto mt-10 h-96 w-full max-w-176 lg:h-104 lg:max-w-3xl">
-                    <div className="absolute right-135 top-[7.2rem] z-10 h-46 w-[6.4rem] overflow-hidden rounded-[2.1rem] border-4 border-[#1f1f1c] bg-white shadow-md lg:left-30 lg:h-50 lg:w-28">
-                      <img
-                        src={campaignImages[0]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute right-105 top-12 z-20 h-64 w-36 overflow-hidden rounded-[2.5rem] border-4 border-[#1f1f1c] bg-white shadow-lg lg:left-50 lg:h-68 lg:w-[9.6rem]">
-                      <img
-                        src={campaignImages[1]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute left-1/2 top-0 z-30 h-72 w-[10.2rem] -translate-x-1/2 overflow-hidden rounded-[2.7rem] border-4 border-[#1f1f1c] bg-white shadow-xl lg:h-78 lg:w-44">
-                      <img
-                        src={campaignImages[2]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute right-80 top-12 z-20 h-64 w-36 overflow-hidden rounded-[2.5rem] border-4 border-[#1f1f1c] bg-white shadow-lg lg:right-50 lg:h-68 lg:w-[9.6rem]">
-                      <img
-                        src={campaignImages[3]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute right-6 top-[7.2rem] z-10 h-46 w-[6.4rem] overflow-hidden rounded-[2.1rem] border-4 border-[#1f1f1c] bg-white shadow-md lg:right-30 lg:h-50 lg:w-28">
-                      <img
-                        src={campaignImages[4]}
-                        alt="Campaign preview"
-                        className="h-full w-full object-cover"
-                      />
+                      <div className="absolute right-6 top-[7.2rem] z-10 h-46 w-[6.4rem] overflow-hidden rounded-[2.1rem] border-4 border-[#1f1f1c] bg-white shadow-md lg:right-30 lg:h-50 lg:w-28">
+                        <img
+                          src={latest_campaign_posts[4]?.image ?? ""}
+                          alt={t("companyDashboard.campaignPreviewAlt")}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
+                </CardContent>
+              </Card>
+            </section>
+          )}
 
           <section>
             <Card className="overflow-hidden rounded-[22px] border-0 bg-[linear-gradient(95deg,#23261f_0%,#5d684f_100%)] py-0 text-white shadow-[0_12px_28px_rgba(26,26,20,0.08)] sm:rounded-[28px]">
@@ -554,13 +491,14 @@ function CompanyDashboard() {
                   <Sparkles className="h-4 w-4 text-white sm:h-5 sm:w-5" />
                 </div>
                 <p className="mx-auto max-w-2xl text-xs leading-6 text-white/90 sm:text-base sm:leading-7">
-                  {text.ctaText}
+                  {t("companyDashboard.ctaText")}
                 </p>
 
                 <Button
                   type="button"
+                  onClick={() => navigate("/dashboard/company/create")}
                   className="mt-4 h-9 rounded-full border border-[#9cac86] bg-[#7a8866]/80 px-4 text-xs text-white hover:bg-[#7a8866] sm:mt-5 sm:h-11 sm:px-6 sm:text-base">
-                  {text.ctaButton}
+                  {t("companyDashboard.ctaButton")}
                   {isRTL ? (
                     <ChevronLeft className="h-4 w-4" />
                   ) : (
@@ -573,8 +511,8 @@ function CompanyDashboard() {
 
           <section>
             <SectionHeader
-              title={text.monitorTitle}
-              subtitle={text.monitorSubtitle}
+              title={t("companyDashboard.monitorTitle")}
+              subtitle={t("companyDashboard.monitorSubtitle")}
               isRTL={isRTL}
             />
 
@@ -585,7 +523,7 @@ function CompanyDashboard() {
                     <div className="absolute left-6 top-6 h-40 w-20 overflow-hidden rounded-full shadow-lg">
                       <img
                         src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80"
-                        alt="Influencer preview"
+                        alt={t("companyDashboard.influencerAvatarAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -593,7 +531,7 @@ function CompanyDashboard() {
                     <div className="absolute right-6 top-0 h-44 w-22 overflow-hidden rounded-full shadow-lg">
                       <img
                         src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=80"
-                        alt="Influencer preview"
+                        alt={t("companyDashboard.influencerAvatarAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -602,14 +540,10 @@ function CompanyDashboard() {
                   <div
                     className={cn("mt-3 text-center", isRTL && "text-right")}>
                     <h3 className="text-[1.45rem] font-semibold leading-normal text-[#aab48f]">
-                      {isRTL
-                        ? "نظام - مطابقة حملات المؤثرين"
-                        : "Influencer campaign matching system"}
+                      {t("companyDashboard.matchingTitle")}
                     </h3>
                     <p className="mt-3 text-sm leading-7 text-[#4f4f4b]">
-                      {isRTL
-                        ? "يتبع نظامنا عملية تحديد وبحث واختيار مصممة خصيصًا لمطابقة الحملات الإعلانية مع المؤثرين المناسبين."
-                        : "Our system follows a clear search, selection, and matching flow built for campaign alignment."}
+                      {t("companyDashboard.matchingDesc")}
                     </p>
                   </div>
 
@@ -636,9 +570,9 @@ function CompanyDashboard() {
 
             <div className="mt-3 hidden md:grid md:grid-cols-1 md:gap-3 lg:grid-cols-[1.15fr_340px] lg:gap-5">
               <div className="space-y-3 sm:space-y-4">
-                {monitor.map((item) => (
+                {monitorItems.map((item) => (
                   <Card
-                    key={item.title}
+                    key={`monitor-${item.id}`}
                     className="rounded-[18px] border-0 bg-[#edf1e5] py-0 shadow-none sm:rounded-[22px]">
                     <CardContent className="px-4 py-4 sm:px-5 sm:py-5">
                       <div
@@ -650,7 +584,7 @@ function CompanyDashboard() {
                           {item.title}
                         </p>
                         <p className="text-xs leading-6 text-[#65655f] sm:text-sm sm:leading-7">
-                          {item.description}
+                          {item.desc}
                         </p>
                       </div>
                     </CardContent>
@@ -667,7 +601,7 @@ function CompanyDashboard() {
                     )}>
                     <img
                       src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=80"
-                      alt="Influencer preview"
+                      alt={t("companyDashboard.influencerAvatarAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -679,7 +613,7 @@ function CompanyDashboard() {
                     )}>
                     <img
                       src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80"
-                      alt="Influencer preview"
+                      alt={t("companyDashboard.influencerAvatarAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -694,10 +628,10 @@ function CompanyDashboard() {
                 <CardContent className="p-4">
                   <div className={cn("text-center", isRTL && "text-right")}>
                     <h2 className="text-[1.7rem] font-bold text-[#1f1f1f]">
-                      {text.whyTitle}
+                      {t("companyDashboard.whyTitle")}
                     </h2>
                     <p className="mt-2 text-sm leading-7 text-[#666666]">
-                      {text.whySubtitle}
+                      {t("companyDashboard.whySubtitle")}
                     </p>
                   </div>
 
@@ -705,7 +639,7 @@ function CompanyDashboard() {
                     <div className="absolute left-1/2 top-0 h-14 w-14 -translate-x-1/2 overflow-hidden rounded-full shadow-md">
                       <img
                         src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
-                        alt="Influencer avatar"
+                        alt={t("companyDashboard.influencerAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -713,7 +647,7 @@ function CompanyDashboard() {
                     <div className="absolute right-4 top-5 h-14 w-14 overflow-hidden rounded-full shadow-md">
                       <img
                         src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
-                        alt="Influencer avatar"
+                        alt={t("companyDashboard.influencerAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -721,7 +655,7 @@ function CompanyDashboard() {
                     <div className="absolute left-4 top-5 h-14 w-14 overflow-hidden rounded-full shadow-md">
                       <img
                         src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80"
-                        alt="Influencer avatar"
+                        alt={t("companyDashboard.influencerAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -729,7 +663,7 @@ function CompanyDashboard() {
                     <div className="absolute left-7 top-24 h-12 w-12 overflow-hidden rounded-full shadow-md">
                       <img
                         src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
-                        alt="Phone preview"
+                        alt={t("companyDashboard.phonePreviewAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -737,7 +671,7 @@ function CompanyDashboard() {
                     <div className="absolute left-1/2 top-18 h-12 w-12 -translate-x-1/2 overflow-hidden rounded-full shadow-md">
                       <img
                         src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
-                        alt="Phone preview"
+                        alt={t("companyDashboard.phonePreviewAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -745,7 +679,7 @@ function CompanyDashboard() {
                     <div className="absolute right-7 top-24 h-12 w-12 overflow-hidden rounded-full shadow-md">
                       <img
                         src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80"
-                        alt="Phone preview"
+                        alt={t("companyDashboard.phonePreviewAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -783,17 +717,17 @@ function CompanyDashboard() {
                 )}>
                 <div>
                   <h2 className="text-lg font-bold text-[#1f1f1f] sm:text-2xl">
-                    {text.whyTitle}
+                    {t("companyDashboard.whyTitle")}
                   </h2>
                   <p className="mt-2 text-xs leading-6 text-[#666666] sm:text-sm sm:leading-7">
-                    {text.whySubtitle}
+                    {t("companyDashboard.whySubtitle")}
                   </p>
                 </div>
 
                 <div className="space-y-3">
                   {whyItems.map((item) => (
                     <Card
-                      key={item.id}
+                      key={`why-${item.id}`}
                       className="rounded-[18px] border-0 bg-[#f1f1f5] py-0 shadow-none sm:rounded-[20px]">
                       <CardContent
                         className={cn(
@@ -817,7 +751,7 @@ function CompanyDashboard() {
                   <div className="absolute right-4 top-4 h-14 w-14 overflow-hidden rounded-full shadow-md sm:right-5 sm:h-20 sm:w-20">
                     <img
                       src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
-                      alt="Influencer avatar"
+                      alt={t("companyDashboard.influencerAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -825,7 +759,7 @@ function CompanyDashboard() {
                   <div className="absolute left-6 top-6 h-14 w-14 overflow-hidden rounded-full shadow-md sm:left-10 sm:top-8 sm:h-20 sm:w-20">
                     <img
                       src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
-                      alt="Influencer avatar"
+                      alt={t("companyDashboard.influencerAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -833,7 +767,7 @@ function CompanyDashboard() {
                   <div className="absolute right-12 top-18 h-14 w-14 overflow-hidden rounded-full shadow-md sm:right-20 sm:top-28 sm:h-20 sm:w-20">
                     <img
                       src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80"
-                      alt="Influencer avatar"
+                      alt={t("companyDashboard.influencerAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -841,7 +775,7 @@ function CompanyDashboard() {
                   <div className="absolute left-3 top-32 h-20 w-14 overflow-hidden rounded-[16px] border-[3px] border-white shadow-lg sm:left-6 sm:top-52 sm:h-32 sm:w-20 sm:rounded-[22px]">
                     <img
                       src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
-                      alt="Phone preview"
+                      alt={t("companyDashboard.phonePreviewAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -849,7 +783,7 @@ function CompanyDashboard() {
                   <div className="absolute right-4 top-36 h-20 w-14 overflow-hidden rounded-[16px] border-[3px] border-white shadow-lg sm:right-10 sm:top-56 sm:h-32 sm:w-20 sm:rounded-[22px]">
                     <img
                       src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80"
-                      alt="Phone preview"
+                      alt={t("companyDashboard.phonePreviewAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -857,7 +791,7 @@ function CompanyDashboard() {
                   <div className="absolute left-1/2 top-40 h-20 w-14 -translate-x-1/2 overflow-hidden rounded-[16px] border-[3px] border-white shadow-lg sm:top-64 sm:h-32 sm:w-20 sm:rounded-[22px]">
                     <img
                       src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
-                      alt="Phone preview"
+                      alt={t("companyDashboard.phonePreviewAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -865,6 +799,7 @@ function CompanyDashboard() {
               </Card>
             </div>
           </section>
+
         </div>
       </main>
     </div>

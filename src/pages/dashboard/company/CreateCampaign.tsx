@@ -41,7 +41,7 @@ function CampaignInputField({
       <Label
         htmlFor={name}
         className={cn(
-          "text-sm font-medium text-[#2f2f2b] sm:text-base",
+          "text-sm font-medium text-[#2f2f2b]",
           isRTL ? "text-right" : "text-left",
         )}>
         {label}
@@ -53,7 +53,7 @@ function CampaignInputField({
         placeholder={placeholder}
         aria-invalid={error ? "true" : undefined}
         className={cn(
-          "h-11 rounded-full border-[#d9d7cf] px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:ring-1 focus-visible:ring-[#9aa883]",
+          "h-11 rounded-full border-[#d9d7cf] bg-white px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:border-[#9aa883] focus-visible:ring-1 focus-visible:ring-[#9aa883]/30",
           isRTL ? "text-right" : "text-left",
         )}
       />
@@ -130,32 +130,32 @@ function CreateCampaign() {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative -mt-24 overflow-hidden ">
-      <div className="relative h-48 overflow-hidden sm:h-56 lg:h-85">
+      className="relative -mt-24 overflow-hidden bg-white">
+      <div className="relative h-44 overflow-hidden sm:h-52 lg:h-72">
         <img
           src={hero}
           alt="campaign hero"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/55" />
       </div>
 
-      <div className="relative z-10 -mt-10 rounded-t-[34px] bg-[#f3f3f1] px-4 pb-14 pt-8 sm:-mt-12 sm:px-6 lg:-mt-14 lg:rounded-t-[40px] lg:px-10 lg:pt-10">
+      <div className="relative z-10 -mt-4 rounded-t-[28px] bg-white px-4 pb-12 pt-7 sm:-mt-6 sm:px-6 sm:pt-9 lg:-mt-8 lg:rounded-t-[40px] lg:px-10 lg:pb-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-3xl">
-            <div className="mb-8 text-center">
-              <h1 className="text-2xl font-semibold text-[#22221f] sm:text-[30px]">
+          <div className="mx-auto max-w-[900px]">
+            <div className="mb-7 text-center sm:mb-8">
+              <h1 className="text-[32px] font-semibold leading-tight text-[#22221f] sm:text-[42px]">
                 {t("createCampaign.title")}
               </h1>
-              <p className="mt-3 text-sm leading-7 text-[#696961] sm:text-base">
+              <p className="mt-2 text-[13px] leading-6 text-[#696961] sm:mt-3 sm:text-base">
                 {t("createCampaign.description")}
               </p>
             </div>
 
-            <Card className="rounded-[28px] border-white/70  shadow-[0_18px_50px_rgba(34,34,31,0.06)]">
-              <CardContent className="p-4 sm:p-6 lg:p-8">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                  <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
+            <Card className="rounded-[24px] !border-0 !ring-0 bg-white shadow-[0_14px_35px_rgba(34,34,31,0.06)] sm:rounded-[28px]">
+              <CardContent className="p-4 sm:p-6 lg:p-7">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">
+                  <div className="grid grid-cols-1 gap-x-7 gap-y-4 sm:gap-y-5 md:grid-cols-2">
                     <CampaignInputField
                       name="name"
                       label={t("createCampaign.campaignName")}
@@ -360,7 +360,7 @@ function CreateCampaign() {
                       </p>
                     ) : null}
 
-                    <div className="md:col-span-2 md:max-w-[48.5%]">
+                    <div className="md:col-span-1">
                       <SelectField
                         name="influencer_count_range_id"
                         label={t("createCampaign.influencersCount")}
@@ -400,18 +400,14 @@ function CreateCampaign() {
                     ) : null}
                   </div>
 
-                  <div
-                    className={cn(
-                      "flex",
-                      isRTL ? "justify-start" : "justify-end",
-                    )}>
+                  <div className={cn("flex pt-1", isRTL ? "justify-start" : "justify-end")}>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="group relative inline-flex h-12 min-w-42.5 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70">
+                      className="group relative inline-flex h-11 min-w-[168px] items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-[182px]">
                       <span
                         className={cn(
-                          "absolute top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  text-[#8c9878]",
+                          "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3f7eb] text-[#8c9878] sm:h-8 sm:w-8",
                           isRTL ? "left-2" : "right-2",
                         )}>
                         {isRTL ? (

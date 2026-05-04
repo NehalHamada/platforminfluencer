@@ -739,7 +739,42 @@
       "messageRequired": "Message is required"
     }
   },
-  "companyDashboard": {},
+  "companyDashboard": {
+    "suggestedTitle": "Suggested influencers for you",
+    "suggestedSubtitle": "Based on your company field and activity, we suggested creators.",
+    "browseAll": "Browse all",
+    "browseAllCount": "50,000 Saudi influencers",
+    "saveInfluencer": "Save influencer",
+    "sendMessage": "Send message",
+    "showInfluencer": "Show influencer",
+    "prev": "Previous",
+    "next": "Next",
+    "followers": "Followers",
+    "engagementRate": "Engagement rate",
+    "latestCampaignsTitle": "See our latest campaigns",
+    "campaignPreviewAlt": "Campaign preview",
+    "ctaText": "Launch your next campaign with clear goals, curated creators, and a tighter workflow.",
+    "ctaButton": "Start now",
+    "monitorTitle": "Powerful tracking system",
+    "monitorSubtitle": "to manage your campaigns",
+    "matchingTitle": "Influencer campaign matching system",
+    "matchingDesc": "Our system follows a clear search, selection, and matching flow built for campaign alignment.",
+    "monitor": {
+      "1": { "title": "Continuous reports", "desc": "See reach, engagement, and execution progress in real time." },
+      "2": { "title": "Faster selection", "desc": "Compare influencers using clear and direct performance data." },
+      "3": { "title": "Sharper decisions", "desc": "Make better calls around budget, outcomes, and current campaign stage." }
+    },
+    "whyTitle": "Why our platform?",
+    "whySubtitle": "A complete solution to manage influencer collaborations with clarity and confidence",
+    "why": {
+      "1": "All influencers are curated to ensure quality and credibility.",
+      "2": "Connect with creators directly without middle layers.",
+      "3": "Track collaborations, budgets, and results from one dashboard."
+    },
+    "influencerAvatarAlt": "Influencer preview",
+    "influencerAlt": "Influencer avatar",
+    "phonePreviewAlt": "Phone preview"
+  },
   "campaigns": {
     "heroAlt": "Campaign hero",
     "pageTitle": "My Campaigns",
@@ -795,6 +830,7 @@
     "sendMessage": "Send Message",
     "emptySearchTitle": "No search results",
     "emptySearch": "No influencers matched your search criteria. Try another keyword.",
+    "fameLevel": "Fame Level",
     "k": "K"
   },
   "createCampaign": {

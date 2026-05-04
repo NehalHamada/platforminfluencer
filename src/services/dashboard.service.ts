@@ -1,6 +1,7 @@
 import { api } from "@/lib/axios";
 import type {
   CompanyDashboardResponse,
+  CompanyHomeResponse,
   ConvertCampaignPayload,
   ConvertCampaignResponse,
   CurrentInfoItem,
@@ -11,6 +12,7 @@ import type {
   InfluencerChatPayload,
   InfluencerChatResponse,
   InfluencerDashboardResponse,
+  InfluencerPostsResponse,
   UpcomingCampaignItem,
 } from "@/types/dashboard.types";
 
@@ -211,6 +213,16 @@ const mapActivity = (item: unknown, index: number): ActivityItem | null => {
   };
 };
 
+const mapInfluencerPosts = (responseData: unknown): InfluencerPostsResponse => {
+  const data = getArray(unwrapData(responseData), ["posts", "recent_posts", "data"]).map(
+    mapActivity,
+  );
+
+  return {
+    data: data.filter((item): item is ActivityItem => Boolean(item)),
+  };
+};
+
 const mapInfluencerDashboard = (responseData: unknown): InfluencerDashboardResponse => {
   const data = unwrapData(responseData);
   const value = isObject(data) ? data : {};
@@ -318,6 +330,11 @@ export const dashboardService = {
     return mapInfluencerDashboard(response.data);
   },
 
+  async getInfluencerPosts(): Promise<InfluencerPostsResponse> {
+    const response = await api.get("/api/influencer/posts");
+    return mapInfluencerPosts(response.data);
+  },
+
   async createInfluencerChat(
     data: InfluencerChatPayload,
   ): Promise<InfluencerChatResponse> {
@@ -338,6 +355,11 @@ export const dashboardService = {
       },
     };
   },
+  async getCompanyHome(): Promise<CompanyHomeResponse> {
+    const response = await api.get("/api/company/home");
+    return response.data;
+  },
+
   async getCompanyDashboard(): Promise<CompanyDashboardResponse> {
     const response = await api.get("/dashboard/company");
     return response.data.data;

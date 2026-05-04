@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
+import { useInfluencerPostsQuery } from "@/queries/dashboard/useInfluencerPostsQuery";
 import { useAuthStore } from "@/store/auth.store";
 import type { AuthUser } from "@/types/auth.types";
 import type { InfluencerDashboardResponse } from "@/types/dashboard.types";
@@ -110,6 +111,7 @@ function InfluencerDashboard() {
     isLoading,
     isError,
   } = useInfluencerDashboardQuery();
+  const { data: postsData } = useInfluencerPostsQuery();
 
   const isRTL = i18n.dir() === "rtl";
   const storedUser = getStoredUser();
@@ -181,38 +183,12 @@ function InfluencerDashboard() {
     ],
   };
 
-  const activityCollage = [
-    {
-      id: 1,
-      src: "/assets/platImg1.png",
-      alt: isRTL ? "نشاط حملة سابق" : "Previous campaign activity",
-      className: "h-9 w-12 sm:h-14 sm:w-20",
-    },
-    {
-      id: 2,
-      src: "/assets/platImg.png",
-      alt: isRTL ? "نشاط محتوى" : "Content activity",
-      className: "h-14 w-14 sm:h-[5.5rem] sm:w-[5.5rem]",
-    },
-    {
-      id: 3,
-      src: "/assets/iphone2.png",
-      alt: isRTL ? "نشاط إنستجرام" : "Instagram activity",
-      className: "h-20 w-16 sm:h-[7.5rem] sm:w-[6.5rem]",
-      featured: true,
-    },
-    {
-      id: 4,
-      src: "/assets/user1.png",
-      alt: isRTL ? "نشاط مؤثرة" : "Influencer activity",
-      className: "h-14 w-14 sm:h-[5.5rem] sm:w-[5.5rem]",
-    },
-    {
-      id: 5,
-      src: "/assets/infImg3.png",
-      alt: isRTL ? "نشاط تعاون" : "Collaboration activity",
-      className: "h-9 w-12 sm:h-14 sm:w-20",
-    },
+  const activityFallbackImages = [
+    "/assets/platImg1.png",
+    "/assets/platImg.png",
+    "/assets/iphone2.png",
+    "/assets/user1.png",
+    "/assets/infImg3.png",
   ];
 
   const recommendedCampaigns = [
@@ -288,6 +264,20 @@ function InfluencerDashboard() {
         typeId: campaign.typeId,
       }))
     : recommendedCampaigns;
+  const postsCollage = (postsData?.data ?? data.activities)
+    .slice(0, 5)
+    .map((item, index) => ({
+      id: item.id,
+      src: item.image || activityFallbackImages[index % activityFallbackImages.length],
+      alt: item.title || (isRTL ? "نشاط حديث" : "Recent activity"),
+      className:
+        index === 0 || index === 4
+          ? "h-9 w-12 sm:h-14 sm:w-20"
+          : index === 2
+            ? "h-20 w-16 sm:h-[7.5rem] sm:w-[6.5rem]"
+            : "h-14 w-14 sm:h-[5.5rem] sm:w-[5.5rem]",
+      featured: index === 2,
+    }));
 
   if (location.pathname !== "/dashboard/influencer") {
     return <Outlet />;
@@ -526,7 +516,7 @@ function InfluencerDashboard() {
             <div
               className="relative z-10 -mx-3 flex max-w-none items-end justify-center gap-1 overflow-hidden px-0 pb-2 pt-1 sm:mx-auto sm:max-w-108 sm:px-1 sm:gap-2"
               aria-label={t("influencerDashboard.latestActivities")}>
-              {activityCollage.map((item, index) => (
+              {postsCollage.map((item, index) => (
                 <div
                   key={item.id}
                   className={cn(
@@ -547,6 +537,11 @@ function InfluencerDashboard() {
                   />
                 </div>
               ))}
+              {postsCollage.length === 0 ? (
+                <p className="text-center text-xs text-[#8b8b8b]">
+                  {t("influencerDashboard.empty")}
+                </p>
+              ) : null}
             </div>
           </section>
 

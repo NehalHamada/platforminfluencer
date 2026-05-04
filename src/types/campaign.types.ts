@@ -1,4 +1,3 @@
-import type { CampaignSchema } from "@/schema/campaign.schema";
 import type { FieldError, UseFormRegister } from "react-hook-form";
 
 export type CampaignPayload = {
@@ -143,4 +142,16 @@ export type CampaignStep = {
   id: number;
   label: string;
   completed: boolean;
+};
+
+export type CampaignSchema = {
+  name: string;
+  idea: string;
+  platform_id: string;
+  target_audience_id: string;
+  target_location_id: string;
+  execution_time_id: string;
+  campaign_type_id: string;
+  budget_range_id: string;
+  influencer_count_range_id: string;
 };

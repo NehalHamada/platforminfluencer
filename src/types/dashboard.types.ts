@@ -1,3 +1,31 @@
+export type SuggestedInfluencer = {
+  id: number;
+  name: string;
+  profile_image: string | null;
+  category: string | null;
+  followers_count: number | null;
+  engagement_rate: number | null;
+};
+
+export type LatestCampaignPost = {
+  id: number;
+  image: string | null;
+  title: string | null;
+};
+
+export type CompanyHomeData = {
+  suggested_influencers: SuggestedInfluencer[];
+  latest_campaign_posts: LatestCampaignPost[];
+  company_intro: Record<string, unknown> | null;
+  campaign_matching: Record<string, unknown> | null;
+  why_platform: Record<string, unknown> | null;
+};
+
+export type CompanyHomeResponse = {
+  success: boolean;
+  data: CompanyHomeData;
+};
+
 export type CurrentInfoItem = {
   id: number;
   date: string;
@@ -56,6 +84,10 @@ export type InfluencerDashboardResponse = {
   currentInfo: CurrentInfoItem[];
   upcomingCampaigns: UpcomingCampaignItem[];
   activities: ActivityItem[];
+};
+
+export type InfluencerPostsResponse = {
+  data: ActivityItem[];
 };
 
 export type FeaturedInfluencer = {

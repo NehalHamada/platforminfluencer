@@ -18,6 +18,7 @@ export const queryKeys = {
     companyHome: () => ["dashboard", "company", "home"] as const,
     influencer: () => ["dashboard", "influencer"] as const,
     influencerPosts: () => ["dashboard", "influencer", "posts"] as const,
+    influencerEarnings: () => ["dashboard", "influencer", "earnings"] as const,
   },
   influencers: {
     list: (params?: unknown) => ["influencers", "list", params] as const,
@@ -29,7 +30,7 @@ export const queryKeys = {
   },
   chat: {
     conversations: () => ["chat", "conversations"] as const,
-    messages: (conversationId: string) =>
+    messages: (conversationId: string | number | undefined) =>
       ["chat", "messages", conversationId] as const,
   },
 };

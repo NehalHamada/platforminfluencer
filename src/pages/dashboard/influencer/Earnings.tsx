@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -8,85 +7,63 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { CircleAlert, CreditCard, Landmark, Wallet } from "lucide-react";
+import { CircleAlert, CreditCard, Landmark, Loader2, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import hero from "/assets/Hero.png";
-import type { EarningRow } from "@/types/dashboard.types";
+import { useInfluencerEarningsQuery } from "@/queries/dashboard/useInfluencerEarningsQuery";
 
 function Earnings() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const { data, isLoading, isError } = useInfluencerEarningsQuery();
 
-  const rows: EarningRow[] = [
-    {
-      id: 1,
-      campaignName: isRTL ? "تجربة منتج جديد" : "New Product Trial",
-      companyName: "Growth",
-      date: "20-3-2026",
-      amount: "7000 ريال سعودي",
-      status: "pending",
-    },
-    {
-      id: 2,
-      campaignName: isRTL ? "تجربة منتج جديد" : "New Product Trial",
-      companyName: "Growth",
-      date: "20-3-2026",
-      amount: "7000 ريال سعودي",
-      status: "completed",
-    },
-    {
-      id: 3,
-      campaignName: isRTL ? "تجربة منتج جديد" : "New Product Trial",
-      companyName: "Growth",
-      date: "20-3-2026",
-      amount: "7000 ريال سعودي",
-      status: "completed",
-    },
-    {
-      id: 4,
-      campaignName: isRTL ? "تجربة منتج جديد" : "New Product Trial",
-      companyName: "Growth",
-      date: "20-3-2026",
-      amount: "7000 ريال سعودي",
-      status: "completed",
-    },
-  ];
+  const rows = data?.transactions ?? [];
+  const currency = data?.currency ?? "SAR";
 
   const summaryCards = [
     {
       id: "available",
       icon: CreditCard,
       label: t("earn.availableBalance"),
-      value: t("earn.availableBalanceValue"),
+      value: data ? `${data.total_earnings} ${currency}` : t("earn.availableBalanceValue"),
     },
     {
       id: "transfer",
       icon: Landmark,
       label: t("earn.transferCode"),
-      value: t("earn.transferCodeValue"),
+      value: data ? `${data.pending_earnings} ${currency}` : t("earn.transferCodeValue"),
     },
     {
       id: "total",
       icon: Wallet,
       label: t("earn.totalIncome"),
-      value: t("earn.totalIncomeValue"),
+      value: data ? `${data.total_earnings} ${currency}` : t("earn.totalIncomeValue"),
     },
   ];
 
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative -mt-24 overflow-x-hidden bg-[#f3f3ef]">
+      className="relative -mt-24 overflow-x-hidden bg-white">
       <div className="relative h-44 w-full overflow-hidden sm:h-85">
         <img
           src={hero}
           alt={t("earn.heroAlt")}
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/65" />
+      <div className="absolute inset-0 bg-black/65" />
       </div>
 
-      <div className="relative z-10 -mt-1 rounded-t-[10px] bg-[#f7f6f2] px-2 pb-20 pt-4 sm:-mt-10 sm:rounded-t-[34px] sm:px-6 sm:pb-8 sm:pt-6 lg:rounded-t-[42px] lg:px-10 lg:pt-8">
+      {isLoading ? (
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="h-8 w-8 animate-spin text-[#8b88a1]" />
+        </div>
+      ) : isError ? (
+        <div className="flex items-center justify-center py-32">
+          <p className="text-sm text-red-500">{t("earn.errorLoading", "Failed to load earnings data")}</p>
+        </div>
+      ) : (
+      <div className="relative z-10 -mt-1 rounded-t-[10px] bg-white px-2 pb-20 pt-4 sm:-mt-10 sm:rounded-t-[34px] sm:px-6 sm:pb-8 sm:pt-6 lg:rounded-t-[42px] lg:px-10 lg:pt-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-4 text-center sm:mb-6">
             <h1 className="text-sm font-semibold text-[#20201d] sm:text-3xl lg:text-[38px]">
@@ -94,13 +71,13 @@ function Earnings() {
             </h1>
           </div>
 
-          <Card className="border-0 bg-transparent py-0 shadow-none sm:rounded-[28px] sm:bg-white sm:shadow-[0_16px_48px_rgba(28,30,24,0.06)]">
+          <Card className="border-0 ring-0 bg-transparent py-0 shadow-none sm:rounded-[28px] sm:bg-white sm:ring-1 sm:ring-foreground/10 sm:shadow-[0_16px_48px_rgba(28,30,24,0.06)]">
             <CardContent className="space-y-5 p-0 sm:space-y-8 sm:p-6 lg:p-8">
               <div className="grid grid-cols-1 gap-2 sm:gap-3 md:grid-cols-3">
                 {summaryCards.map(({ id, icon: Icon, label, value }) => (
                   <Card
                     key={id}
-                    className="rounded-[3px] border border-[#ece7dd] bg-white py-0 shadow-none sm:rounded-[14px] sm:bg-[#fbfaf7]">
+                    className="rounded-[3px] border border-[#ece7dd] ring-0 bg-white py-0 shadow-none sm:rounded-[14px] sm:bg-white">
                     <CardContent className="px-3 py-2 sm:p-4">
                       <div
                         className={cn(
@@ -160,7 +137,7 @@ function Earnings() {
                     return (
                       <Card
                         key={row.id}
-                        className="rounded-lg border-0 bg-white py-0 shadow-none">
+                        className="rounded-lg border-0 ring-0 bg-white py-0 shadow-none">
                         <CardContent className="px-3 py-3">
                           <div className="grid grid-cols-[5.25rem_1fr] items-start gap-3">
                             <p
@@ -192,24 +169,26 @@ function Earnings() {
                   })}
                 </div>
 
-                <Card className="hidden overflow-hidden rounded-[20px] border border-[#ede9df] bg-[#fffdfa] py-0 shadow-none sm:block">
+                <div className="hidden sm:block">
                   <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm">
-                      <thead className="bg-[#faf8f4] text-[#6c6b63]">
-                        <tr>
+                    <table className="min-w-full border-separate border-spacing-y-2 text-sm">
+                      <thead>
+                        <tr className="bg-[#f0f0f0]">
                           {[
                             t("earn.campaign"),
                             t("earn.company"),
                             t("earn.date"),
                             t("earn.amount"),
                             t("earn.status"),
-                          ].map((header) => (
+                          ].map((header, idx, arr) => (
                             <th
                               key={header}
                               scope="col"
                               className={cn(
-                                "border-b border-[#ede9df] px-4 py-4 font-medium",
+                                "px-5 py-4 font-medium text-[#6c6b63]",
                                 isRTL ? "text-right" : "text-left",
+                                idx === 0 && (isRTL ? "rounded-tr-lg" : "rounded-tl-lg"),
+                                idx === arr.length - 1 && (isRTL ? "rounded-tl-lg" : "rounded-tr-lg"),
                               )}>
                               {header}
                             </th>
@@ -224,52 +203,44 @@ function Earnings() {
                           return (
                             <tr
                               key={row.id}
-                              className="border-b border-[#f1eee6] last:border-b-0">
+                              className="bg-[#f5f5f5]">
                               <td
                                 className={cn(
-                                  "px-4 py-4 text-[#3e3d38]",
-                                  isRTL ? "text-right" : "text-left",
+                                  "px-5 py-4 text-[#3e3d38]",
+                                  isRTL ? "text-right rounded-tr-lg" : "text-left rounded-tl-lg",
                                 )}>
                                 {row.campaignName}
                               </td>
                               <td
                                 className={cn(
-                                  "px-4 py-4 text-[#6d6c65]",
+                                  "px-5 py-4 text-[#6d6c65]",
                                   isRTL ? "text-right" : "text-left",
                                 )}>
                                 {row.companyName}
                               </td>
                               <td
                                 className={cn(
-                                  "px-4 py-4 text-[#6d6c65]",
+                                  "px-5 py-4 text-[#6d6c65]",
                                   isRTL ? "text-right" : "text-left",
                                 )}>
                                 {row.date}
                               </td>
                               <td
                                 className={cn(
-                                  "px-4 py-4 text-[#6d6c65]",
+                                  "px-5 py-4 text-[#6d6c65]",
                                   isRTL ? "text-right" : "text-left",
                                 )}>
                                 {row.amount}
                               </td>
                               <td
                                 className={cn(
-                                  "px-4 py-4",
-                                  isRTL ? "text-right" : "text-left",
+                                  "px-5 py-4 font-medium",
+                                  isRTL ? "text-right rounded-tl-lg" : "text-left rounded-tr-lg",
+                                  isCompleted ? "text-[#4a7a3a]" : "text-[#d08b45]",
                                 )}>
-                                <Badge
-                                  variant={isCompleted ? "success" : "outline"}
-                                  className={cn(
-                                    "rounded-full px-3 py-1 text-xs font-medium",
-                                    isCompleted
-                                      ? ""
-                                      : "border-[#f1d2b0] bg-[#fff5e8] text-[#d08b45]",
-                                  )}>
-                                  {isCompleted
-                                    ? t("earn.statusCompleted")
-                                    : t("earn.statusPending")}
-                                </Badge>
+                                {isCompleted
+                                  ? t("earn.statusCompleted")
+                                  : t("earn.statusPending")}
                               </td>
                             </tr>
                           );
@@ -277,7 +248,7 @@ function Earnings() {
                       </tbody>
                     </table>
                   </div>
-                </Card>
+                </div>
               </section>
 
               <Separator className="hidden bg-[#ece7dd] sm:block" />
@@ -294,16 +265,17 @@ function Earnings() {
                 <div className="grid grid-cols-1 gap-2 sm:gap-5 lg:grid-cols-[1fr_1.4fr]">
                   <div
                     className={cn(
+                      "flex items-center",
                       isRTL ? "lg:order-2 text-right" : "text-left",
                     )}>
-                    <p className="cursor-pointer text-[9px] text-[#8b88a1] underline underline-offset-4 sm:text-sm">
+                    <p className="cursor-pointer text-[9px] text-[rgba(143,134,172,1)] underline underline-offset-4 sm:text-sm">
                       {t("earn.switchPayout")}
                     </p>
                   </div>
 
                   <Card
                     className={cn(
-                      "rounded-[3px] border-0 bg-white py-0 shadow-none sm:rounded-[14px] sm:bg-[#f5f3f8]",
+                      "rounded-[3px] border-0 ring-0 bg-white py-0 shadow-none sm:rounded-[14px] sm:bg-[rgba(143,134,172,0.1)]",
                       isRTL ? "lg:order-1 text-right" : "text-left",
                     )}>
                     <CardHeader className="px-3 pt-3 pb-0 sm:px-5 sm:pt-5">
@@ -323,6 +295,7 @@ function Earnings() {
           </Card>
         </div>
       </div>
+      )}
     </section>
   );
 }

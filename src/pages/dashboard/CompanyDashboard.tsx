@@ -3,7 +3,7 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
-  MessageCircle,
+  Plus,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -70,6 +70,12 @@ function SuggestedInfluencerCard({
   className?: string;
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleFollowClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate("/dashboard/company/messages");
+  };
 
   return (
     <Card
@@ -96,7 +102,9 @@ function SuggestedInfluencerCard({
         <div className="mt-3 grid grid-cols-2 text-[#161616]">
           <div className="space-y-0.5 text-right">
             <p className="text-[11px] font-medium leading-none">
-              {item.followers_count != null ? String(item.followers_count) : "—"}
+              {item.followers_count != null
+                ? String(item.followers_count)
+                : "—"}
             </p>
             <p className="text-[10px] text-[#4f4f4b]">
               {t("companyDashboard.followers")}
@@ -104,7 +112,9 @@ function SuggestedInfluencerCard({
           </div>
           <div className="space-y-0.5 border-s border-[#eeeef0] text-right">
             <p className="text-[11px] font-medium leading-none">
-              {item.engagement_rate != null ? String(item.engagement_rate) : "—"}
+              {item.engagement_rate != null
+                ? String(item.engagement_rate)
+                : "—"}
             </p>
             <p className="text-[10px] text-[#4f4f4b]">
               {t("companyDashboard.engagementRate")}
@@ -134,9 +144,10 @@ function SuggestedInfluencerCard({
           <Button
             type="button"
             variant="outline"
-            className="h-6.5 flex-1 gap-1 rounded-[6px] border-0 bg-[#eef1e9] px-2 text-[10px] font-normal text-[#7f8c67] hover:bg-[#e7ecdf]">
-            {t("companyDashboard.sendMessage")}
-            <MessageCircle className="h-3 w-3" />
+            className="h-6.5 flex-1 gap-1 rounded-[6px] border-0 bg-[#eef1e9] px-2 text-[10px] font-normal text-[#7f8c67] hover:bg-[#e7ecdf]"
+            onClick={handleFollowClick}>
+            <Plus className="h-3 w-3" />
+            {t("companyDashboard.follow")}
           </Button>
         </div>
       </CardContent>
@@ -254,9 +265,7 @@ function CompanyDashboard() {
   ];
 
   return (
-    <div
-      dir={isRTL ? "rtl" : "ltr"}
-      className="min-h-screen bg-[#efefef] text-[#1f1f1f]">
+    <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen  text-[#1f1f1f]">
       <section className="relative h-32 overflow-hidden sm:h-52 lg:h-64">
         <img
           src={hero}
@@ -266,9 +275,8 @@ function CompanyDashboard() {
         <div className="absolute inset-0 bg-black/65" />
       </section>
 
-      <main className="relative -mt-5 rounded-t-[26px] bg-[#f7f6f2] px-3 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[34px] sm:px-4 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-8 lg:pt-8">
+      <main className="relative -mt-5 rounded-t-[26px]  px-3 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[34px] sm:px-4 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 lg:space-y-8">
-
           {suggested_influencers.length > 0 && (
             <section className="pt-1 sm:pt-2">
               <header className="mx-auto max-w-2xl text-center">
@@ -799,7 +807,6 @@ function CompanyDashboard() {
               </Card>
             </div>
           </section>
-
         </div>
       </main>
     </div>

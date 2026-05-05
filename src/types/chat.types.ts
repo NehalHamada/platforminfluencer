@@ -1,53 +1,74 @@
+export type MessageType = "text" | "image" | "file";
+
+export type Message = {
+  id: string | number;
+  message?: string;
+  sender_id?: string | number;
+  type?: MessageType;
+  delivery_date?: string | null;
+  media_url?: string | null;
+  notes?: string | null;
+  created_at?: string | null;
+};
+
+export type ChatApiUser = {
+  id?: string | number;
+  name?: string;
+  avatar?: string | null;
+  image?: string | null;
+  profile_image?: string | null;
+};
+
 export type Conversation = {
-  id: string;
-  participantName: string;
-  participantImage?: string;
-  lastMessage: string;
-  lastMessageAt: string;
-  unreadCount: number;
+  id: string | number;
+  name?: string;
+  title?: string;
+  campaign_name?: string;
+  campaignName?: string;
+  campaign_budget?: string | number | null;
+  campaignBudget?: string | number | null;
+  category?: string | null;
+  status?: string | null;
+  last_message?: string | null;
+  lastMessage?: string | null;
+  last_active?: string | null;
+  lastActive?: string | null;
+  unread_count?: number | string | null;
+  unreadCount?: number | string | null;
+  company?: ChatApiUser | Record<string, unknown> | null;
+  influencer?: ChatApiUser | Record<string, unknown> | null;
+  participant?: ChatApiUser | Record<string, unknown> | null;
+  other_user?: ChatApiUser | Record<string, unknown> | null;
+  messages?: Message[];
 };
 
 export type ConversationListResponse = {
-  message?: string;
+  success: boolean;
   data: Conversation[];
-  total?: number;
-};
-
-export type Message = {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  senderType: "company" | "influencer";
-  content: string;
-  createdAt: string;
-  isRead?: boolean;
 };
 
 export type MessageListResponse = {
-  message?: string;
+  success: boolean;
   data: Message[];
-  total?: number;
 };
 
 export type SendMessagePayload = {
-  conversationId: string;
-  content: string;
+  conversation_id: string | number;
+  message: string;
+  type: MessageType;
+  delivery_date: string | null;
+  media_url: string | null;
+  notes: string | null;
 };
 
 export type SendMessageResponse = {
-  message: string;
-  data: Message;
+  success: boolean;
+  data?: Message;
+  message?: string;
 };
 
 export type ChatStore = {
-  selectedConversationId: string | null;
-  draftMessage: string;
-  searchTerm: string;
-  isChatSidebarOpen: boolean;
-  setSelectedConversationId: (id: string | null) => void;
-  setDraftMessage: (value: string) => void;
-  setSearchTerm: (value: string) => void;
-  openChatSidebar: () => void;
-  closeChatSidebar: () => void;
-  resetChatState: () => void;
+  message: Message[];
+  setMessages: (msg: Message[]) => void;
+  addMessage: (msg: Message) => void;
 };

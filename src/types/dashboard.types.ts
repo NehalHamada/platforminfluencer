@@ -153,6 +153,13 @@ export type EarningRow = {
   status: "completed" | "pending";
 };
 
+export type EarningsResponse = {
+  total_earnings: number;
+  pending_earnings: number;
+  transactions: EarningRow[];
+  currency: string;
+};
+
 export type InfluencerChatPayload = {
   campaignName: string;
   contentType: string;

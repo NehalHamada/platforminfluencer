@@ -6,7 +6,7 @@ import type {
   SendMessageResponse,
 } from "@/types/chat.types";
 
-export function useSendMessageMutation(conversationId: string) {
+export function useSendMessageMutation(conversationId: string | number | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation<SendMessageResponse, Error, SendMessagePayload>({

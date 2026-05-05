@@ -34,6 +34,7 @@ export type ChatConversation = {
 
 type ChatPageProps = {
   role: "company" | "influencer";
+  initialMessage?: string;
 };
 
 const avatars = {
@@ -49,7 +50,7 @@ const avatars = {
     "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80",
 } as const;
 
-function ChatPage({ role }: ChatPageProps) {
+function ChatPage({ role, initialMessage }: ChatPageProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
 
@@ -157,8 +158,32 @@ function ChatPage({ role }: ChatPageProps) {
     [isRTL, role, t],
   );
 
+  const initialMessages = useMemo(() => {
+    const base = conversations[0]?.messages ?? [];
+    if (!initialMessage) return base;
+
+    const now = new Date();
+    const time = now.toLocaleTimeString(isRTL ? "ar" : "en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const contactMsg: ChatMessage = {
+      id: `contact-${Date.now()}`,
+      sender: "me",
+      name: "Growth",
+      avatar: avatars.user,
+      text: initialMessage,
+      time,
+      type: "text",
+    };
+
+    return [...base, contactMsg];
+  }, [conversations, initialMessage, isRTL]);
+
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(
-    conversations[0]?.messages ?? [],
+    initialMessages,
   );
 
   const selectedConversation = useMemo(

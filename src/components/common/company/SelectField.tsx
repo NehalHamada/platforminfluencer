@@ -4,11 +4,11 @@ import {
   Controller,
   type Control,
   type FieldError,
+  type FieldValues,
   type Path,
 } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
-import type { CampaignSchema } from "@/schema/campaign.schema";
 import { cn } from "@/lib/utils";
 
 type SelectOption = {
@@ -16,17 +16,17 @@ type SelectOption = {
   value: string;
 };
 
-type SelectFieldProps = {
-  name: Path<CampaignSchema>;
+type SelectFieldProps<T extends FieldValues> = {
+  name: Path<T>;
   label: string;
   placeholder: string;
   options: SelectOption[];
-  control: Control<CampaignSchema>;
+  control: Control<T>;
   error?: FieldError;
   isRTL: boolean;
 };
 
-function SelectField({
+function SelectField<T extends FieldValues>({
   name,
   label,
   placeholder,
@@ -34,7 +34,7 @@ function SelectField({
   control,
   error,
   isRTL,
-}: SelectFieldProps) {
+}: SelectFieldProps<T>) {
   const { t } = useTranslation();
   const fieldId = `select-field-${String(name)}`;
   const errorId = `${fieldId}-error`;

@@ -8,24 +8,17 @@ import type {
 
 export const chatService = {
   async getConversations(): Promise<ConversationListResponse> {
-    const response = await api.get("/chat/conversations");
+    const response = await api.get("/api/conversations");
     return response.data;
   },
 
-  async getMessages(conversationId: string): Promise<MessageListResponse> {
-    const response = await api.get(
-      `/chat/conversations/${conversationId}/messages`,
-    );
+  async getMessages(conversationId: string | number): Promise<MessageListResponse> {
+    const response = await api.get(`/api/conversations/${conversationId}/messages`);
     return response.data;
   },
 
   async sendMessage(data: SendMessagePayload): Promise<SendMessageResponse> {
-    const response = await api.post(
-      `/chat/conversations/${data.conversationId}/messages`,
-      {
-        content: data.content,
-      },
-    );
+    const response = await api.post("/api/messages/send", data);
 
     return response.data;
   },

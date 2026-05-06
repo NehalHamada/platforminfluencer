@@ -761,9 +761,18 @@
     "matchingTitle": "Influencer campaign matching system",
     "matchingDesc": "Our system follows a clear search, selection, and matching flow built for campaign alignment.",
     "monitor": {
-      "1": { "title": "Continuous reports", "desc": "See reach, engagement, and execution progress in real time." },
-      "2": { "title": "Faster selection", "desc": "Compare influencers using clear and direct performance data." },
-      "3": { "title": "Sharper decisions", "desc": "Make better calls around budget, outcomes, and current campaign stage." }
+      "1": {
+        "title": "Continuous reports",
+        "desc": "See reach, engagement, and execution progress in real time."
+      },
+      "2": {
+        "title": "Faster selection",
+        "desc": "Compare influencers using clear and direct performance data."
+      },
+      "3": {
+        "title": "Sharper decisions",
+        "desc": "Make better calls around budget, outcomes, and current campaign stage."
+      }
     },
     "whyTitle": "Why our platform?",
     "whySubtitle": "A complete solution to manage influencer collaborations with clarity and confidence",
@@ -868,9 +877,23 @@
     "publishCampaign": "Publish Campaign"
   },
   "chat": {
+    "empty": "No conversations yet",
+    "emptyCompany": "Contact an influencer or create a campaign to start a conversation",
+    "emptyInfluencer": "Apply to a campaign or wait for a company to contact you",
     "thread": {
       "campaignBrief": "Hello we want To Collaberate",
-      "inputPlaceholder": "Write your message here..."
+      "inputPlaceholder": "Write your message here...",
+      "sendLabel": "Send message",
+      "voiceLabel": "Record voice message",
+      "attachLabel": "Attach image",
+      "pendingAgreement": "Pending agreement",
+      "noMessages": "No messages yet"
+    },
+    "status": {
+      "active": "Active",
+      "inReview": "In Review",
+      "pending": "Pending",
+      "completed": "Completed"
     },
     "mock": {
       "status": {
@@ -1022,6 +1045,60 @@
     "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results.",
     "footerInput": "Enter your email to receive every update"
   },
+  "campaignPayment": {
+    "heroAlt": "Campaign payment hero",
+    "title": "Create Campaign",
+    "campaignPayment": "Add Payment Card",
+    "totalPrice": "Total Price",
+    "totalPricePlaceholder": "29,500 SAR",
+    "postsCount": "Number of Posts",
+    "postsCountPlaceholder": "1 Post + 1 Story",
+    "adPlan": "Advertising Plan",
+    "adPlanPlaceholder": "Cannot work with any competing company before the end of this ad",
+    "executionDate": "Execution Date",
+    "executionDatePlaceholder": "3 - 20 - 2026",
+    "campaignName": "Campaign Name",
+    "campaignNamePlaceholder": "New Product Trial + Glow",
+    "contentLink": "Add additional files",
+    "contentLinkPlaceholder": "Add additional files",
+    "uploadFiles": "Upload files",
+    "addPaymentCard": "Add Payment Card",
+    "cardNumber": "Card Number",
+    "cardHolder": "Owner Name",
+    "cardHolderPlaceholder": "Mohammed Hussein",
+    "expiry": "Valid Until",
+    "expiryPlaceholder": "September 20, 2025",
+    "cvv": "Security Code",
+    "submit": "Save Card"
+  },
+  "sureCampaign": {
+    "heroAlt": "Campaign confirmation hero",
+    "title": "Create Campaign",
+    "totalPrice": "Total Price",
+    "postsCount": "Number of Posts",
+    "conditions": "Additional Conditions",
+    "executionDate": "Execution Date",
+    "campaignName": "Campaign Name",
+    "filesForInfluencer": "Add files for influencer",
+    "paymentSection": "Payment Section",
+    "paymentOption": "Payment Option",
+    "campaignNotes": "Campaign Notes",
+    "noteTotalPrice": "Total Price: 6,000 SAR",
+    "noteCommission": "Commission: 10% = 600 SAR",
+    "noteInfluencerAmount": "Amount reserved for influencer: 5,400 SAR",
+    "launch": "Launch Campaign"
+  },
   "footer.description": "A platform that connects companies with influencers through organized, transparent collaborations based on real results.",
-  "footer.emailPlaceholder": "Enter your email to receive updates"
+  "footer.emailPlaceholder": "Enter your email to receive updates",
+  "cooperation": {
+    "title": "New Cooperation Request",
+    "empty": "No cooperation requests currently",
+    "companyName": "Company Name",
+    "contentType": "Content Type",
+    "date": "Date",
+    "budget": "Suggested Budget",
+    "accept": "Accept",
+    "reject": "Reject",
+    "negotiate": "Negotiate"
+  }
 }

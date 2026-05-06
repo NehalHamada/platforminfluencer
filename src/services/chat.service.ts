@@ -19,7 +19,6 @@ export const chatService = {
 
   async sendMessage(data: SendMessagePayload): Promise<SendMessageResponse> {
     const response = await api.post("/api/messages/send", data);
-
     return response.data;
   },
 };

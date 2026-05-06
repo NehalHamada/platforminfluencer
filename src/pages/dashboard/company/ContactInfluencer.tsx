@@ -66,7 +66,7 @@ function ContactInfluencer() {
 
       <div className="relative z-10 -mt-4 rounded-t-[28px] bg-white px-4 pb-12 pt-7 sm:-mt-6 sm:px-6 sm:pt-9 lg:-mt-8 lg:rounded-t-[40px] lg:px-10 lg:pb-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-[900px]">
+          <div className="mx-auto max-w-225">
             <div className="mb-7 text-center sm:mb-8">
               <h1 className="text-[32px] font-semibold leading-tight text-[#22221f] sm:text-[42px]">
                 {t("infChat.title")}{" "}
@@ -79,7 +79,7 @@ function ContactInfluencer() {
               </p>
             </div>
 
-            <Card className="rounded-[24px] !border-0 !ring-0 bg-white shadow-[0_14px_35px_rgba(34,34,31,0.06)] sm:rounded-[28px]">
+            <Card className="rounded-[24px] border-0! ring-0! bg-white shadow-[0_14px_35px_rgba(34,34,31,0.06)] sm:rounded-[28px]">
               <CardContent className="p-4 sm:p-6 lg:p-7">
                 <form
                   onSubmit={handleSubmit(onSubmit)}
@@ -259,7 +259,7 @@ function ContactInfluencer() {
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="group relative inline-flex h-11 min-w-[168px] items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-[182px]">
+                      className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
                       <span
                         className={cn(
                           "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3f7eb] text-[#8c9878] sm:h-8 sm:w-8",

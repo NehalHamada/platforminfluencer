@@ -34,6 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import type { AuthStore } from "@/types/auth.types";
 import logo from "/assets/logo.svg";
 
 import LanguageToggle from "./LanguageToggle";
@@ -75,9 +76,9 @@ function Navbar() {
   const profileMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
-  const user = useAuthStore((state) => state.user);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const user = useAuthStore((state: AuthStore) => state.user);
+  const isAuthenticated = useAuthStore((state: AuthStore) => state.isAuthenticated);
+  const clearAuth = useAuthStore((state: AuthStore) => state.clearAuth);
 
   const authRoutes = [
     "/login",

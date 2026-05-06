@@ -859,9 +859,23 @@
     "publishCampaign": "نشر الحملة"
   },
   "chat": {
+    "empty": "لا توجد محادثات حاليا",
+    "emptyCompany": "تواصل مع مؤثر أو أنشئ حملة لبدء محادثة",
+    "emptyInfluencer": "قم بالتقدم لحملة أو انتظر تواصل شركة معك",
     "thread": {
       "campaignBrief": "مرحبًا، نرغب في التعاون معك في حملة تخص منتجات عناية بالبشرة، ونود معرفة مدى اهتمامك وتوفرك.",
-      "inputPlaceholder": "اكتب رسالتك هنا..."
+      "inputPlaceholder": "اكتب رسالتك هنا...",
+      "sendLabel": "إرسال رسالة",
+      "voiceLabel": "تسجيل رسالة صوتية",
+      "attachLabel": "إرفاق صورة",
+      "pendingAgreement": "اتفاقية معلقة",
+      "noMessages": "لا توجد رسائل بعد"
+    },
+    "status": {
+      "active": "نشط",
+      "inReview": "قيد المراجعة",
+      "pending": "معلق",
+      "completed": "مكتمل"
     },
     "mock": {
       "status": {
@@ -1006,6 +1020,59 @@
     "footerText": "منصة تربط بين الشركات والمؤثرين عبر تعاونات منظمة، شفافة، مبنية على نتائج حقيقية.",
     "footerInput": "أدخل بريدك الإلكتروني ليصلك كل جديد"
   },
+  "campaignPayment": {
+    "heroAlt": "صورة إنشاء حملة",
+    "title": "إنشاء حملة",
+    "totalPrice": "السعرالإجمالي",
+    "totalPricePlaceholder": "ر.س29500",
+    "postsCount": "عدد المنشورات",
+    "postsCountPlaceholder": "1 بوست + 1 أستوري",
+    "adPlan": "الخطة الإعلانية",
+    "adPlanPlaceholder": "لا يمكن التعامل مع اي شركة منافسة قبل انتهاء هذا الاعلان",
+    "executionDate": "موعد التنفيذ",
+    "executionDatePlaceholder": "3 - 20 - 2026",
+    "campaignName": "اسم الحملة",
+    "campaignNamePlaceholder": "تجربة المنتج الجديد + Glow",
+    "contentLink": "اضافة ملفات اضافيه",
+    "contentLinkPlaceholder": "اضافة ملفات اضافيه",
+    "uploadFiles": "رفع الملفات",
+    "addPaymentCard": "اضافة بطاقة الدفع",
+    "cardNumber": "رقم البطاقة",
+    "cardHolder": "اسم المالك",
+    "cardHolderPlaceholder": "محمد حسين",
+    "expiry": "صلاحية حتى",
+    "expiryPlaceholder": "20 سبتمبر 2025 م",
+    "cvv": "رمز الحماية",
+    "submit": "حفظ البطاقة"
+  },
+  "sureCampaign": {
+    "heroAlt": "صورة تأكيد الحملة",
+    "title": "انشاء حملة",
+    "totalPrice": "السعر الإجمالي",
+    "postsCount": "عدد المنشورات",
+    "conditions": "الشروط الاضافية",
+    "executionDate": "موعد التنفيذ",
+    "campaignName": "اسم الحملة",
+    "filesForInfluencer": "اضافة ملفات للمؤثر",
+    "paymentSection": "قسم الدفع",
+    "paymentOption": "خيار الدفع",
+    "campaignNotes": "ملاحظات الحملة",
+    "noteTotalPrice": "السعر الإجمالي: 6,000 ريال",
+    "noteCommission": "العمولة: 10% = 600 ريال",
+    "noteInfluencerAmount": "المبلغ الذي سيُحجز للمؤثر: 5,400 ريال",
+    "launch": "إطلاق الحملة"
+  },
   "footer.description": "منصة تربط بين الشركات والمؤثرين عبر تعاونات منظمة وشفافة مبنية على نتائج حقيقية.",
-  "footer.emailPlaceholder": "أدخل بريدك الإلكتروني ليصلك كل جديد"
+  "footer.emailPlaceholder": "أدخل بريدك الإلكتروني ليصلك كل جديد",
+  "cooperation": {
+    "title": "طلب تعاون جديد",
+    "empty": "لا توجد طلبات تعاون حالياً",
+    "companyName": "اسم الشركة",
+    "contentType": "نوع المحتوى",
+    "date": "الموعد",
+    "budget": "الميزانية المقترحة",
+    "accept": "قبول",
+    "reject": "رفض",
+    "negotiate": "تفاوض"
+  }
 }

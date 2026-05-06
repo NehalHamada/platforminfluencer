@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ImagePlus, Mic, SendHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -7,11 +8,29 @@ import { cn } from "@/lib/utils";
 
 type MessageInputProps = {
   isRTL: boolean;
+  onSendMessage?: (text: string) => void;
+  isSending?: boolean;
 };
 
-function MessageInput({ isRTL }: MessageInputProps) {
+function MessageInput({ isRTL, onSendMessage, isSending }: MessageInputProps) {
   const { t } = useTranslation();
   const placeholder = t("chat.thread.inputPlaceholder");
+  const [text, setText] = useState("");
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmed = text.trim();
+    if (!trimmed || isSending) return;
+    onSendMessage?.(trimmed);
+    setText("");
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSubmit(event);
+    }
+  };
 
   return (
     <div className="border-t border-[#efeee8] bg-white px-0 pt-2 sm:pt-4">
@@ -20,12 +39,13 @@ function MessageInput({ isRTL }: MessageInputProps) {
           "flex items-end gap-1 border border-[#ece7d9] bg-white px-1 py-1 sm:gap-3 sm:px-2 sm:py-2",
           isRTL ? "flex-row-reverse" : "flex-row",
         )}
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={handleSubmit}
         aria-label={placeholder}>
         <Button
           variant="default"
           type="submit"
           size="icon"
+          disabled={!text.trim() || isSending}
           aria-label={t("chat.thread.sendLabel", "Send message")}
           className="h-5 w-5 shrink-0 rounded-xs text-white sm:h-10 sm:w-10 sm:rounded-[8px]">
           <SendHorizontal
@@ -63,6 +83,9 @@ function MessageInput({ isRTL }: MessageInputProps) {
           <Textarea
             id="chat-message-input"
             rows={1}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
               "max-h-16 min-h-5 resize-none border-0 bg-transparent px-2 py-1 text-[8px] text-[#30362c] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:max-h-28 sm:min-h-10 sm:py-2 sm:text-sm",

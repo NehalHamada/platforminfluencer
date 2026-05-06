@@ -33,28 +33,62 @@ export type CampaignApplyResponse = {
   data?: unknown;
 };
 
+export type UpdateApplicationStatusPayload = {
+  status: "accepted" | "rejected";
+};
+
+export type ApproveContentPayload = {
+  type: string;
+  media_url: string;
+  title: string;
+};
+
+export type RequestModificationPayload = {
+  notes: string;
+};
+
+export type CollaborationRequest = {
+  id: number;
+  campaign_id: number;
+  influencer_id: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  campaign?: Campaign;
+};
+
+export type CollaborationRequestResponse = {
+  success: boolean;
+  data: CollaborationRequest[];
+};
+
+export type RespondToCollabPayload = {
+  status: "accepted" | "rejected";
+};
+
+export type RespondToModificationPayload = {
+  status: "accepted" | "rejected";
+  rejection_reason?: string | null;
+};
+
 export type Campaign = {
-  id: string;
+  id: string | number;
   name?: string;
   idea?: string;
-  campaignName?: string;
-  campaignIdea?: string;
-  platform?: string;
-  targetAge?: string;
-  targetCountry?: string;
-  campaignDuration?: string;
-  campaignType?: string;
-  estimatedBudget?: string;
-  influencersCount?: string;
-  influencerName?: string;
-  totalAmount?: string;
-  commission?: string;
-  netAmount?: string;
-  status?: "draft" | "active" | "completed" | "cancelled";
-  createdAt?: string;
+  platform?: ApiNamedEntity & { icon?: string | null };
+  target_audience?: ApiNamedEntity;
+  target_location?: ApiNamedEntity;
+  execution_time?: ApiNamedEntity;
+  campaign_type?: ApiNamedEntity;
+  budget_range?: ApiNamedEntity;
+  influencer_count_range?: ApiNamedEntity;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type CampaignListResponse = {
+  success?: boolean;
   message?: string;
   data: Campaign[];
   total?: number;
@@ -86,16 +120,22 @@ export type CampaignInputFieldProps = {
 
 export type CampaignRequest = {
   id: number;
-  name: string;
-  title: string;
-  image: string;
-  platforms: string[];
-  platformIds?: number[];
-  followers: string;
-  note?: string;
-  executionDate?: string;
-  status?: string;
-  requestedPrice: string;
+  campaign_id?: number;
+  user_id?: number;
+  price: string | number;
+  note: string;
+  execution_date: string;
+  is_ready: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  campaign?: Campaign;
+  user?: {
+    id: number;
+    name: string;
+    email: string;
+    avatar: string | null;
+  };
 };
 
 export type CampaignRequestsQueryParams = {
@@ -154,4 +194,31 @@ export type CampaignSchema = {
   campaign_type_id: string;
   budget_range_id: string;
   influencer_count_range_id: string;
+};
+
+export type ApiNamedEntity = {
+  id: number;
+  name: string;
+};
+
+export type ApiCampaign = {
+  id: number;
+  name: string;
+  idea?: string;
+  status?: string;
+  created_at: string;
+  updated_at: string;
+  campaign_type?: ApiNamedEntity;
+  budget_range?: ApiNamedEntity;
+  execution_time?: ApiNamedEntity;
+  platform?: ApiNamedEntity & { icon?: string | null };
+  target_audience?: ApiNamedEntity;
+  target_location?: ApiNamedEntity;
+  influencer_count_range?: ApiNamedEntity;
+  user_id?: number;
+};
+
+export type ApiCampaignListResponse = {
+  success: boolean;
+  data: ApiCampaign[];
 };

@@ -11,6 +11,12 @@ import type {
   CampaignQueryParams,
   CampaignRequestsResponse,
   CampaignRequestsQueryParams,
+  UpdateApplicationStatusPayload,
+  ApproveContentPayload,
+  RequestModificationPayload,
+  CollaborationRequestResponse,
+  RespondToCollabPayload,
+  RespondToModificationPayload,
 } from "@/types/campaign.types";
 
 type ApiObject = Record<string, unknown>;
@@ -23,6 +29,7 @@ const getString = (value: unknown, fallback = "") =>
     ? String(value)
     : fallback;
 
+/*
 const getNumber = (value: unknown) => {
   const numberValue =
     typeof value === "number"
@@ -33,7 +40,9 @@ const getNumber = (value: unknown) => {
 
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };
+*/
 
+/*
 const getNestedString = (value: unknown, keys: string[], fallback = "") => {
   if (!isObject(value)) return fallback;
 
@@ -60,6 +69,7 @@ const getNestedString = (value: unknown, keys: string[], fallback = "") => {
 
   return fallback;
 };
+*/
 
 const getListFromResponse = (responseData: unknown): unknown[] => {
   if (Array.isArray(responseData)) return responseData;
@@ -75,94 +85,7 @@ const getListFromResponse = (responseData: unknown): unknown[] => {
 
 const mapCampaignApplication = (item: unknown): CampaignRequest | null => {
   if (!isObject(item)) return null;
-
-  const application = isObject(item.application) ? item.application : undefined;
-  const influencer = isObject(item.influencer)
-    ? item.influencer
-    : isObject(application?.influencer)
-      ? application.influencer
-      : undefined;
-  const campaign = isObject(item.campaign)
-    ? item.campaign
-    : isObject(application?.campaign)
-      ? application.campaign
-      : undefined;
-  const user = isObject(influencer?.user)
-    ? influencer.user
-    : isObject(item.user)
-      ? item.user
-      : isObject(application?.user)
-        ? application.user
-      : undefined;
-  const id = Number(item.id ?? application?.id ?? influencer?.id ?? user?.id);
-
-  if (!Number.isFinite(id)) return null;
-
-  const rawPlatforms =
-    item.platforms ?? influencer?.platforms ?? campaign?.platforms;
-  const platformId = getNumber(item.platform_id ?? campaign?.platform_id);
-  const platforms = Array.isArray(rawPlatforms)
-    ? rawPlatforms
-        .map((platform) =>
-          getNestedString({ platform }, ["platform"], getString(platform, "")),
-        )
-        .filter(Boolean)
-    : [
-        getNestedString(
-          item,
-          ["platform"],
-          getNestedString(campaign, ["platform"], ""),
-        ),
-      ].filter(Boolean);
-  const userId = getString(item.user_id ?? application?.user_id, "");
-
-  return {
-    id,
-    name: getString(
-      item.name ??
-        item.influencer_name ??
-        application?.name ??
-        influencer?.name ??
-        user?.name,
-      userId ? `Influencer #${userId}` : "Influencer",
-    ),
-    title: getNestedString(
-      item,
-      ["title", "content_type", "category", "campaign"],
-      getString(campaign?.name ?? campaign?.idea, "Creator"),
-    ),
-    image: getString(
-      item.image ??
-        item.avatar ??
-        item.profile_image ??
-        influencer?.image ??
-        influencer?.avatar ??
-        user?.avatar,
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
-    ),
-    platforms,
-    platformIds: platformId ? [platformId] : [],
-    followers: getNestedString(
-      item,
-      ["followers", "follower_range", "followerRange"],
-      getString(item.followers_count ?? influencer?.followers_count, "-"),
-    ),
-    note: getString(item.note ?? application?.note, ""),
-    executionDate: getString(
-      item.execution_date ?? application?.execution_date,
-      "",
-    ),
-    status: getString(item.status ?? application?.status, ""),
-    requestedPrice: getString(
-      item.requested_price ??
-        item.price ??
-        application?.price ??
-        item.offered_price ??
-        item.amount ??
-        item.budget,
-      "-",
-    ),
-  };
+  return item as CampaignRequest;
 };
 
 export const campaignService = {
@@ -236,6 +159,66 @@ export const campaignService = {
   ): Promise<CampaignApplyResponse> {
     const response = await api.post(
       `/api/campaigns/${campaignId}/apply`,
+      payload,
+    );
+    return response.data;
+  },
+
+  async updateApplicationStatus(
+    applicationId: string | number,
+    payload: UpdateApplicationStatusPayload,
+  ) {
+    const response = await api.patch(
+      `/api/applications/${applicationId}/status`,
+      payload,
+    );
+    return response.data;
+  },
+
+  async approveContent(
+    applicationId: string | number,
+    payload: ApproveContentPayload,
+  ) {
+    const response = await api.post(
+      `/api/company/applications/${applicationId}/approve-content`,
+      payload,
+    );
+    return response.data;
+  },
+
+  async requestModification(
+    applicationId: string | number,
+    payload: RequestModificationPayload,
+  ) {
+    const response = await api.post(
+      `/api/company/applications/${applicationId}/request-modification`,
+      payload,
+    );
+    return response.data;
+  },
+
+  async getCollaborationRequests(): Promise<CollaborationRequestResponse> {
+    const response = await api.get("/api/influencer/collaboration-requests");
+    return response.data;
+  },
+
+  async respondToCollaborationRequest(
+    requestId: string | number,
+    payload: RespondToCollabPayload,
+  ) {
+    const response = await api.patch(
+      `/api/influencer/collaboration-requests/${requestId}/respond`,
+      payload,
+    );
+    return response.data;
+  },
+
+  async respondToModification(
+    modificationId: string | number,
+    payload: RespondToModificationPayload,
+  ) {
+    const response = await api.post(
+      `/api/influencer/modifications/${modificationId}/respond`,
       payload,
     );
     return response.data;

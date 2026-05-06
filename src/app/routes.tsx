@@ -38,6 +38,8 @@ import Message from "@/pages/dashboard/company/Message";
 import Messages from "@/pages/dashboard/influencer/Messages";
 import ContactUs from "@/pages/info/ContactUs";
 import WhoUs from "@/pages/info/WhoUs";
+import CreateCampaignPayment from "@/pages/company/CreateCampaignPayment";
+import SureCreateCampaign from "@/pages/company/SureCreateCampaign";
 
 function AppRoutes() {
   return (
@@ -97,6 +99,14 @@ function AppRoutes() {
               element={<ContactInfluencer />}
             />
             <Route path="/dashboard/company/messages" element={<Message />} />
+            <Route
+              path="/campaign-payment"
+              element={<CreateCampaignPayment />}
+            />
+            <Route
+              path="/dashboard/company/sure-create-campaign"
+              element={<SureCreateCampaign />}
+            />
           </Route>
 
           <Route element={<RoleGuard allowedRoles={["influencer"]} />}>

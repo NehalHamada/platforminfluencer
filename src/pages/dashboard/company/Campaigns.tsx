@@ -103,7 +103,7 @@ function Campaigns() {
                         isRTL ? "flex-row" : "flex-row",
                       )}>
                       <CalendarDays className="h-4 w-4 sm:h-4 sm:w-4" />
-                      <span>{campaign.createdAt ?? "-"}</span>
+                      <span>{campaign.created_at ?? "-"}</span>
                     </div>
                   </div>
 
@@ -123,7 +123,7 @@ function Campaigns() {
                               "mt-1 flex flex-col items-start gap-1 sm:mt-2 sm:flex-row sm:flex-wrap sm:gap-2",
                               isRTL ? "sm:justify-start" : "sm:justify-start",
                             )}>
-                            <span>{campaign.name ?? campaign.campaignName ?? "-"}</span>
+                            <span>{campaign.name ?? "-"}</span>
                             <Badge className="self-center rounded-sm bg-[#39b54a] px-4 py-1.5 text-[12px] font-medium text-white hover:bg-[#39b54a] sm:self-auto sm:rounded-md sm:px-4 sm:py-1.5 sm:text-sm">
                               {status === "completed"
                                 ? t("campaigns.success")
@@ -136,7 +136,7 @@ function Campaigns() {
                           <span className="font-semibold text-[#2b2b26]">
                             {t("campaigns.influencerName")} :
                           </span>{" "}
-                          {campaign.influencerName ?? "-"}
+                          -
                         </p>
 
                         <div>
@@ -148,19 +148,19 @@ function Campaigns() {
                               <span className="font-semibold text-[#4a4a45]">
                                 {t("campaigns.totalAmount")} :
                               </span>{" "}
-                              {campaign.totalAmount ?? campaign.estimatedBudget ?? "-"}
+                              {campaign.budget_range?.name ?? "-"}
                             </li>
                             <li>
                               <span className="font-semibold text-[#4a4a45]">
                                 {t("campaigns.commission")} :
                               </span>{" "}
-                              {campaign.commission ?? "-"}
+                              -
                             </li>
                             <li>
                               <span className="font-semibold text-[#4a4a45]">
                                 {t("campaigns.netAmount")} :
                               </span>{" "}
-                              {campaign.netAmount ?? "-"}
+                              -
                             </li>
                           </ul>
                         </div>

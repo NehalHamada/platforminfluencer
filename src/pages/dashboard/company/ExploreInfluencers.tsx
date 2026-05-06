@@ -289,10 +289,10 @@ function ExploreInfluencers() {
           content_type_id: selectedContentType || undefined,
         };
 
-        const response = await axios.get("/api/influencer-discovery", {
+        await axios.get("/api/influencer-discovery", {
           params,
         });
-        console.log("Fetched influencers:", response.data);
+
       } catch (error) {
         console.error("Error fetching influencers:", error);
       }

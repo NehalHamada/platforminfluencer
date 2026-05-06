@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +26,9 @@ type MessageThreadProps = {
   conversation: ChatConversation;
   isRTL: boolean;
   onAgreementSubmit: (data: ConvertCampaignFormData) => void;
+  onSendMessage?: (text: string) => void;
+  isSending?: boolean;
+  isLoadingMessages?: boolean;
 };
 
 function AgreementBubble({
@@ -188,9 +191,25 @@ function MessageThread({
   conversation,
   isRTL,
   onAgreementSubmit,
+  onSendMessage,
+  isSending,
+  isLoadingMessages,
 }: MessageThreadProps) {
   const { t } = useTranslation();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollRef.current) {
+      const scrollContainer = scrollRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [conversation.messages]);
 
   return (
     <>
@@ -262,25 +281,43 @@ function MessageThread({
                 </Badge>
               </div>
 
-              <ScrollArea className="mt-3 max-h-88 pr-1 sm:mt-5 sm:max-h-136">
-                <div
-                  className="space-y-3 bg-white py-1 sm:space-y-5"
-                  role="log"
-                  aria-live="polite"
-                  aria-relevant="additions text">
-                  {conversation.messages.map((message) => (
-                    <MessageBubble
-                      key={message.id}
-                      message={message}
-                      isRTL={isRTL}
-                      t={t}
-                    />
-                  ))}
-                </div>
+              <ScrollArea
+                ref={scrollRef}
+                className="mt-3 max-h-88 pr-1 sm:mt-5 sm:max-h-136">
+                {isLoadingMessages ? (
+                  <div className="flex items-center justify-center py-10">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+                  </div>
+                ) : (
+                  <div
+                    className="space-y-3 bg-white py-1 sm:space-y-5"
+                    role="log"
+                    aria-live="polite"
+                    aria-relevant="additions text">
+                    {conversation.messages.length === 0 ? (
+                      <p className="py-10 text-center text-sm text-[#a3a694]">
+                        {t("chat.thread.noMessages", "لا توجد رسائل بعد")}
+                      </p>
+                    ) : (
+                      conversation.messages.map((message) => (
+                        <MessageBubble
+                          key={message.id}
+                          message={message}
+                          isRTL={isRTL}
+                          t={t}
+                        />
+                      ))
+                    )}
+                  </div>
+                )}
               </ScrollArea>
 
               <div className="mt-3 sm:mt-5">
-                <MessageInput isRTL={isRTL} />
+                <MessageInput
+                  isRTL={isRTL}
+                  onSendMessage={onSendMessage}
+                  isSending={isSending}
+                />
               </div>
             </CardContent>
           </Card>

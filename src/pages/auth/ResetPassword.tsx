@@ -33,7 +33,7 @@ function ResetPassword() {
     const resetOtp = sessionStorage.getItem("resetOtp");
     const otpPurpose = sessionStorage.getItem("otpPurpose");
 
-    console.log("reset password stored otp:", resetOtp ?? "not found");
+
 
     if (!resetEmail || !resetOtp || otpPurpose !== "forget-password") {
       navigate("/forget-password");
@@ -90,7 +90,7 @@ function ResetPassword() {
 
       navigate("/login");
     } catch (error) {
-      console.log(error);
+
       toast.error(t("resetPassword.error"));
     }
   };

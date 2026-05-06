@@ -116,11 +116,11 @@ function CreateCampaign() {
       influencer_count_range_id: Number(data.influencer_count_range_id),
     };
 
-    console.log("create campaign payload:", payload);
+
 
     try {
-      const response = await campaignService.createCampaign(payload);
-      console.log(response);
+      await campaignService.createCampaign(payload);
+
       navigate("/dashboard/company");
     } catch (error) {
       console.error(error);
@@ -152,7 +152,7 @@ function CreateCampaign() {
               </p>
             </div>
 
-            <Card className="rounded-[24px] !border-0 !ring-0 bg-white shadow-[0_14px_35px_rgba(34,34,31,0.06)] sm:rounded-[28px]">
+            <Card className="rounded-[24px] border-0! ring-0! bg-white shadow-[0_14px_35px_rgba(34,34,31,0.06)] sm:rounded-[28px]">
               <CardContent className="p-4 sm:p-6 lg:p-7">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-7">
                   <div className="grid grid-cols-1 gap-x-7 gap-y-4 sm:gap-y-5 md:grid-cols-2">

@@ -53,7 +53,7 @@ export type MessageListResponse = {
 };
 
 export type SendMessagePayload = {
-  conversation_id: string | number;
+  conversation_id?: string | number;
   message: string;
   type: MessageType;
   delivery_date: string | null;

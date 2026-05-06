@@ -4,25 +4,24 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BadgeCheck, CircleX } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import hero from "/assets/Hero.png";
 import { cn } from "@/lib/utils";
-import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
+import { useCampaignApplicationsQuery } from "@/queries/campaigns/useCampaignApplicationsQuery";
+import type { CampaignRequest } from "@/types/campaign.types";
 
 function CampaignsRequests() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
-  const requestsQuery = useCampaignRequestsQuery();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const campaignId = searchParams.get("campaignId");
+  const requestsQuery = useCampaignApplicationsQuery(campaignId || "");
   const requests = requestsQuery.data?.data ?? [];
   const getPlatformLabel = (
-    request: (typeof requests)[number],
-    index: number,
+    request: CampaignRequest,
   ) => {
-    const platformId = request.platformIds?.[index];
-    const fallback = request.platforms[index] ?? "-";
-
-    return platformId
-      ? t(`masterData.platforms.${platformId}`, { defaultValue: fallback })
-      : fallback;
+    return request.campaign?.platform?.name ?? "-";
   };
 
   return (
@@ -63,8 +62,8 @@ function CampaignsRequests() {
                         isRTL ? "flex-row-reverse" : "flex-row",
                       )}>
                       <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
-                        <AvatarImage src={request.image} alt={request.name} />
-                        <AvatarFallback>{request.name[0]}</AvatarFallback>
+                        <AvatarImage src={request.user?.avatar ?? ""} alt={request.user?.name} />
+                        <AvatarFallback>{request.user?.name?.[0]}</AvatarFallback>
                       </Avatar>
 
                       <div
@@ -73,10 +72,10 @@ function CampaignsRequests() {
                           isRTL ? "text-right" : "text-left",
                         )}>
                         <p className="text-[9px] font-medium text-[#2e2e29] sm:text-sm">
-                          {request.name}
+                          {request.user?.name}
                         </p>
                         <p className="text-[7px] text-[#8b8b8b] sm:text-xs">
-                          {request.title || t("campaignsRequest.creatorLabel")}
+                          {request.campaign?.name || t("campaignsRequest.creatorLabel")}
                         </p>
                       </div>
 
@@ -95,36 +94,22 @@ function CampaignsRequests() {
                       </p>
 
                       <div className="mt-2 grid grid-cols-3 gap-1 sm:flex sm:flex-wrap sm:gap-2">
-                        {request.platforms.map((platform, index) => (
                           <Badge
-                            key={platform}
+                            key={request.campaign?.platform?.id}
                             variant="secondary"
                             className="justify-center rounded-sm bg-[#f7f7f4] px-2 py-1 text-[8px] font-normal text-[#55554f] shadow-none sm:rounded-full sm:text-xs">
-                            {getPlatformLabel(request, index)}
+                            {getPlatformLabel(request)}
                           </Badge>
-                        ))}
-                        {request.platforms.length === 0 ? (
-                          <Badge
-                            variant="secondary"
-                            className="justify-center rounded-sm bg-[#f7f7f4] px-2 py-1 text-[8px] font-normal text-[#55554f] shadow-none sm:rounded-full sm:text-xs">
-                            -
-                          </Badge>
-                        ) : null}
                       </div>
                     </div>
 
                     {/* Followers */}
                     <div className={isRTL ? "text-right" : "text-left"}>
                       <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
-                        {request.followers !== "-"
-                          ? t("campaignsRequest.followers")
-                          : t("campaignsRequest.note")}
-                        :
+                        {t("campaignsRequest.note")}:
                       </p>
                       <p className="text-[9px] text-[#55554f] sm:text-sm">
-                        {request.followers !== "-"
-                          ? request.followers
-                          : request.note || "-"}
+                        {request.note || "-"}
                       </p>
                     </div>
 
@@ -134,7 +119,7 @@ function CampaignsRequests() {
                         {t("campaignsRequest.requestedPrice")}:
                       </p>
                       <p className="text-[9px] text-[#55554f] sm:text-sm">
-                        {request.requestedPrice}
+                        {request.price}
                       </p>
                     </div>
                   </CardContent>
@@ -143,6 +128,7 @@ function CampaignsRequests() {
                     <Button
                       type="button"
                       variant="ghost"
+                      onClick={() => navigate("/dashboard/company/messages", { state: { conversationId: request.id } })}
                       className="h-8 gap-1 text-[9px] text-[#70b46b] hover:bg-[#f6fbf4] sm:h-11 sm:text-sm">
                       {t("campaignsRequest.accept")}
                       <BadgeCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />

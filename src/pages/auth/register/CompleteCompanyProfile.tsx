@@ -200,11 +200,7 @@ function CompleteCompanyProfile() {
       navigate("/verify-otp");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.log("company register status:", error.response?.status);
-        console.log(
-          "company register data:",
-          JSON.stringify(error.response?.data, null, 2),
-        );
+
         toast.error(getApiErrorMessage(error.response?.data));
       } else {
         toast.error("Failed");

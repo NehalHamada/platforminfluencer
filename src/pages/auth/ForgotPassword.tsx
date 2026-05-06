@@ -45,7 +45,7 @@ function ForgotPassword() {
         email: data.email,
       });
       logOtpFromResponse("forgot password otp:", response);
-      console.log("forgot password full response:", response);
+
 
       const otp = getOtpFromResponse(response);
 
@@ -53,7 +53,7 @@ function ForgotPassword() {
         sessionStorage.setItem("resetOtp", String(otp));
       }
 
-      console.log("forgot password extracted otp:", otp ?? "not returned");
+
       sessionStorage.setItem("otpEmail", data.email);
       sessionStorage.setItem("otpPurpose", "forget-password");
       toast.success(t("forgetPassword.success"));

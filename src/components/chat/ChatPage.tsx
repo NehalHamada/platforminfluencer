@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { queryKeys } from "@/constants/queryKeys";
 import type { ConvertCampaignFormData } from "@/types/dashboard.types";
 import type { Conversation, Message } from "@/types/chat.types";
 import { useConversationsQuery } from "@/queries/chat/useConversationsQuery";
@@ -11,7 +13,10 @@ import { useMessagesQuery } from "@/queries/chat/useMessagesQuery";
 import { useSendMessageMutation } from "@/queries/chat/useSendMessagesMutation";
 import { useAuthStore } from "@/store/auth.store";
 import type { AuthStore } from "@/types/auth.types";
+import { chatService } from "@/services/chat.service";
+import { resolveAcceptedConversationId } from "@/utils/chat";
 
+import { pusher } from "@/lib/pusher";
 import MessageThread from "./MessageThread";
 
 export type ChatMessage = {
@@ -43,6 +48,7 @@ export type ChatConversation = {
 type ChatPageProps = {
   role: "company" | "influencer";
   initialMessage?: string;
+  extraConversations?: Conversation[];
 };
 
 const defaultAvatar =
@@ -64,19 +70,26 @@ function mapApiConversation(
   currentUserId: number | undefined,
   t: TFunction,
   isRTL: boolean,
+  role: "company" | "influencer",
+  fallbackPeerName?: string,
 ): ChatConversation {
-  // Determine the "other" participant
   const otherUser =
-    conv.influencer ?? conv.company ?? conv.participant ?? conv.other_user;
+    role === "company"
+      ? (conv.influencer ?? conv.participant ?? conv.other_user ?? conv.company)
+      : (conv.company ??
+        conv.participant ??
+        conv.other_user ??
+        conv.influencer);
   const otherObj =
     otherUser && typeof otherUser === "object"
       ? (otherUser as Record<string, unknown>)
       : null;
 
-  const otherName = getString(
-    otherObj?.name,
-    isRTL ? "مستخدم" : "User",
-  );
+  const otherName =
+    getString(otherObj?.company_name) ||
+    getString(otherObj?.name) ||
+    fallbackPeerName ||
+    (isRTL ? "مستخدم" : "User");
 
   const messagesFromApi = (conv.messages ?? []).map((msg) =>
     mapApiMessage(msg, currentUserId, otherName, otherObj),
@@ -93,10 +106,7 @@ function mapApiConversation(
       conv.campaign_name ?? conv.campaignName ?? conv.name ?? conv.title,
       isRTL ? "حملة" : "Campaign",
     ),
-    campaignBudget: getString(
-      conv.campaign_budget ?? conv.campaignBudget,
-      "",
-    )
+    campaignBudget: getString(conv.campaign_budget ?? conv.campaignBudget, "")
       ? `${isRTL ? "الميزانية" : "Budget"} ${getString(conv.campaign_budget ?? conv.campaignBudget)}`
       : "",
     category: getString(conv.category, ""),
@@ -115,7 +125,8 @@ function mapApiMessage(
   otherObj: Record<string, unknown> | null,
 ): ChatMessage {
   const isMine =
-    currentUserId !== undefined && String(msg.sender_id) === String(currentUserId);
+    currentUserId !== undefined &&
+    String(msg.sender_id) === String(currentUserId);
 
   const time = msg.created_at
     ? new Date(msg.created_at).toLocaleTimeString("en-US", {
@@ -136,40 +147,116 @@ function mapApiMessage(
   };
 }
 
-function ChatPage({ role, initialMessage }: ChatPageProps) {
+function ChatPage({
+  role,
+  initialMessage,
+  extraConversations = [],
+}: ChatPageProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const queryClient = useQueryClient();
   const currentUser = useAuthStore((s: AuthStore) => s.user);
   const currentUserId = currentUser?.id;
   const location = useLocation();
-  const stateLocation = location.state as { 
-    conversationId?: string | number; 
-    isNew?: boolean; 
-    companyName?: string; 
+  const stateLocation = location.state as {
+    conversationId?: string | number;
+    isNew?: boolean;
+    companyName?: string;
+    peerName?: string;
+    campaignName?: string;
   } | null;
   const stateConvId = stateLocation?.conversationId;
   const isNewConv = stateLocation?.isNew;
-  const stateCompanyName = stateLocation?.companyName;
+  const statePeerName = stateLocation?.peerName ?? stateLocation?.companyName;
+  const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // ─── Fetch conversations ───
   const conversationsQuery = useConversationsQuery();
-  const apiConversations = useMemo(
-    () => conversationsQuery.data?.data ?? [],
-    [conversationsQuery.data?.data]
-  );
+  const apiConversations = useMemo(() => {
+    const conversations = conversationsQuery.data?.data ?? [];
+    const seenIds = new Set(
+      conversations.map((conversation) => String(conversation.id)),
+    );
+    const fallbackConversations = extraConversations.filter(
+      (conversation) => !seenIds.has(String(conversation.id)),
+    );
+
+    return [...conversations, ...fallbackConversations];
+  }, [conversationsQuery.data?.data, extraConversations]);
 
   // ─── Selected conversation ───
-  const [selectedConvIdState] = useState<string | number | undefined>(stateConvId);
-  
+  const [selectedConvIdState] = useState<string | number | undefined>(
+    stateConvId,
+  );
+
+  const peerConversation = useMemo(() => {
+    if (!statePeerName) return undefined;
+    const normalizedPeer = statePeerName.trim().toLowerCase();
+
+    return apiConversations.find((conv) => {
+      const mapped = mapApiConversation(
+        conv,
+        currentUserId,
+        t,
+        isRTL,
+        role,
+        statePeerName,
+      );
+
+      return mapped.name.trim().toLowerCase() === normalizedPeer;
+    });
+  }, [apiConversations, currentUserId, isRTL, role, statePeerName, t]);
+
   // Auto-select first conversation if none is manually selected
-  const selectedConvId = selectedConvIdState ?? (apiConversations.length > 0 ? apiConversations[0].id : undefined);
+  const selectedConvId =
+    selectedConvIdState ??
+    peerConversation?.id ??
+    (statePeerName
+      ? undefined
+      : apiConversations.length > 0
+        ? apiConversations[0].id
+        : undefined);
 
   // ─── Fetch messages for selected conversation ───
   const messagesQuery = useMessagesQuery(selectedConvId);
   const apiMessages = useMemo(
     () => messagesQuery.data?.data ?? [],
-    [messagesQuery.data?.data]
+    [messagesQuery.data?.data],
   );
+
+  // ─── Pusher Real-time Integration ───
+  useEffect(() => {
+    if (!selectedConvId) return;
+
+    const channelName = `conversation.${selectedConvId}`;
+    const channel = pusher.subscribe(channelName);
+
+    channel.bind("MessageSent", (data: { message?: Message }) => {
+      const newMessage = data.message || (data as unknown as Message);
+      
+      // Don't add if it's my own message (already handled by mutation/optimistic UI)
+      if (currentUserId !== undefined && String(newMessage.sender_id) === String(currentUserId)) {
+        return;
+      }
+
+      // Update the react-query cache for messages
+      queryClient.setQueryData(
+        queryKeys.chat.messages(selectedConvId),
+        (oldData: any) => {
+          if (!oldData) return { success: true, data: [newMessage] };
+          return {
+            ...oldData,
+            data: [...(oldData.data || []), newMessage],
+          };
+        }
+      );
+    });
+
+    return () => {
+      pusher.unsubscribe(channelName);
+    };
+  }, [selectedConvId, currentUserId, queryClient]);
 
   // ─── Send message mutation ───
   const sendMutation = useSendMessageMutation(selectedConvId, currentUserId);
@@ -179,73 +266,185 @@ function ChatPage({ role, initialMessage }: ChatPageProps) {
     const conv = apiConversations.find(
       (c) => String(c.id) === String(selectedConvId),
     );
-    
-    if (!conv && isNewConv) {
+
+    if (!conv && (isNewConv || statePeerName)) {
       return {
-        id: String(selectedConvId),
-        campaignName: stateCompanyName || "New Conversation",
-        companyName: stateCompanyName || "Company",
-        influencerName: currentUser?.name || "Influencer",
+        id: String(
+          selectedConvId ?? `pending-${statePeerName ?? "conversation"}`,
+        ),
+        campaignName:
+          stateLocation?.campaignName || statePeerName || "New Conversation",
         category: "",
-        status: "active",
+        status: selectedConvId ? "active" : "pending",
         lastMessage: "",
         lastActive: "",
         unreadCount: 0,
-        name: stateCompanyName || "Company",
+        name: statePeerName || "Company",
         avatar: "",
         roleLabel: "",
         campaignBudget: "",
-        messages: apiMessages.map((msg) =>
-          mapApiMessage(msg, currentUserId, stateCompanyName || "Company", null),
-        ),
+        messages: [
+          ...apiMessages.map((msg) =>
+            mapApiMessage(msg, currentUserId, statePeerName || "Company", null),
+          ),
+          ...pendingMessages,
+        ],
       };
     }
 
     if (!conv) return undefined;
 
-    const mapped = mapApiConversation(conv, currentUserId, t, isRTL);
+    const mapped = mapApiConversation(
+      conv,
+      currentUserId,
+      t,
+      isRTL,
+      role,
+      statePeerName,
+    );
 
     // Determine the other user for message mapping
     const otherUser =
-      conv.influencer ?? conv.company ?? conv.participant ?? conv.other_user;
+      role === "company"
+        ? (conv.influencer ??
+          conv.participant ??
+          conv.other_user ??
+          conv.company)
+        : (conv.company ??
+          conv.participant ??
+          conv.other_user ??
+          conv.influencer);
     const otherObj =
       otherUser && typeof otherUser === "object"
         ? (otherUser as Record<string, unknown>)
         : null;
-    const otherName = getString(otherObj?.name, isRTL ? "مستخدم" : "User");
+    const otherName =
+      getString(otherObj?.company_name) ||
+      getString(otherObj?.name) ||
+      statePeerName ||
+      (isRTL ? "مستخدم" : "User");
 
     // Override messages with the fresh per-conversation messages
-    mapped.messages = apiMessages.map((msg) =>
-      mapApiMessage(msg, currentUserId, otherName, otherObj),
-    );
+    mapped.messages = [
+      ...apiMessages.map((msg) =>
+        mapApiMessage(msg, currentUserId, otherName, otherObj),
+      ),
+      ...pendingMessages,
+    ];
 
     return mapped;
-  }, [apiConversations, selectedConvId, isNewConv, stateCompanyName, currentUser, apiMessages, currentUserId, t, isRTL]);
+  }, [
+    apiConversations,
+    selectedConvId,
+    isNewConv,
+    statePeerName,
+    stateLocation?.campaignName,
+    apiMessages,
+    pendingMessages,
+    currentUserId,
+    t,
+    isRTL,
+    role,
+  ]);
 
   // ─── Handle sending a message ───
   const handleSendMessage = useCallback(
-    (text: string) => {
-      if (!selectedConvId) return;
+    async (text: string) => {
+      if (isSendingMessage) return false;
+      setIsSendingMessage(true);
 
-      sendMutation.mutate({
-        message: text,
+      const tempMessage: ChatMessage = {
+        id: `temp-${Date.now()}`,
+        sender: "me",
+        name: "Me",
+        avatar: "",
+        text,
+        time: new Date().toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
         type: "text",
-        delivery_date: null,
-        media_url: null,
-        notes: null,
-      });
+      };
+      const shouldShowPending = !selectedConvId;
+
+      if (shouldShowPending) {
+        setPendingMessages((messages) => [...messages, tempMessage]);
+      }
+
+      try {
+        const conversationId =
+          selectedConvId ??
+          (await resolveAcceptedConversationId({
+            queryClient,
+            role,
+            peerName: statePeerName,
+          }));
+
+        const payload = {
+          message: text,
+          type: "text",
+          delivery_date: null,
+          media_url: null,
+          notes: null,
+        } as const;
+
+        if (!conversationId) {
+          return true;
+        }
+
+        if (String(conversationId) === String(selectedConvId)) {
+          sendMutation.mutate(payload);
+        } else {
+          await chatService.sendMessage({
+            ...payload,
+            conversation_id: conversationId,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.chat.messages(conversationId),
+          });
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.chat.conversations(),
+          });
+          setPendingMessages((messages) =>
+            messages.filter((message) => message.id !== tempMessage.id),
+          );
+        }
+
+        return true;
+      } finally {
+        setIsSendingMessage(false);
+      }
     },
-    [selectedConvId, sendMutation],
+    [
+      isSendingMessage,
+      selectedConvId,
+      sendMutation,
+      queryClient,
+      role,
+      statePeerName,
+    ],
   );
 
   // ─── Auto-send initial message (from ContactInfluencer) ───
   const initialSentRef = useRef(false);
   useEffect(() => {
-    if (initialMessage && selectedConvId && !initialSentRef.current) {
+    if (
+      initialMessage &&
+      selectedConvId &&
+      (stateConvId || statePeerName) &&
+      !initialSentRef.current
+    ) {
       handleSendMessage(initialMessage);
       initialSentRef.current = true;
     }
-  }, [initialMessage, selectedConvId, handleSendMessage]);
+  }, [
+    initialMessage,
+    selectedConvId,
+    stateConvId,
+    statePeerName,
+    handleSendMessage,
+  ]);
 
   // ─── Agreement submit (convert campaign popup) ───
   const handleAgreementSubmit = (data: ConvertCampaignFormData) => {
@@ -263,8 +462,8 @@ function ChatPage({ role, initialMessage }: ChatPageProps) {
     if (selectedConvId && summaryText) {
       sendMutation.mutate({
         message: summaryText,
-        type: "text",
-        delivery_date: null,
+        type: "agreement",
+        delivery_date: data.deliveryDate || null,
         media_url: null,
         notes: null,
       });
@@ -334,10 +533,11 @@ function ChatPage({ role, initialMessage }: ChatPageProps) {
 
           <MessageThread
             conversation={selectedConversation}
+            role={role}
             isRTL={isRTL}
             onAgreementSubmit={handleAgreementSubmit}
             onSendMessage={handleSendMessage}
-            isSending={sendMutation.isPending}
+            isSending={sendMutation.isPending || isSendingMessage}
             isLoadingMessages={messagesQuery.isLoading}
           />
         </CardContent>

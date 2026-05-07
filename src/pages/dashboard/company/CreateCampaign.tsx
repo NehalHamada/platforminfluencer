@@ -19,8 +19,8 @@ import { useInfluencerCountRangesQuery } from "@/queries/masterData/useInfluence
 import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import { useTargetAudiencesQuery } from "@/queries/masterData/useTargetAudiencesQuery";
 import { useTargetLocationsQuery } from "@/queries/masterData/useTargetLocationsQuery";
+import { useCreateCampaignMutation } from "@/queries/campaigns/useCreateCampaignsMutation";
 import { campaignSchema, type CampaignSchema } from "@/schema/campaign.schema";
-import { campaignService } from "@/services/campaign.service";
 import type {
   CampaignInputFieldProps,
   CampaignPayload,
@@ -82,6 +82,7 @@ function CreateCampaign() {
   const campaignTypesQuery = useCampaignTypesQuery();
   const budgetRangesQuery = useBudgetRangesQuery();
   const influencerCountRangesQuery = useInfluencerCountRangesQuery();
+  const createCampaignMutation = useCreateCampaignMutation();
 
   const {
     register,
@@ -118,13 +119,14 @@ function CreateCampaign() {
 
 
 
-    try {
-      await campaignService.createCampaign(payload);
-
-      navigate("/dashboard/company");
-    } catch (error) {
-      console.error(error);
-    }
+    createCampaignMutation.mutate(payload, {
+      onSuccess: () => {
+        navigate("/dashboard/company");
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    });
   };
 
   return (
@@ -403,7 +405,7 @@ function CreateCampaign() {
                   <div className={cn("flex pt-1", isRTL ? "justify-start" : "justify-end")}>
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || createCampaignMutation.isPending}
                       className="group relative inline-flex h-11 min-w-[168px] items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-[182px]">
                       <span
                         className={cn(
@@ -418,7 +420,7 @@ function CreateCampaign() {
                       </span>
 
                       <span className={isRTL ? "pr-6" : "pl-6"}>
-                        {isSubmitting
+                        {isSubmitting || createCampaignMutation.isPending
                           ? t("createCampaign.submitting")
                           : t("createCampaign.publishCampaign")}
                       </span>

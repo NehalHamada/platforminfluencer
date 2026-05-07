@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -15,7 +13,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { ConvertCampaignFormData } from "@/types/dashboard.types";
 import { cn } from "@/lib/utils";
-import hero from "/assets/Hero.png";
 
 import ConvertCampaignPopup from "../common/ConvertCampaignPopup";
 import { Button } from "../ui/Button";
@@ -24,9 +21,10 @@ import MessageInput from "./MessageInput";
 
 type MessageThreadProps = {
   conversation: ChatConversation;
+  role: "company" | "influencer";
   isRTL: boolean;
   onAgreementSubmit: (data: ConvertCampaignFormData) => void;
-  onSendMessage?: (text: string) => void;
+  onSendMessage?: (text: string) => boolean | Promise<boolean> | void;
   isSending?: boolean;
   isLoadingMessages?: boolean;
 };
@@ -38,7 +36,7 @@ function AgreementBubble({
 }: {
   message: ChatMessage;
   isRTL: boolean;
-  t: TFunction;
+  t: any;
 }) {
   if (!message.agreement) return null;
 
@@ -93,24 +91,7 @@ function AgreementBubble({
               <p className="text-xs leading-6 text-[#4d4d4d]">{item.value}</p>
             </div>
           ))}
-
-          <div className="col-span-2">
-            <p className="mb-1 text-xs font-semibold text-[#9b91bf]">
-              {t("camPopup.fields.agreementTerms")}
-            </p>
-            <ul
-              className={cn(
-                "list-disc text-xs leading-6 text-[#4d4d4d]",
-                isRTL ? "pr-4" : "pl-4",
-              )}>
-              <li>{message.agreement.agreementTerms}</li>
-            </ul>
-          </div>
         </div>
-
-        <CardDescription className="mt-2 px-1 text-[11px] text-[#a3a694]">
-          {message.time}
-        </CardDescription>
       </CardContent>
     </Card>
   );
@@ -123,29 +104,22 @@ function MessageBubble({
 }: {
   message: ChatMessage;
   isRTL: boolean;
-  t: TFunction;
+  t: any;
 }) {
   const isOutgoing = message.sender === "me";
-  const fallbackName = message.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const fallbackName = message.name ? message.name.slice(0, 2).toUpperCase() : "??";
 
   return (
     <article
       className={cn(
-        "flex gap-1.5 sm:gap-3",
-        isOutgoing ? "justify-start" : "justify-end",
-      )}
-      aria-label={
-        isOutgoing ? (isRTL ? "رسالتك" : "Your message") : message.name
-      }>
-      {isOutgoing ? (
-        <Avatar className="mt-1 h-4 w-4 sm:h-8 sm:w-8">
-          <AvatarFallback className="bg-[#111267] text-[6px] font-semibold text-white sm:text-[10px]">
-            {isRTL ? "أنت" : "You"}
+        "flex w-full items-start gap-2 sm:gap-3",
+        isOutgoing ? "flex-row-reverse" : "flex-row",
+      )}>
+      {!isOutgoing ? (
+        <Avatar className="mt-1 h-5 w-5 sm:h-8 sm:w-8">
+          <AvatarImage src={message.avatar} alt={message.name} />
+          <AvatarFallback className="text-[7px] sm:text-[10px]">
+            {fallbackName}
           </AvatarFallback>
         </Avatar>
       ) : null}
@@ -175,7 +149,7 @@ function MessageBubble({
         </div>
       )}
 
-      {!isOutgoing ? (
+      {isOutgoing ? (
         <Avatar className="mt-1 h-5 w-5 sm:h-8 sm:w-8">
           <AvatarImage src={message.avatar} alt={message.name} />
           <AvatarFallback className="text-[7px] sm:text-[10px]">
@@ -189,6 +163,7 @@ function MessageBubble({
 
 function MessageThread({
   conversation,
+  role,
   isRTL,
   onAgreementSubmit,
   onSendMessage,
@@ -199,7 +174,6 @@ function MessageThread({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
       const scrollContainer = scrollRef.current.querySelector(
@@ -211,118 +185,95 @@ function MessageThread({
     }
   }, [conversation.messages]);
 
+  const introText = t("chat.thread.campaignBrief", "مرحباً، نرغب في التعاون معك في حملة تخص منتجات عناية بالبشرة، ونود معرفة مدى اهتمامك وتوفرك.");
+
   return (
-    <>
-      <section
-        className="relative overflow-hidden"
-        aria-labelledby="message-thread-title">
-        <figure className="relative h-36 overflow-hidden sm:h-75">
-          <img
-            src={hero}
-            alt={t("infChat.heroAlt")}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/70" />
-        </figure>
+    <div className="bg-white p-4 sm:p-10">
+      <header
+        className={cn(
+          "flex items-center justify-between gap-2 pb-6 sm:gap-4",
+          isRTL ? "flex-row" : "flex-row-reverse",
+        )}>
+        <div
+          className={cn(
+            "flex items-center gap-3 sm:gap-4",
+            isRTL ? "flex-row text-right" : "flex-row-reverse text-left",
+          )}>
+          <Avatar className="h-12 w-12 sm:h-14 sm:w-14">
+            <AvatarImage
+              src={conversation.avatar}
+              alt={conversation.name}
+            />
+            <AvatarFallback className="text-xs sm:text-sm">
+              {conversation.name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="relative -mt-1 rounded-t-[8px] bg-white px-2 pb-4 pt-3 sm:-mt-5 sm:rounded-t-[32px] sm:px-6 sm:pb-6 sm:pt-5 md:px-8">
-          <Card className="mx-auto max-w-4xl border-0 bg-white py-0 shadow-none ring-0 sm:shadow-[0_8px_28px_rgba(40,44,35,0.04)]">
-            <CardContent className="p-0 sm:p-6">
-              <header
-                className={cn(
-                  "flex items-start justify-between gap-2 pb-2 sm:gap-4 sm:pb-4",
-                  isRTL ? "flex-row" : "flex-row-reverse",
-                )}>
-                <div
-                  className={cn(
-                    "flex items-center gap-1.5 sm:gap-3",
-                    isRTL
-                      ? "flex-row text-right"
-                      : "flex-row-reverse text-left",
-                  )}>
-                  <Avatar className="h-6 w-6 sm:h-10 sm:w-10">
-                    <AvatarImage
-                      src={conversation.avatar}
-                      alt={conversation.name}
-                    />
-                    <AvatarFallback className="text-[7px] sm:text-xs">
-                      {conversation.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div>
-                    <CardTitle
-                      id="message-thread-title"
-                      className="text-[9px] font-semibold text-[#22271f] sm:text-sm">
-                      {conversation.name}
-                    </CardTitle>
-                    <CardDescription className="text-[7px] text-[#5e9f5c] sm:text-xs">
-                      {conversation.roleLabel}
-                    </CardDescription>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  onClick={() => setIsPopupOpen(true)}
-                  variant="outline"
-                  className="h-6 rounded-[3px] border-[#ddd9cb] bg-[#f8f7f2] px-2 py-1 text-[7px] text-[#5d5a55] hover:bg-[#f3f1e9] sm:h-auto sm:rounded-[6px] sm:px-3 sm:text-xs">
-                  {t("camPopup.trigger")}
-                </Button>
-              </header>
-
-              <Separator className="bg-[#f0eee6]" />
-
-              <div className="mt-2 sm:mt-4">
-                <Badge
-                  variant="outline"
-                  className="w-full justify-center rounded-[3px] border-[#f4efcf] bg-[#fbf8e8] px-2 py-1.5 text-center text-[8px] font-normal whitespace-normal text-[#4f5148] sm:rounded-[8px] sm:px-4 sm:py-3 sm:text-sm">
-                  {t("chat.thread.campaignBrief")}
-                </Badge>
-              </div>
-
-              <ScrollArea
-                ref={scrollRef}
-                className="mt-3 max-h-88 pr-1 sm:mt-5 sm:max-h-136">
-                {isLoadingMessages ? (
-                  <div className="flex items-center justify-center py-10">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
-                  </div>
-                ) : (
-                  <div
-                    className="space-y-3 bg-white py-1 sm:space-y-5"
-                    role="log"
-                    aria-live="polite"
-                    aria-relevant="additions text">
-                    {conversation.messages.length === 0 ? (
-                      <p className="py-10 text-center text-sm text-[#a3a694]">
-                        {t("chat.thread.noMessages", "لا توجد رسائل بعد")}
-                      </p>
-                    ) : (
-                      conversation.messages.map((message) => (
-                        <MessageBubble
-                          key={message.id}
-                          message={message}
-                          isRTL={isRTL}
-                          t={t}
-                        />
-                      ))
-                    )}
-                  </div>
-                )}
-              </ScrollArea>
-
-              <div className="mt-3 sm:mt-5">
-                <MessageInput
-                  isRTL={isRTL}
-                  onSendMessage={onSendMessage}
-                  isSending={isSending}
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <div>
+            <CardTitle className="text-sm font-bold text-[#22271f] sm:text-lg">
+              {conversation.name}
+            </CardTitle>
+            <CardDescription className="text-xs text-[#5e9f5c] sm:text-base">
+              {conversation.roleLabel} {conversation.campaignName && `• ${conversation.campaignName}`}
+            </CardDescription>
+          </div>
         </div>
-      </section>
+
+        {role === "company" ? (
+          <Button
+            type="button"
+            onClick={() => setIsPopupOpen(true)}
+            variant="outline"
+            className="h-10 rounded-[8px] border-[#ddd9cb] bg-[#f8f7f2] px-4 py-2 text-xs text-[#5d5a55] hover:bg-[#f3f1e9] sm:text-sm">
+            {t("camPopup.trigger")}
+          </Button>
+        ) : null}
+      </header>
+
+      <Separator className="bg-[#f0eee6]" />
+
+      <div className="mt-6">
+        <div className="rounded-[12px] border-[#f4efcf] bg-[#fbf8e8] px-6 py-4 text-center text-xs font-medium text-[#4f5148] sm:text-base leading-relaxed">
+          {introText}
+        </div>
+      </div>
+
+      <ScrollArea
+        ref={scrollRef}
+        className="mt-8 h-[400px] lg:h-[450px]">
+        {isLoadingMessages ? (
+          <div className="flex items-center justify-center py-10">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+          </div>
+        ) : (
+          <div className="space-y-6 bg-white py-6">
+            {conversation.messages.length === 0 ? (
+              <div className="flex h-32 items-center justify-center">
+                <p className="text-center text-sm font-medium text-[#a3a694] sm:text-base">
+                  {t("chat.thread.noMessages", "لا توجد رسائل بعد")}
+                </p>
+              </div>
+            ) : (
+              conversation.messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isRTL={isRTL}
+                  t={t}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </ScrollArea>
+
+      <div className="mt-8">
+        <MessageInput
+          isRTL={isRTL}
+          onSendMessage={onSendMessage}
+          isSending={isSending}
+        />
+      </div>
 
       <ConvertCampaignPopup
         open={isPopupOpen}
@@ -330,7 +281,7 @@ function MessageThread({
         campaignName={conversation.campaignName}
         onSubmitSuccess={onAgreementSubmit}
       />
-    </>
+    </div>
   );
 }
 

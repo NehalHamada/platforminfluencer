@@ -7,5 +7,7 @@ export function useConversationsQuery() {
   return useQuery<ConversationListResponse, Error>({
     queryKey: queryKeys.chat.conversations(),
     queryFn: chatService.getConversations,
+    refetchInterval: 3000,
+    refetchOnWindowFocus: true,
   });
 }

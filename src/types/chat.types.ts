@@ -1,4 +1,10 @@
-export type MessageType = "text" | "image" | "file";
+export type MessageType =
+  | "text"
+  | "agreement"
+  | "video_submission"
+  | "content_delivery"
+  | "image"
+  | "file";
 
 export type Message = {
   id: string | number;
@@ -9,11 +15,13 @@ export type Message = {
   media_url?: string | null;
   notes?: string | null;
   created_at?: string | null;
+  conversation_id?: string | number | null;
 };
 
 export type ChatApiUser = {
   id?: string | number;
   name?: string;
+  company_name?: string;
   avatar?: string | null;
   image?: string | null;
   profile_image?: string | null;

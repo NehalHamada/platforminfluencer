@@ -116,71 +116,16 @@ function InfluencerDashboard() {
   const isRTL = i18n.dir() === "rtl";
   const storedUser = getStoredUser();
   const storedProfileName = storedUser?.name || authUser?.name || "";
-  const fallbackProfileName = isRTL ? "سارة حامد" : "Sara Hamed";
+  const fallbackProfileName = isRTL ? "مؤثر" : "Influencer";
 
-  const fallbackData: InfluencerDashboardResponse = {
+  const emptyDashboardData: InfluencerDashboardResponse = {
     profile: {
       name: storedProfileName || fallbackProfileName,
       avatar: null,
     },
-    currentInfo: [
-      {
-        id: 1,
-        date: "20-3-2026",
-        title: isRTL ? "تجربة منتج جديد" : "New product trial",
-        company: isRTL ? "نشر المحتوى" : "Publish content",
-      },
-      {
-        id: 2,
-        date: "20-3-2026",
-        title: isRTL ? "تجربة منتج جديد" : "New product trial",
-        company: isRTL ? "نشر المحتوى" : "Publish content",
-      },
-    ],
-    upcomingCampaigns: [
-      {
-        id: 1,
-        brand: "Glow",
-        type: isRTL ? "عناية بالبشرة" : "Skincare",
-        date: "20-3-2026",
-        budget: isRTL ? "10000 ريال" : "SAR 10000",
-        status: "pending",
-      },
-      {
-        id: 2,
-        brand: "Vivid",
-        type: isRTL ? "عناية بالبشرة" : "Skincare",
-        date: "20-3-2026",
-        budget: isRTL ? "10000 ريال" : "SAR 10000",
-        status: "accepted",
-      },
-    ],
-    activities: [
-      {
-        id: 1,
-        image: "/assets/platImg.png",
-        title: isRTL ? "حملة Glow" : "Glow Campaign",
-        platform: "Instagram",
-        followers: isRTL ? "250 ألف" : "250K",
-        budget: isRTL ? "7000 ريال" : "SAR 7000",
-      },
-      {
-        id: 2,
-        image: "/assets/infImg2.png",
-        title: isRTL ? "حملة Beauty Pro" : "Beauty Pro",
-        platform: "TikTok",
-        followers: isRTL ? "180 ألف" : "180K",
-        budget: isRTL ? "6300 ريال" : "SAR 6300",
-      },
-      {
-        id: 3,
-        image: "/assets/iphone2.png",
-        title: isRTL ? "تعاون جديد" : "New Collab",
-        platform: "Snapchat",
-        followers: isRTL ? "120 ألف" : "120K",
-        budget: isRTL ? "4100 ريال" : "SAR 4100",
-      },
-    ],
+    currentInfo: [],
+    upcomingCampaigns: [],
+    activities: [],
   };
 
   const activityFallbackImages = [
@@ -191,41 +136,26 @@ function InfluencerDashboard() {
     "/assets/infImg3.png",
   ];
 
-  const recommendedCampaigns = [
-    {
-      id: 1,
-      image: "/assets/choImg3.png",
-      title: isRTL ? "حملة اطلاق عطر جديد" : "New perfume launch",
-      platform: "INSTAGRAM",
-      followers: isRTL ? "نساء 18 - 30 سنة" : "Women 18 - 30",
-      budget: "1200$",
-    },
-    {
-      id: 2,
-      image: "/assets/choImg4.png",
-      title: isRTL ? "حملة اطلاق عطر جديد" : "New perfume launch",
-      platform: "INSTAGRAM",
-      followers: isRTL ? "نساء 18 - 30 سنة" : "Women 18 - 30",
-      budget: "1200$",
-    },
-  ];
-
   const data: InfluencerDashboardResponse = {
-    ...fallbackData,
+    ...emptyDashboardData,
     ...dashboardData,
     profile: {
-      ...fallbackData.profile,
+      ...emptyDashboardData.profile,
       ...dashboardData?.profile,
       name:
         storedProfileName ||
         dashboardData?.profile.name ||
-        fallbackData.profile.name,
+        emptyDashboardData.profile.name,
     },
-    currentInfo: dashboardData ? dashboardData.currentInfo : fallbackData.currentInfo,
+    currentInfo: dashboardData
+      ? dashboardData.currentInfo
+      : emptyDashboardData.currentInfo,
     upcomingCampaigns: dashboardData
       ? dashboardData.upcomingCampaigns
-      : fallbackData.upcomingCampaigns,
-    activities: dashboardData ? dashboardData.activities : fallbackData.activities,
+      : emptyDashboardData.upcomingCampaigns,
+    activities: dashboardData
+      ? dashboardData.activities
+      : emptyDashboardData.activities,
   };
   const profileInitial = data.profile.name.trim().charAt(0).toUpperCase() || "U";
   const avatarColor = getAvatarColor(
@@ -241,8 +171,7 @@ function InfluencerDashboard() {
           defaultValue: fallback,
         })
       : fallback;
-  const recommendedCampaignCards = data.upcomingCampaigns.length
-    ? data.upcomingCampaigns.map((campaign, index) => ({
+  const recommendedCampaignCards = data.upcomingCampaigns.map((campaign, index) => ({
         id: campaign.id,
         image: index % 2 === 0 ? "/assets/choImg3.png" : "/assets/choImg4.png",
         title: campaign.type,
@@ -262,8 +191,7 @@ function InfluencerDashboard() {
           campaign.budget,
         ),
         typeId: campaign.typeId,
-      }))
-    : recommendedCampaigns;
+      }));
   const postsCollage = (postsData?.data ?? data.activities)
     .slice(0, 5)
     .map((item, index) => ({
@@ -592,15 +520,13 @@ function InfluencerDashboard() {
                       )}>
                       <div>
                         <h3 className="text-[8px] font-bold leading-4 text-[#252525] sm:text-[12px]">
-                          {"typeId" in campaign
-                            ? getMasterDataTranslation(
-                                "campaignTypes",
-                                typeof campaign.typeId === "number"
-                                  ? campaign.typeId
-                                  : undefined,
-                                campaign.title,
-                              )
-                            : campaign.title}
+                          {getMasterDataTranslation(
+                            "campaignTypes",
+                            typeof campaign.typeId === "number"
+                              ? campaign.typeId
+                              : undefined,
+                            campaign.title,
+                          )}
                         </h3>
                         <div className="mt-1.5 space-y-0.5 text-[7px] leading-3.5 text-[#7a7a7a] sm:mt-3 sm:space-y-3 sm:text-[11px] sm:leading-5">
                           <p className="sm:text-[#9a9a9a]">

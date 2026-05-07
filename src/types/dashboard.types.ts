@@ -47,6 +47,7 @@ export type UpcomingCampaignItem = {
   targetLocationId?: number;
   influencerCountRangeId?: number;
   status: "pending" | "rejected" | "accepted";
+  raw?: Record<string, unknown>;
 };
 
 export type CompanyDashboardResponse = {

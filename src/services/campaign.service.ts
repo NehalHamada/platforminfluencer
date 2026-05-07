@@ -11,12 +11,11 @@ import type {
   CampaignQueryParams,
   CampaignRequestsResponse,
   CampaignRequestsQueryParams,
-  UpdateApplicationStatusPayload,
   ApproveContentPayload,
   RequestModificationPayload,
   CollaborationRequestResponse,
-  RespondToCollabPayload,
   RespondToModificationPayload,
+  SendCollaborationRequestPayload,
 } from "@/types/campaign.types";
 
 type ApiObject = Record<string, unknown>;
@@ -28,48 +27,6 @@ const getString = (value: unknown, fallback = "") =>
   typeof value === "string" || typeof value === "number"
     ? String(value)
     : fallback;
-
-/*
-const getNumber = (value: unknown) => {
-  const numberValue =
-    typeof value === "number"
-      ? value
-      : typeof value === "string"
-        ? Number(value)
-        : NaN;
-
-  return Number.isFinite(numberValue) ? numberValue : undefined;
-};
-*/
-
-/*
-const getNestedString = (value: unknown, keys: string[], fallback = "") => {
-  if (!isObject(value)) return fallback;
-
-  for (const key of keys) {
-    const fieldValue = value[key];
-
-    if (typeof fieldValue === "string" || typeof fieldValue === "number") {
-      return String(fieldValue);
-    }
-
-    if (isObject(fieldValue)) {
-      const nestedValue =
-        fieldValue.name ??
-        fieldValue.name_en ??
-        fieldValue.name_ar ??
-        fieldValue.title ??
-        fieldValue.label;
-
-      if (typeof nestedValue === "string" || typeof nestedValue === "number") {
-        return String(nestedValue);
-      }
-    }
-  }
-
-  return fallback;
-};
-*/
 
 const getListFromResponse = (responseData: unknown): unknown[] => {
   if (Array.isArray(responseData)) return responseData;
@@ -136,6 +93,25 @@ export const campaignService = {
     };
   },
 
+  async getAllCampaignApplications(): Promise<CampaignApplicationsResponse> {
+    const campaignsResponse = await this.getCampaigns();
+    const campaigns = campaignsResponse.data ?? [];
+
+    const applicationResponses = await Promise.all(
+      campaigns.map((campaign) => this.getCampaignApplications(campaign.id)),
+    );
+
+    const data = applicationResponses.reduce<CampaignRequest[]>(
+      (items, response) => items.concat(response.data ?? []),
+      [],
+    );
+
+    return {
+      data,
+      total: data.length,
+    };
+  },
+
   async getMyApplications(
     params?: CampaignRequestsQueryParams,
   ): Promise<CampaignRequestsResponse> {
@@ -166,12 +142,11 @@ export const campaignService = {
 
   async updateApplicationStatus(
     applicationId: string | number,
-    payload: UpdateApplicationStatusPayload,
-  ) {
-    const response = await api.patch(
-      `/api/applications/${applicationId}/status`,
-      payload,
-    );
+    status: "accepted" | "rejected",
+  ): Promise<unknown> {
+    const response = await api.patch(`/api/applications/${applicationId}/status`, {
+      status,
+    });
     return response.data;
   },
 
@@ -202,13 +177,29 @@ export const campaignService = {
     return response.data;
   },
 
+  async getCompanyCollaborationRequests(): Promise<CollaborationRequestResponse> {
+    const response = await api.get("/api/company/collaboration-requests");
+    return response.data;
+  },
+
+  async sendCollaborationRequest(
+    influencerId: string | number,
+    payload: SendCollaborationRequestPayload,
+  ): Promise<unknown> {
+    const response = await api.post(
+      `/api/company/influencers/${influencerId}/collaboration-requests`,
+      payload,
+    );
+    return response.data;
+  },
+
   async respondToCollaborationRequest(
     requestId: string | number,
-    payload: RespondToCollabPayload,
-  ) {
+    status: "accepted" | "rejected",
+  ): Promise<unknown> {
     const response = await api.patch(
       `/api/influencer/collaboration-requests/${requestId}/respond`,
-      payload,
+      { status },
     );
     return response.data;
   },

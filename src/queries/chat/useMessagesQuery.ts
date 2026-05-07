@@ -8,6 +8,7 @@ export function useMessagesQuery(conversationId: string | number | undefined) {
     queryKey: queryKeys.chat.messages(conversationId),
     queryFn: () => chatService.getMessages(conversationId as string | number),
     enabled: Boolean(conversationId),
-    refetchInterval: 3000,
+    refetchInterval: 3000, // Fallback for Pusher
+    refetchOnWindowFocus: true,
   });
 }

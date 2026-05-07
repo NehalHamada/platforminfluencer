@@ -1,0 +1,1085 @@
+{
+    "info": {
+        "name": "Ahdaf Platform - FULL API COLLECTION",
+        "description": "Complete collection covering every route and logic flow in the system.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "0. General & Public (عام)",
+            "item": [
+                {
+                    "name": "Authentication (الحسابات)",
+                    "item": [
+                        {
+                            "name": "1. Register Base",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/register",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"type\": \"influencer\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "2. Verify OTP",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/verify-otp",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"test@example.com\",\n    \"otp\": \"123456\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "3. Login",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/login",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "4. Resend OTP",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/resend-otp",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"test@example.com\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "5. Forget Password",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/forget-password",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"test@example.com\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "6. Reset Password",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/reset-password",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"test@example.com\",\n    \"otp\": \"123456\",\n    \"password\": \"newpassword\",\n    \"password_confirmation\": \"newpassword\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "7. Logout",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/logout"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Public Content (المحتوى العام)",
+                    "item": [
+                        {
+                            "name": "Landing Page",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/landing-page"
+                            }
+                        },
+                        {
+                            "name": "About Us",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/about-us"
+                            }
+                        },
+                        {
+                            "name": "Contact Info",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/contact/info"
+                            }
+                        },
+                        {
+                            "name": "Send Contact Message",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/contact/send",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Guest\",\n    \"email\": \"guest@test.com\",\n    \"message\": \"I love this platform\"\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Master Data (البيانات المرجعية)",
+                    "item": [
+                        {
+                            "name": "Get All",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/all"
+                            }
+                        },
+                        {
+                            "name": "Platforms",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/platforms"
+                            }
+                        },
+                        {
+                            "name": "Follower Ranges",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/follower-ranges"
+                            }
+                        },
+                        {
+                            "name": "Content Types",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/content-types"
+                            }
+                        },
+                        {
+                            "name": "Target Audiences",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/target-audiences"
+                            }
+                        },
+                        {
+                            "name": "Target Locations",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/target-locations"
+                            }
+                        },
+                        {
+                            "name": "Execution Times",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/execution-times"
+                            }
+                        },
+                        {
+                            "name": "Campaign Types",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/campaign-types"
+                            }
+                        },
+                        {
+                            "name": "Budget Ranges",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/budget-ranges"
+                            }
+                        },
+                        {
+                            "name": "Influencer Count Ranges",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/master-data/influencer-count-ranges"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "1. Influencer Flow (رحلة المؤثر)",
+            "item": [
+                {
+                    "name": "1. Registration & Profile",
+                    "item": [
+                        {
+                            "name": "Register Influencer (Step 1)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/register/influencer",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Ahmed Influencer\",\n    \"email\": \"influencer@test.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"platform_ids\": [\n        1,\n        2\n    ],\n    \"follower_range_ids\": [\n        1\n    ],\n    \"content_type_ids\": [\n        1,\n        3\n    ]\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Complete Profile (Step 2)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/complete-profile",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"phone\": \"0501234567\",\n    \"cooperation_type\": \"Pay per Post\",\n    \"content_field\": \"Beauty & Fashion\",\n    \"price_post\": 1200.5,\n    \"price_story\": 450,\n    \"price_reel\": 2000,\n    \"is_negotiable\": true,\n    \"bio\": \"Professional fashion influencer with 5 years experience.\",\n    \"currency\": \"SAR\",\n    \"fame_level_id\": 1,\n    \"engagement_rate_id\": 2,\n    \"platform_ids\": [\n        1,\n        2\n    ],\n    \"platform_links\": [\n        \"https:\\/\\/instagram.com\\/user\",\n        \"https:\\/\\/tiktok.com\\/@user\"\n    ],\n    \"follower_range_ids\": [\n        1\n    ],\n    \"content_type_ids\": [\n        1,\n        3\n    ],\n    \"account_holder_name\": \"Ahmed Mohamed Ali\",\n    \"bank_name\": \"Al Rajhi Bank\",\n    \"iban\": \"SA1234567890123456789012\",\n    \"country\": \"Saudi Arabia\",\n    \"accepted_terms\": true\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2. Home & Activity",
+                    "item": [
+                        {
+                            "name": "Get Influencer Home",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/home"
+                            }
+                        },
+                        {
+                            "name": "My Posts (List)",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/posts"
+                            }
+                        },
+                        {
+                            "name": "Store New Post (Story/Reel)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/posts",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"type\": \"story\",\n    \"title\": \"My Summer Trip\",\n    \"description\": \"A vlog about my trip\",\n    \"media_url\": \"https:\\/\\/storage.com\\/v.mp4\",\n    \"thumbnail_url\": \"https:\\/\\/storage.com\\/t.jpg\",\n    \"campaign_id\": null\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "3. Campaigns & Collabs",
+                    "item": [
+                        {
+                            "name": "Available Campaigns",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/campaigns"
+                            }
+                        },
+                        {
+                            "name": "Apply for Campaign",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/campaigns/1/apply",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"price\": 1000,\n    \"note\": \"I am very interested\",\n    \"execution_date\": \"2024-12-31\",\n    \"is_ready\": true\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "My Applications",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/my-applications"
+                            }
+                        },
+                        {
+                            "name": "My Collab Requests",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/collaboration-requests"
+                            }
+                        },
+                        {
+                            "name": "Respond to Collab Request",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/collaboration-requests/1/respond",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"status\": \"accepted\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Respond to Modification",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/modifications/1/respond",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"status\": \"accepted\",\n    \"rejection_reason\": null\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "4. Earnings & Wallet",
+                    "item": [
+                        {
+                            "name": "Get My Earnings",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer/earnings"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "2. Company Flow (رحلة الشركة)",
+            "item": [
+                {
+                    "name": "1. Registration & Profile",
+                    "item": [
+                        {
+                            "name": "Register Company (Step 1)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/register/company",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"company_name\": \"Tech Co\",\n    \"manager_name\": \"Sarah Ali\",\n    \"field\": \"Marketing\",\n    \"country\": \"KSA\",\n    \"email\": \"company@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Complete Profile (Step 2)",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/company/complete-profile",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"mode\": \"formdata\",\n    \"formdata\": [\n        {\n            \"key\": \"phone\",\n            \"value\": \"0511111111\",\n            \"type\": \"text\"\n        },\n        {\n            \"key\": \"field\",\n            \"value\": \"Digital Marketing\",\n            \"type\": \"text\"\n        },\n        {\n            \"key\": \"country\",\n            \"value\": \"Saudi Arabia\",\n            \"type\": \"text\"\n        },\n        {\n            \"key\": \"logo\",\n            \"type\": \"file\",\n            \"src\": \"\"\n        },\n        {\n            \"key\": \"commercial_register\",\n            \"type\": \"file\",\n            \"src\": \"\"\n        },\n        {\n            \"key\": \"accepted_terms\",\n            \"value\": \"1\",\n            \"type\": \"text\"\n        }\n    ]\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "2. Campaign Management",
+                    "item": [
+                        {
+                            "name": "Company Home",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/company/home"
+                            }
+                        },
+                        {
+                            "name": "Create Campaign",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/campaigns",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Summer Launch\",\n    \"idea\": \"Promoting our new product.\",\n    \"platform_id\": 1,\n    \"target_audience_id\": 1,\n    \"target_location_id\": 1,\n    \"execution_time_id\": 1,\n    \"campaign_type_id\": 1,\n    \"budget_range_id\": 1,\n    \"influencer_count_range_id\": 1\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "List My Campaigns",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/campaigns"
+                            }
+                        },
+                        {
+                            "name": "Get Campaign Applications",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/campaigns/1/applications"
+                            }
+                        },
+                        {
+                            "name": "Accept/Reject Application",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/applications/1/status",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"status\": \"accepted\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Approve Content",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/company/applications/1/approve-content",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"type\": \"video\",\n    \"media_url\": \"https:\\/\\/vimeo.com\\/123\",\n    \"title\": \"Final Video\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Request Modification",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/company/applications/1/request-modification",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"modification_reason_id\": 1,\n    \"new_delivery_date\": \"2024-12-31\",\n    \"description\": \"Please fix the lighting\"\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "3. Influencer Discovery & Collabs",
+                    "item": [
+                        {
+                            "name": "Search Influencers",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/influencer-discovery?search=ahmed"
+                            }
+                        },
+                        {
+                            "name": "Send Collab Request",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/company/influencers/1/collaboration-requests",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Special Deal\",\n    \"content_type_id\": 1,\n    \"goal\": \"Reach youth\",\n    \"budget_range_id\": 1,\n    \"execution_time_id\": 1,\n    \"message\": \"We want to work with you\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "List Sent Collab Requests",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/company/collaboration-requests"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "3. Chat System (نظام الدردشة)",
+            "item": [
+                {
+                    "name": "List Conversations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/api/conversations"
+                    }
+                },
+                {
+                    "name": "Get Messages",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/api/conversations/1/messages"
+                    }
+                },
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/api/messages/send",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"conversation_id\": 1,\n    \"message\": \"Hello, let's talk\",\n    \"type\": \"text\",\n    \"delivery_date\": null,\n    \"media_url\": null,\n    \"notes\": null\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4. Admin Panel (لوحة التحكم)",
+            "item": [
+                {
+                    "name": "Admin Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": "{{base_url}}/api/admin/login",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"password\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Master Data Management",
+                    "item": [
+                        {
+                            "name": "Add Platform",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/platforms",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name_en\": \"Snapchat\",\n    \"name_ar\": \"سناب\",\n    \"icon\": \"fab fa-snapchat\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Add Follower Range",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/follower-ranges",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"10k - 50k\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Add Content Type",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/content-types",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Food Vlogs\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Add Modification Reason",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/modification-reasons",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"reason\": \"Bad Quality\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Reason",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/modification-reasons/1"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "User Management",
+                    "item": [
+                        {
+                            "name": "List All Users",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/users?type=influencer"
+                            }
+                        },
+                        {
+                            "name": "Delete User",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/users/1"
+                            }
+                        },
+                        {
+                            "name": "Bulk Delete",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/users/bulk-delete",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"ids\": [\n        2,\n        3\n    ]\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Financial Settlements",
+                    "item": [
+                        {
+                            "name": "Pending Settlements",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/campaigns/pending-settlements"
+                            }
+                        },
+                        {
+                            "name": "Settle Financials",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/applications/1/settle",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"commission_percentage\": 10,\n    \"admin_notes\": \"Paid via bank transfer\",\n    \"payment_reference\": \"BANK-12345\"\n}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Content Management (CMS)",
+                    "item": [
+                        {
+                            "name": "Update Hero Section",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/landing-page/hero",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title_ar\": \"أهلاً\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "List Partners",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/partners"
+                            }
+                        },
+                        {
+                            "name": "Add Partner",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/partners",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Google\",\n    \"logo\": null\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Delete Partner",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/partners/1"
+                            }
+                        },
+                        {
+                            "name": "Update About Us",
+                            "request": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/about-us",
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"title_ar\": \"من نحن\",\n    \"content_ar\": \"...\"\n}"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Contact Messages",
+                            "request": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{token}}"
+                                    }
+                                ],
+                                "url": "{{base_url}}/api/admin/messages"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://127.0.0.1:8000",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "PASTE_TOKEN_HERE",
+            "type": "string"
+        }
+    ]
+}

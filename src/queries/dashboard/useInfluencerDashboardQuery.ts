@@ -7,5 +7,8 @@ export function useInfluencerDashboardQuery() {
   return useQuery<InfluencerDashboardResponse, Error>({
     queryKey: queryKeys.dashboard.influencer(),
     queryFn: dashboardService.getInfluencerDashboard,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }

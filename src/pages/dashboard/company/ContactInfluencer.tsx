@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import hero from "/assets/Hero.png";
 
@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { useContentTypesQuery } from "@/queries/masterData/useContentTypesQuery";
 import { useCampaignTypesQuery } from "@/queries/masterData/useCampaignTypesQuery";
 import { useExecutionTimesQuery } from "@/queries/masterData/useExecutionTimesQuery";
+import { useBudgetRangesQuery } from "@/queries/masterData/useBudgetRangesQuery";
+import { useSendCollaborationRequestMutation } from "@/queries/campaigns/useSendCollaborationRequestMutation";
 import {
   influencerChatSchema,
   type InfluencerChatSchema,
@@ -23,10 +25,17 @@ function ContactInfluencer() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as
+    | { influencerId?: string | number; influencerName?: string }
+    | null;
+  const influencerId = state?.influencerId;
 
   const contentTypesQuery = useContentTypesQuery();
   const campaignTypesQuery = useCampaignTypesQuery();
   const executionTimesQuery = useExecutionTimesQuery();
+  const budgetRangesQuery = useBudgetRangesQuery();
+  const sendCollaborationMutation = useSendCollaborationRequestMutation();
 
   const {
     register,
@@ -46,6 +55,28 @@ function ContactInfluencer() {
   });
 
   const onSubmit = (data: InfluencerChatSchema) => {
+    if (influencerId) {
+      sendCollaborationMutation.mutate(
+        {
+          influencerId,
+          payload: {
+            name: data.campaignName,
+            content_type_id: Number(data.contentType),
+            goal: data.goal,
+            budget_range_id: Number(data.budget),
+            execution_time_id: Number(data.executionDate),
+            message: data.message,
+          },
+        },
+        {
+          onSuccess: () => {
+            navigate("/dashboard/company/campaigns");
+          },
+        },
+      );
+      return;
+    }
+
     navigate("/dashboard/company/messages", {
       state: { contactMessage: data.message },
     });
@@ -166,35 +197,27 @@ function ContactInfluencer() {
                     />
 
                     {/* الميزانية المتوفرة */}
-                    <div className="flex flex-col gap-2">
-                      <Label
-                        htmlFor="budget"
-                        className={cn(
-                          "text-md font-medium text-[#2f2f2b]",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        {t("infChat.budget")}
-                      </Label>
-                      <Input
-                        id="budget"
-                        {...register("budget")}
-                        placeholder={t("infChat.placeholders.budget")}
-                        aria-invalid={errors.budget ? "true" : undefined}
-                        className={cn(
-                          "h-11 rounded-full border-[#d9d7cf] bg-white px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:border-[#9aa883] focus-visible:ring-1 focus-visible:ring-[#9aa883]/30",
-                          isRTL ? "text-right" : "text-left",
-                        )}
-                      />
-                      {errors.budget ? (
-                        <p
-                          className={cn(
-                            "text-xs font-medium text-destructive",
-                            isRTL ? "text-right" : "text-left",
-                          )}>
-                          {t(errors.budget.message ?? "")}
-                        </p>
-                      ) : null}
-                    </div>
+                    <SelectField
+                      name="budget"
+                      label={t("infChat.budget")}
+                      placeholder={
+                        budgetRangesQuery.isLoading
+                          ? t("createCampaign.loadingBudgetRanges", "Loading...")
+                          : t("infChat.placeholders.budget")
+                      }
+                      options={
+                        budgetRangesQuery.data?.map((item) => ({
+                          label: t(
+                            `masterData.budgetRanges.${item.id}`,
+                            item.label,
+                          ),
+                          value: item.id.toString(),
+                        })) ?? []
+                      }
+                      control={control}
+                      error={errors.budget}
+                      isRTL={isRTL}
+                    />
 
                     {/* موعد التنفيذ - from API */}
                     <SelectField
@@ -258,7 +281,7 @@ function ContactInfluencer() {
                     )}>
                     <Button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || sendCollaborationMutation.isPending}
                       className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
                       <span
                         className={cn(
@@ -272,7 +295,7 @@ function ContactInfluencer() {
                         )}
                       </span>
                       <span className={isRTL ? "pr-6" : "pl-6"}>
-                        {isSubmitting
+                        {isSubmitting || sendCollaborationMutation.isPending
                           ? t("createCampaign.submitting", "Sending...")
                           : t("infChat.submit")}
                       </span>

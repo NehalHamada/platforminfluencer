@@ -3,25 +3,90 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { BadgeCheck, CircleX } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import hero from "/assets/Hero.png";
 import { cn } from "@/lib/utils";
+import { getConversationIdFromResponse } from "@/utils/apiResponse";
+import { resolveAcceptedConversationId } from "@/utils/chat";
+import { useAllCampaignApplicationsQuery } from "@/queries/campaigns/useAllCampaignApplicationsQuery";
 import { useCampaignApplicationsQuery } from "@/queries/campaigns/useCampaignApplicationsQuery";
+import { useUpdateApplicationStatusMutation } from "@/queries/campaigns/useUpdateApplicationStatusMutation";
 import type { CampaignRequest } from "@/types/campaign.types";
+import { queryKeys } from "@/constants/queryKeys";
 
 function CampaignsRequests() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const campaignId = searchParams.get("campaignId");
-  const requestsQuery = useCampaignApplicationsQuery(campaignId || "");
-  const requests = requestsQuery.data?.data ?? [];
+  const requestsQuery = useCampaignApplicationsQuery(campaignId || "", Boolean(campaignId));
+  const allRequestsQuery = useAllCampaignApplicationsQuery(!campaignId);
+  const statusMutation = useUpdateApplicationStatusMutation();
+  const [updatingRequestId, setUpdatingRequestId] = useState<number | null>(null);
+  const activeQuery = campaignId ? requestsQuery : allRequestsQuery;
+  const requests = activeQuery.data?.data ?? [];
   const getPlatformLabel = (
     request: CampaignRequest,
   ) => {
     return request.campaign?.platform?.name ?? "-";
+  };
+
+  const getInfluencerName = (request: CampaignRequest) =>
+    request.user?.name || t("campaignsRequest.creatorLabel");
+
+  const handleStatusChange = (
+    request: CampaignRequest,
+    status: "accepted" | "rejected",
+  ) => {
+    if (updatingRequestId) return;
+    setUpdatingRequestId(request.id);
+
+    statusMutation.mutate(
+      {
+        applicationId: request.id,
+        status,
+      },
+      {
+        onSuccess: async (response) => {
+          if (status !== "accepted") {
+            setUpdatingRequestId(null);
+            return;
+          }
+          
+          // Force refresh of conversations list
+          await queryClient.invalidateQueries({ queryKey: queryKeys.chat.conversations() });
+
+          const peerName = getInfluencerName(request);
+          const conversationId = await resolveAcceptedConversationId({
+            queryClient,
+            role: "company",
+            peerName,
+            existingConversationId:
+              request.conversation_id ??
+              getConversationIdFromResponse(request) ??
+              getConversationIdFromResponse(response),
+          });
+
+          navigate("/dashboard/company/messages", {
+            state: {
+              conversationId,
+              isNew: Boolean(conversationId),
+              peerName,
+              peerRole: "influencer",
+            },
+          });
+          setUpdatingRequestId(null);
+        },
+        onError: () => {
+          setUpdatingRequestId(null);
+        },
+      },
+    );
   };
 
   return (
@@ -50,7 +115,15 @@ function CampaignsRequests() {
 
           <div className="bg-transparent p-0 shadow-none sm:rounded-[30px] sm:bg-white/90 sm:p-6 sm:shadow-sm">
             <div className="grid grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {requests.map((request) => (
+              {activeQuery.isLoading ? (
+                <div className="col-span-full flex items-center justify-center py-16">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+                </div>
+              ) : requests.length === 0 ? (
+                <p className="col-span-full py-14 text-center text-sm text-[#a3a694]">
+                  {t("campaignsRequest.empty", "No campaign applications yet")}
+                </p>
+              ) : requests.map((request) => (
                 <Card
                   key={request.id}
                   className="rounded-lg border border-[#ece9e1] bg-white py-0 shadow-none sm:rounded-xl sm:shadow-sm">
@@ -72,7 +145,7 @@ function CampaignsRequests() {
                           isRTL ? "text-right" : "text-left",
                         )}>
                         <p className="text-[9px] font-medium text-[#2e2e29] sm:text-sm">
-                          {request.user?.name}
+                          {getInfluencerName(request)}
                         </p>
                         <p className="text-[7px] text-[#8b8b8b] sm:text-xs">
                           {request.campaign?.name || t("campaignsRequest.creatorLabel")}
@@ -128,15 +201,20 @@ function CampaignsRequests() {
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => navigate("/dashboard/company/messages", { state: { conversationId: request.id } })}
+                      onClick={() => handleStatusChange(request, "accepted")}
+                      disabled={statusMutation.isPending || Boolean(updatingRequestId)}
                       className="h-8 gap-1 text-[9px] text-[#70b46b] hover:bg-[#f6fbf4] sm:h-11 sm:text-sm">
-                      {t("campaignsRequest.accept")}
+                      {updatingRequestId === request.id
+                        ? t("createCampaign.submitting", "Sending...")
+                        : t("campaignsRequest.accept")}
                       <BadgeCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     </Button>
 
                     <Button
                       type="button"
                       variant="ghost"
+                      onClick={() => handleStatusChange(request, "rejected")}
+                      disabled={statusMutation.isPending || Boolean(updatingRequestId)}
                       className="h-8 gap-1 text-[9px] text-[#ff5d5d] hover:bg-[#fff8f8] sm:h-11 sm:text-sm">
                       {t("campaignsRequest.reject")}
                       <CircleX className="h-3 w-3 sm:h-3.5 sm:w-3.5" />

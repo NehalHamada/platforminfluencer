@@ -79,7 +79,12 @@ function InfluencerCard({
 
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate("/dashboard/company/contact");
+    navigate("/dashboard/company/contact", {
+      state: {
+        influencerId: item.id,
+        influencerName: item.name,
+      },
+    });
   };
 
   return (

@@ -2,8 +2,6 @@ import { api } from "@/lib/axios";
 import type {
   CompanyDashboardResponse,
   CompanyHomeResponse,
-  ConvertCampaignPayload,
-  ConvertCampaignResponse,
   CurrentInfoItem,
   ActivityItem,
   EarningRow,
@@ -11,8 +9,6 @@ import type {
   InfluencerDiscoveryItem,
   InfluencerDiscoveryQueryParams,
   InfluencerDiscoveryResponse,
-  InfluencerChatPayload,
-  InfluencerChatResponse,
   InfluencerDashboardResponse,
   InfluencerPostsResponse,
   UpcomingCampaignItem,
@@ -177,7 +173,7 @@ const mapUpcomingCampaign = (
     brand: getNestedString(
       item,
       ["brand", "company", "user"],
-      getString(item.brand ?? item.company_name ?? item.companyName, "FINANCE"),
+      getString(item.brand ?? item.company_name ?? item.companyName, ""),
     ),
     type: getNestedString(
       item,
@@ -212,6 +208,7 @@ const mapUpcomingCampaign = (
     targetLocationId: getNumber(item.target_location_id),
     influencerCountRangeId: getNumber(item.influencer_count_range_id),
     status: normalizeStatus(item.status),
+    raw: item,
   };
 };
 
@@ -419,26 +416,6 @@ export const dashboardService = {
     return mapEarningsResponse(response.data);
   },
 
-  async createInfluencerChat(
-    data: InfluencerChatPayload,
-  ): Promise<InfluencerChatResponse> {
-    const response = await api.post("/dashboard/company/influencer-chat", data);
-    return response.data;
-  },
-
-  async convertDealToCampaign(
-    data: ConvertCampaignPayload,
-  ): Promise<ConvertCampaignResponse> {
-    await Promise.resolve(data);
-
-    return {
-      message: "Campaign conversion submitted successfully",
-      data: {
-        id: `campaign-${Date.now()}`,
-        status: "sent",
-      },
-    };
-  },
   async getCompanyHome(): Promise<CompanyHomeResponse> {
     const response = await api.get("/api/company/home");
     return response.data;

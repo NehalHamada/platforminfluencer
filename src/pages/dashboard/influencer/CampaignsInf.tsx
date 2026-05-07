@@ -2,6 +2,7 @@ import { CalendarDays, Check, MessageCircleMore } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useParams, useSearchParams } from "react-router-dom";
 import hero from "/assets/Hero.png";
+import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
 
 type CampaignStep = {
   id: number;
@@ -14,6 +15,7 @@ function CampaignsInf() {
   const { campaignId: campaignIdParam } = useParams();
   const [searchParams] = useSearchParams();
   const campaignId = campaignIdParam ?? searchParams.get("campaignId");
+  const applicationsQuery = useCampaignRequestsQuery();
 
   const steps: CampaignStep[] = [
     {
@@ -30,20 +32,58 @@ function CampaignsInf() {
     },
   ];
 
-  const campaign = {
-    id: campaignId ?? "",
-    date: "1-3-2026",
-    title: isRTL
-      ? "لعناية البشرة منتج جديد Glow"
-      : "Glow skincare new product care",
-    company: "Growth",
-    reservedAmount: "2000$",
-    commission: isRTL ? "15% (600 ريال)" : "15% ($160)",
-    influencerNet: "1400$",
-    completedText: isRTL
-      ? "الحملة مكتملة سيتم تحويل مستحقاتك خلال 23 ساعة (5800 ريال سعودي)"
-      : "Campaign completed. Your payout will be transferred within 23 hours (SAR 5800).",
-  };
+  const selectedApplication =
+    applicationsQuery.data?.data.find((application) =>
+      campaignId
+        ? String(application.campaign?.id ?? application.campaign_id) ===
+          String(campaignId)
+        : ["accepted", "content_approved"].indexOf(application.status) !== -1,
+    ) ?? applicationsQuery.data?.data[0];
+
+  const selectedCampaign = selectedApplication?.campaign;
+  const rawCampaign = (selectedCampaign ?? {}) as Record<string, unknown>;
+  const user = selectedCampaign?.user;
+  const campaign = selectedApplication
+    ? {
+        id: String(selectedCampaign?.id ?? selectedApplication.campaign_id ?? ""),
+        date:
+          selectedApplication.execution_date ||
+          selectedCampaign?.execution_time?.name ||
+          selectedCampaign?.executionTime?.name ||
+          selectedCampaign?.created_at ||
+          "",
+        title:
+          selectedCampaign?.name ||
+          selectedCampaign?.campaign_type?.name ||
+          selectedCampaign?.campaignType?.name ||
+          selectedCampaign?.campaign_type_name ||
+          selectedCampaign?.idea ||
+          "-",
+        company:
+          user?.company_name ||
+          selectedCampaign?.company_name ||
+          (rawCampaign.brand_name as string | undefined) ||
+          user?.name ||
+          "-",
+        reservedAmount: selectedApplication.price
+          ? String(selectedApplication.price)
+          : selectedCampaign?.budget_range?.name ||
+            selectedCampaign?.budgetRange?.name ||
+            selectedCampaign?.budget_range_name ||
+            "-",
+        commission: "-",
+        influencerNet: selectedApplication.price
+          ? String(selectedApplication.price)
+          : "-",
+        completedText:
+          selectedApplication.status === "content_approved"
+            ? t(
+                "campaign.contentApproved",
+                "Content approved and waiting for settlement",
+              )
+            : t("campaign.chatAvailable", "Chat available"),
+      }
+    : null;
 
   return (
     <section
@@ -87,10 +127,20 @@ function CampaignsInf() {
                     isRTL ? "flex-row-reverse" : "flex-row-reverse"
                   }`}>
                   <CalendarDays className="h-4 w-4 sm:h-4 sm:w-4" />
-                  <span>{campaign.date}</span>
+                  <span>{campaign?.date ?? "-"}</span>
                 </div>
               </div>
 
+              {applicationsQuery.isLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+                </div>
+              ) : !campaign ? (
+                <div className="py-16 text-center text-sm text-[#8b8b8b]">
+                  {t("campaign.empty", "No campaign data available")}
+                </div>
+              ) : (
+                <>
               <div className="grid grid-cols-1 gap-5 px-1 sm:gap-8 sm:px-0 lg:grid-cols-[0.85fr_1.15fr]">
                 <div className={isRTL ? "text-right" : "text-left"}>
                   <div
@@ -183,6 +233,8 @@ function CampaignsInf() {
               <div className="mt-6 rounded-full bg-[#eef2ef] px-4 py-2.5 text-center text-xs leading-5 text-[#595c55] sm:mt-8 sm:rounded-[12px] sm:px-4 sm:py-4 sm:text-sm">
                 {campaign.completedText}
               </div>
+                </>
+              )}
             </div>
           </div>
         </div>

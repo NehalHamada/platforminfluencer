@@ -16,6 +16,10 @@ export function useCreateCampaignMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.dashboard.company(),
       });
+
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.dashboard.influencer(),
+      });
     },
   });
 }

@@ -25,7 +25,6 @@ import {
   convertCampaignSchema,
   type ConvertCampaignSchema,
 } from "@/schema/dashboard.schema";
-import { dashboardService } from "@/services/dashboard.service";
 import type { ConvertCampaignPopupProps } from "@/types/ui.types";
 import { cn } from "@/lib/utils";
 
@@ -78,7 +77,6 @@ function ConvertCampaignPopup({
 
   const onSubmit = async (data: ConvertCampaignSchema) => {
     try {
-      await dashboardService.convertDealToCampaign(data);
       onSubmitSuccess?.(data);
       toast.success(t("camPopup.success"));
       closePopup();

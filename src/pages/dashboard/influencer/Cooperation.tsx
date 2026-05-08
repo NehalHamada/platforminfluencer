@@ -12,6 +12,7 @@ import { useApplyCampaignMutation } from "@/queries/campaigns/useApplyCampaignMu
 import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
 import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
 import { useRespondToCollaborationRequestMutation } from "@/queries/campaigns/useRespondToCollaborationRequestMutation";
+import { queryKeys } from "@/constants/queryKeys";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
 import type { Campaign } from "@/types/campaign.types";
 import { getConversationIdFromResponse } from "@/utils/apiResponse";
@@ -29,6 +30,9 @@ type CooperationItem = {
   price?: string | number;
   conversationId?: string | number;
 };
+
+const isAcceptedStatus = (status?: string) =>
+  String(status ?? "").toLowerCase() === "accepted";
 
 function Cooperation() {
   const { t, i18n } = useTranslation();
@@ -205,12 +209,29 @@ function Cooperation() {
 
     const onAcceptSuccess = async (response: unknown) => {
       console.log("Accept success:", response);
+      const responseConversationId = getConversationIdFromResponse(response);
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["campaigns", "collaboration-requests"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["campaigns", "company-collaboration-requests"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.dashboard.influencer(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.chat.conversations(),
+        }),
+      ]);
+
       const finalConvId = await resolveAcceptedConversationId({
         queryClient,
         role: "influencer",
         peerName: item.companyName,
         existingConversationId:
-          convId || getConversationIdFromResponse(response),
+          responseConversationId || convId,
       });
       navigate("/dashboard/influencer/messages", {
         state: {
@@ -225,22 +246,17 @@ function Cooperation() {
 
     const onAcceptError = (error: unknown) => {
       console.error("Accept error:", error);
-      // Even if API fails, try to open chat if we have an ID or name
-      navigate("/dashboard/influencer/messages", {
-        state: {
-          conversationId: convId,
-          isNew: true,
-          peerName: item.companyName,
-          peerRole: "company",
-        },
-      });
       setAcceptingItemId(null);
     };
 
     // 1. My applications are accepted/rejected only by the company.
     // If the application is already accepted, just open the chat.
     if (item.source === "my-application" && item.applicationId) {
-      void onAcceptSuccess(item);
+      if (isAcceptedStatus(item.status)) {
+        void onAcceptSuccess(item);
+      } else {
+        setAcceptingItemId(null);
+      }
     } 
     // 2. If it's a direct request, respond with accepted
     else if (item.source === "collaboration-request" && item.requestId) {
@@ -262,20 +278,25 @@ function Cooperation() {
             is_ready: true,
           },
         },
-        { onSuccess: onAcceptSuccess, onError: onAcceptError }
+        {
+          onSuccess: async (response) => {
+            if (getConversationIdFromResponse(response)) {
+              await onAcceptSuccess(response);
+            } else {
+              setAcceptingItemId(null);
+            }
+          },
+          onError: onAcceptError,
+        }
       );
     } 
     // 4. Fallback
     else {
-      navigate("/dashboard/influencer/messages", {
-        state: {
-          conversationId: convId,
-          isNew: true,
-          peerName: item.companyName,
-          peerRole: "company",
-        },
-      });
-      setAcceptingItemId(null);
+      if (convId) {
+        void onAcceptSuccess(item);
+      } else {
+        setAcceptingItemId(null);
+      }
     }
   };
 
@@ -432,7 +453,7 @@ function Cooperation() {
                                     className="h-9 rounded-[8px] border border-[#aacd9f] bg-transparent text-xs font-medium text-[#5faa55] hover:bg-[#f7fcf5] sm:h-11 sm:text-sm">
                                     {acceptingItemId === item.id
                                       ? t("createCampaign.submitting", "Sending...")
-                                      : item.status === "accepted"
+                                      : isAcceptedStatus(item.status)
                                       ? t("cooperation.openChat", "فتح المحادثة")
                                       : t("cooperation.accept")}
                                   </Button>

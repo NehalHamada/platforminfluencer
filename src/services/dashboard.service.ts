@@ -61,7 +61,41 @@ const getArray = (value: unknown, keys: string[]) => {
     if (isObject(item) && Array.isArray(item.data)) return item.data;
   }
 
+  if (isObject(value.data)) return getArray(value.data, keys);
+
   return [];
+};
+
+const getArraysByKeysDeep = (
+  value: unknown,
+  keys: string[],
+  seen = new WeakSet<object>(),
+): unknown[] => {
+  if (Array.isArray(value)) return [];
+  if (!isObject(value)) return [];
+  if (seen.has(value)) return [];
+  seen.add(value);
+
+  const arrays: unknown[] = [];
+
+  for (const key of keys) {
+    const item = value[key];
+
+    if (Array.isArray(item)) {
+      arrays.push(...item);
+    } else if (isObject(item) && Array.isArray(item.data)) {
+      arrays.push(...item.data);
+    }
+  }
+
+  for (const key in value) {
+    const item = value[key];
+    if (isObject(item)) {
+      arrays.push(...getArraysByKeysDeep(item, keys, seen));
+    }
+  }
+
+  return arrays;
 };
 
 const unwrapData = (value: unknown) => {
@@ -169,15 +203,22 @@ const mapUpcomingCampaign = (
   if (!isObject(item)) return null;
 
   return {
-    id: Number(item.id ?? index + 1),
+    id: getNumber(item.id) ?? index + 1,
     brand: getNestedString(
       item,
-      ["brand", "company", "user"],
+      ["brand", "company", "user", "campaign"],
       getString(item.brand ?? item.company_name ?? item.companyName, ""),
     ),
     type: getNestedString(
       item,
-      ["type", "campaign_type", "campaignType", "content_type", "contentType"],
+      [
+        "type",
+        "campaign",
+        "campaign_type",
+        "campaignType",
+        "content_type",
+        "contentType",
+      ],
       getString(
         item.type ??
           item.campaign_type_name ??
@@ -189,14 +230,14 @@ const mapUpcomingCampaign = (
     ),
     typeId: getNumber(item.campaign_type_id),
     date:
-      getNestedString(item, ["execution_time", "executionTime"]) ||
+      getNestedString(item, ["execution_time", "executionTime", "campaign"]) ||
       formatDate(
         item.date ?? item.execution_date ?? item.deadline ?? item.created_at,
       ),
     dateId: getNumber(item.execution_time_id),
     budget: getNestedString(
       item,
-      ["budget_range", "budgetRange"],
+      ["budget_range", "budgetRange", "campaign"],
       getString(
         item.budget ?? item.price ?? item.amount ?? item.suggested_budget,
         "",
@@ -252,6 +293,19 @@ const mapInfluencerDashboard = (
 ): InfluencerDashboardResponse => {
   const data = unwrapData(responseData);
   const value = isObject(data) ? data : {};
+  const upcomingKeys = [
+    "upcomingCampaigns",
+    "upcoming_campaigns",
+    "availableCampaigns",
+    "available_campaigns",
+    "collaborationRequests",
+    "collaboration_requests",
+    "cooperationRequests",
+    "cooperation_requests",
+    "requests",
+    "campaigns",
+    "upcoming",
+  ];
 
   return {
     profile: getUserProfile(value),
@@ -264,13 +318,7 @@ const mapInfluencerDashboard = (
     ])
       .map(mapCurrentInfo)
       .filter((item): item is CurrentInfoItem => Boolean(item)),
-    upcomingCampaigns: getArray(value, [
-      "upcomingCampaigns",
-      "upcoming_campaigns",
-      "available_campaigns",
-      "campaigns",
-      "upcoming",
-    ])
+    upcomingCampaigns: getArraysByKeysDeep(value, upcomingKeys)
       .map(mapUpcomingCampaign)
       .filter((item): item is UpcomingCampaignItem => Boolean(item)),
     activities: getArray(value, [

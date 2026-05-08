@@ -10,5 +10,7 @@ export function useCampaignRequestsQuery(params?: CampaignRequestsQueryParams) {
   return useQuery<CampaignRequestsResponse, Error>({
     queryKey: queryKeys.campaigns.myApplications(params),
     queryFn: () => campaignService.getMyApplications(params),
+    refetchInterval: 3000,
+    refetchOnWindowFocus: true,
   });
 }

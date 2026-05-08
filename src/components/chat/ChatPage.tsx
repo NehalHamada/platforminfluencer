@@ -18,9 +18,11 @@ import { resolveAcceptedConversationId } from "@/utils/chat";
 
 import { pusher } from "@/lib/pusher";
 import MessageThread from "./MessageThread";
+import hero from "/assets/Hero.png";
 
 export type ChatMessage = {
   id: string;
+  conversationId?: string;
   sender: "me" | "other";
   name: string;
   avatar: string;
@@ -65,6 +67,223 @@ const getAvatar = (user: Record<string, unknown> | null | undefined) => {
   );
 };
 
+const getObject = (value: unknown): Record<string, unknown> | null =>
+  value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+
+const getCompanyDisplayName = (
+  conv: Conversation,
+  companyObj: Record<string, unknown> | null,
+  fallbackPeerName: string | undefined,
+  isRTL: boolean,
+) => {
+  const rawConv = conv as Record<string, unknown>;
+  const companyProfile = getObject(
+    companyObj?.company_profile ?? companyObj?.profile,
+  );
+  const campaign = getObject(rawConv.campaign);
+  const campaignUser = getObject(campaign?.user);
+
+  return (
+    getString(companyObj?.company_name) ||
+    getString(companyObj?.brand_name) ||
+    getString(companyObj?.business_name) ||
+    getString(companyObj?.commercial_name) ||
+    getString(companyProfile?.company_name) ||
+    getString(companyProfile?.brand_name) ||
+    getString(rawConv.company_name) ||
+    getString(rawConv.companyName) ||
+    getString(rawConv.brand_name) ||
+    getString(campaign?.company_name) ||
+    getString(campaign?.brand_name) ||
+    getString(campaignUser?.company_name) ||
+    getString(campaignUser?.brand_name) ||
+    fallbackPeerName ||
+    (isRTL ? "الشركة" : "Company")
+  );
+};
+
+const getCompanyAvatar = (
+  conv: Conversation,
+  companyObj: Record<string, unknown> | null,
+) => {
+  const rawConv = conv as Record<string, unknown>;
+  const companyProfile = getObject(
+    companyObj?.company_profile ?? companyObj?.profile,
+  );
+  const campaign = getObject(rawConv.campaign);
+  const campaignUser = getObject(campaign?.user);
+
+  return (
+    getString(companyObj?.logo) ||
+    getString(companyObj?.company_logo) ||
+    getString(companyObj?.brand_logo) ||
+    getString(companyProfile?.logo) ||
+    getString(companyProfile?.company_logo) ||
+    getString(rawConv.company_logo) ||
+    getString(rawConv.logo) ||
+    getString(campaign?.company_logo) ||
+    getString(campaignUser?.logo) ||
+    getString(campaignUser?.company_logo) ||
+    defaultAvatar
+  );
+};
+
+const getMessageSenderCompany = (message: Message) => {
+  const rawMessage = message as Record<string, unknown>;
+  const sender = getObject(rawMessage.sender);
+  const senderCompany =
+    getObject(sender?.company) ??
+    getObject(sender?.company_profile) ??
+    getObject(sender?.profile);
+
+  return {
+    sender,
+    company: senderCompany,
+  };
+};
+
+const getMessageSenderId = (message: Message) => {
+  const rawMessage = message as Record<string, unknown>;
+  const sender = getObject(rawMessage.sender);
+
+  return (
+    message.sender_id ??
+    rawMessage.user_id ??
+    rawMessage.senderId ??
+    rawMessage.from_user_id ??
+    sender?.id
+  );
+};
+
+const getCompanyHeaderFromMessages = (
+  messages: Message[],
+  currentUserId: number | undefined,
+  isRTL: boolean,
+) => {
+  for (const message of messages) {
+    const senderId = getMessageSenderId(message);
+
+    if (
+      currentUserId !== undefined &&
+      senderId !== undefined &&
+      String(senderId) === String(currentUserId)
+    ) {
+      continue;
+    }
+
+    const { sender, company } = getMessageSenderCompany(message);
+    const name =
+      getString(company?.company_name) ||
+      getString(company?.brand_name) ||
+      getString(company?.business_name) ||
+      getString(company?.commercial_name) ||
+      getString(sender?.company_name) ||
+      getString(sender?.brand_name);
+
+    const avatar =
+      getString(company?.logo) ||
+      getString(company?.company_logo) ||
+      getString(company?.brand_logo) ||
+      getString(sender?.logo) ||
+      getString(sender?.company_logo) ||
+      getString(sender?.brand_logo);
+
+    if (name || avatar) {
+      return {
+        name: name || (isRTL ? "الشركة" : "Company"),
+        avatar: avatar || defaultAvatar,
+        sender,
+      };
+    }
+  }
+
+  return null;
+};
+
+const getUserObject = (value: unknown): Record<string, unknown> | null =>
+  getObject(value);
+
+const isSameUser = (
+  user: Record<string, unknown> | null,
+  currentUserId: number | undefined,
+) =>
+  currentUserId !== undefined &&
+  (typeof user?.id === "string" || typeof user?.id === "number") &&
+  String(user.id) === String(currentUserId);
+
+const pickPeerUser = (
+  conv: Conversation,
+  currentUserId: number | undefined,
+  role: "company" | "influencer",
+) => {
+  const preferred =
+    role === "company"
+      ? [
+          getUserObject(conv.influencer),
+          getUserObject(conv.participant),
+          getUserObject(conv.other_user),
+          getUserObject(conv.company),
+        ]
+      : [
+          getUserObject(conv.company),
+          getUserObject(conv.participant),
+          getUserObject(conv.other_user),
+          getUserObject(conv.influencer),
+        ];
+
+  return (
+    preferred.find((user) => user && !isSameUser(user, currentUserId)) ??
+    preferred.find(Boolean) ??
+    null
+  );
+};
+
+const getRealtimeConversation = (value: unknown): Conversation | undefined => {
+  const payload = getObject(value);
+  if (!payload) return undefined;
+
+  const candidates = [
+    payload.conversation,
+    payload.chat,
+    getObject(payload.data)?.conversation,
+    getObject(payload.data)?.chat,
+    getObject(payload.data)?.conversation_id ? payload.data : undefined,
+  ];
+
+  for (const candidate of candidates) {
+    const conversation = getObject(candidate);
+    const id = conversation?.id ?? conversation?.conversation_id;
+
+    if (typeof id === "string" || typeof id === "number") {
+      return {
+        ...conversation,
+        id,
+      } as Conversation;
+    }
+  }
+
+  return undefined;
+};
+
+const upsertConversation = (
+  conversations: Conversation[],
+  conversation: Conversation,
+) => {
+  const index = conversations.findIndex(
+    (item) => String(item.id) === String(conversation.id),
+  );
+
+  if (index === -1) return [conversation, ...conversations];
+
+  const next = [...conversations];
+  next[index] = {
+    ...next[index],
+    ...conversation,
+  };
+
+  return next;
+};
+
 function mapApiConversation(
   conv: Conversation,
   currentUserId: number | undefined,
@@ -73,17 +292,7 @@ function mapApiConversation(
   role: "company" | "influencer",
   fallbackPeerName?: string,
 ): ChatConversation {
-  const otherUser =
-    role === "company"
-      ? (conv.influencer ?? conv.participant ?? conv.other_user ?? conv.company)
-      : (conv.company ??
-        conv.participant ??
-        conv.other_user ??
-        conv.influencer);
-  const otherObj =
-    otherUser && typeof otherUser === "object"
-      ? (otherUser as Record<string, unknown>)
-      : null;
+  const otherObj = pickPeerUser(conv, currentUserId, role);
 
   const otherName =
     getString(otherObj?.company_name) ||
@@ -91,14 +300,22 @@ function mapApiConversation(
     fallbackPeerName ||
     (isRTL ? "مستخدم" : "User");
 
+  const displayName =
+    role === "influencer"
+      ? getCompanyDisplayName(conv, otherObj, fallbackPeerName, isRTL)
+      : otherName;
+
   const messagesFromApi = (conv.messages ?? []).map((msg) =>
-    mapApiMessage(msg, currentUserId, otherName, otherObj),
+    mapApiMessage(msg, currentUserId, displayName, otherObj),
   );
 
   return {
     id: String(conv.id),
-    name: otherName,
-    avatar: getAvatar(otherObj),
+    name: displayName,
+    avatar:
+      role === "influencer"
+        ? getCompanyAvatar(conv, otherObj)
+        : getAvatar(otherObj),
     roleLabel: conv.status
       ? t(`chat.status.${conv.status}`, conv.status)
       : t("chat.mock.company.influencerRole", "مؤثر"),
@@ -124,9 +341,10 @@ function mapApiMessage(
   otherName: string,
   otherObj: Record<string, unknown> | null,
 ): ChatMessage {
+  const senderId = getMessageSenderId(msg);
   const isMine =
     currentUserId !== undefined &&
-    String(msg.sender_id) === String(currentUserId);
+    String(senderId) === String(currentUserId);
 
   const time = msg.created_at
     ? new Date(msg.created_at).toLocaleTimeString("en-US", {
@@ -146,6 +364,31 @@ function mapApiMessage(
     type: "text",
   };
 }
+
+const mergeApiAndLocalMessages = (
+  apiMessages: ChatMessage[],
+  localMessages: ChatMessage[],
+  conversationId?: string | number,
+) => {
+  const apiMessageKeys = new Set(
+    apiMessages.map((message) => `${message.sender}::${message.text ?? ""}`),
+  );
+  const scopedLocalMessages = conversationId
+    ? localMessages.filter(
+        (message) =>
+          !message.conversationId ||
+          String(message.conversationId) === String(conversationId),
+      )
+    : localMessages;
+
+  return [
+    ...apiMessages,
+    ...scopedLocalMessages.filter(
+      (message) =>
+        !apiMessageKeys.has(`${message.sender}::${message.text ?? ""}`),
+    ),
+  ];
+};
 
 function ChatPage({
   role,
@@ -186,10 +429,6 @@ function ChatPage({
   }, [conversationsQuery.data?.data, extraConversations]);
 
   // ─── Selected conversation ───
-  const [selectedConvIdState] = useState<string | number | undefined>(
-    stateConvId,
-  );
-
   const peerConversation = useMemo(() => {
     if (!statePeerName) return undefined;
     const normalizedPeer = statePeerName.trim().toLowerCase();
@@ -210,7 +449,7 @@ function ChatPage({
 
   // Auto-select first conversation if none is manually selected
   const selectedConvId =
-    selectedConvIdState ??
+    stateConvId ??
     peerConversation?.id ??
     (statePeerName
       ? undefined
@@ -258,6 +497,58 @@ function ChatPage({
     };
   }, [selectedConvId, currentUserId, queryClient]);
 
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const channelName = `user.${currentUserId}`;
+    const channel = pusher.subscribe(channelName);
+    const handleRealtimeEvent = (eventName: string, data: unknown) => {
+      if (eventName.startsWith("pusher:")) return;
+
+      const conversation = getRealtimeConversation(data);
+
+      if (conversation) {
+        queryClient.setQueryData(
+          queryKeys.chat.conversations(),
+          (oldData: unknown) => {
+            const oldResponse = getObject(oldData);
+            const oldConversations = Array.isArray(oldResponse?.data)
+              ? (oldResponse.data as Conversation[])
+              : [];
+
+            return {
+              ...(oldResponse ?? { success: true }),
+              data: upsertConversation(oldConversations, conversation),
+            };
+          },
+        );
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.chat.conversations(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["campaigns", "collaboration-requests"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["campaigns", "company-collaboration-requests"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.myApplications(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.allApplications(),
+      });
+    };
+
+    channel.bind_global(handleRealtimeEvent);
+
+    return () => {
+      channel.unbind_global(handleRealtimeEvent);
+      pusher.unsubscribe(channelName);
+    };
+  }, [currentUserId, queryClient]);
+
   // ─── Send message mutation ───
   const sendMutation = useSendMessageMutation(selectedConvId, currentUserId);
 
@@ -283,12 +574,13 @@ function ChatPage({
         avatar: "",
         roleLabel: "",
         campaignBudget: "",
-        messages: [
-          ...apiMessages.map((msg) =>
+        messages: mergeApiAndLocalMessages(
+          apiMessages.map((msg) =>
             mapApiMessage(msg, currentUserId, statePeerName || "Company", null),
           ),
-          ...pendingMessages,
-        ],
+          pendingMessages,
+          selectedConvId,
+        ),
       };
     }
 
@@ -302,6 +594,15 @@ function ChatPage({
       role,
       statePeerName,
     );
+    const messageCompanyHeader =
+      role === "influencer"
+        ? getCompanyHeaderFromMessages(apiMessages, currentUserId, isRTL)
+        : null;
+
+    if (messageCompanyHeader) {
+      mapped.name = messageCompanyHeader.name;
+      mapped.avatar = messageCompanyHeader.avatar;
+    }
 
     // Determine the other user for message mapping
     const otherUser =
@@ -325,12 +626,18 @@ function ChatPage({
       (isRTL ? "مستخدم" : "User");
 
     // Override messages with the fresh per-conversation messages
-    mapped.messages = [
-      ...apiMessages.map((msg) =>
-        mapApiMessage(msg, currentUserId, otherName, otherObj),
+    mapped.messages = mergeApiAndLocalMessages(
+      apiMessages.map((msg) =>
+        mapApiMessage(
+          msg,
+          currentUserId,
+          messageCompanyHeader?.name || otherName,
+          messageCompanyHeader?.sender || otherObj,
+        ),
       ),
-      ...pendingMessages,
-    ];
+      pendingMessages,
+      selectedConvId,
+    );
 
     return mapped;
   }, [
@@ -355,6 +662,7 @@ function ChatPage({
 
       const tempMessage: ChatMessage = {
         id: `temp-${Date.now()}`,
+        conversationId: selectedConvId ? String(selectedConvId) : undefined,
         sender: "me",
         name: "Me",
         avatar: "",
@@ -366,11 +674,7 @@ function ChatPage({
         }),
         type: "text",
       };
-      const shouldShowPending = !selectedConvId;
-
-      if (shouldShowPending) {
-        setPendingMessages((messages) => [...messages, tempMessage]);
-      }
+      setPendingMessages((messages) => [...messages, tempMessage]);
 
       try {
         const conversationId =
@@ -390,28 +694,31 @@ function ChatPage({
         } as const;
 
         if (!conversationId) {
-          return true;
+          setPendingMessages((messages) =>
+            messages.filter((message) => message.id !== tempMessage.id),
+          );
+          return false;
         }
 
         if (String(conversationId) === String(selectedConvId)) {
-          sendMutation.mutate(payload);
+          await sendMutation.mutateAsync(payload);
         } else {
           await chatService.sendMessage({
             ...payload,
             conversation_id: conversationId,
           });
           await queryClient.invalidateQueries({
-            queryKey: queryKeys.chat.messages(conversationId),
-          });
-          await queryClient.invalidateQueries({
             queryKey: queryKeys.chat.conversations(),
           });
-          setPendingMessages((messages) =>
-            messages.filter((message) => message.id !== tempMessage.id),
-          );
         }
 
         return true;
+      } catch (error) {
+        console.error("Send message error:", error);
+        setPendingMessages((messages) =>
+          messages.filter((message) => message.id !== tempMessage.id),
+        );
+        return false;
       } finally {
         setIsSendingMessage(false);
       }
@@ -475,8 +782,14 @@ function ChatPage({
     return (
       <main
         dir={isRTL ? "rtl" : "ltr"}
-        className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+        className="-mt-24 bg-[#f7f7f4]">
+        <section className="relative h-48 w-full overflow-hidden sm:h-64">
+          <img src={hero} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/60" />
+        </section>
+        <section className="relative z-10 -mt-10 flex min-h-[50vh] items-center justify-center rounded-t-[28px] bg-white">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+        </section>
       </main>
     );
   }
@@ -486,9 +799,14 @@ function ChatPage({
     return (
       <main
         dir={isRTL ? "rtl" : "ltr"}
-        className="flex min-h-[60vh] items-center justify-center px-0 pt-0"
+        className="-mt-24 bg-[#f7f7f4]"
         aria-labelledby="chat-page-title">
-        <Card className="mx-auto border-0 bg-transparent py-0 shadow-none ring-0">
+        <section className="relative h-48 w-full overflow-hidden sm:h-64">
+          <img src={hero} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/60" />
+        </section>
+        <section className="relative z-10 -mt-10 rounded-t-[28px] bg-white px-4 py-20">
+        <Card className="mx-auto max-w-3xl border-0 bg-transparent py-0 text-center shadow-none ring-0">
           <CardHeader className="px-0">
             <h1
               id="chat-page-title"
@@ -510,6 +828,7 @@ function ChatPage({
             </p>
           </CardContent>
         </Card>
+        </section>
       </main>
     );
   }
@@ -517,9 +836,20 @@ function ChatPage({
   return (
     <main
       dir={isRTL ? "rtl" : "ltr"}
-      className="min-h-screen px-0 pt-0"
+      className="-mt-24 bg-[#f7f7f4]"
       aria-labelledby="chat-page-title">
-      <Card className="mx-auto border-0 bg-transparent py-0 shadow-none ring-0">
+      <section className="relative h-48 w-full overflow-hidden sm:h-64 lg:h-72">
+        <img
+          src={hero}
+          alt=""
+          className="h-full w-full object-cover"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+      </section>
+
+      <section className="relative z-10 -mt-10 rounded-t-[28px] bg-white px-2 pb-8 pt-4 sm:-mt-12 sm:rounded-t-[34px] sm:px-6 sm:pb-12 sm:pt-7 lg:px-10">
+      <Card className="mx-auto max-w-5xl overflow-hidden rounded-[22px] border border-[#f2f0e8] bg-white py-0 shadow-[0_16px_45px_rgba(26,28,23,0.06)] ring-0 sm:rounded-[28px]">
         <CardHeader className="sr-only px-0">
           <h1 id="chat-page-title" className="text-base font-medium">
             {selectedConversation.campaignName}
@@ -542,6 +872,7 @@ function ChatPage({
           />
         </CardContent>
       </Card>
+      </section>
     </main>
   );
 }

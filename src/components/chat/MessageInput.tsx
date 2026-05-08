@@ -38,7 +38,7 @@ function MessageInput({ isRTL, onSendMessage, isSending }: MessageInputProps) {
     <div className="bg-white px-0 pt-2">
       <form
         className={cn(
-          "flex items-center gap-3 border border-[#ece7d9] bg-white px-3 py-2.5 rounded-[20px]",
+          "flex items-center gap-2 rounded-[4px] border border-[#eee8dc] bg-white px-2 py-1.5 shadow-none sm:gap-3 sm:px-3 sm:py-2",
           isRTL ? "flex-row-reverse" : "flex-row",
         )}
         onSubmit={handleSubmit}>
@@ -50,7 +50,7 @@ function MessageInput({ isRTL, onSendMessage, isSending }: MessageInputProps) {
             type="submit"
             size="icon"
             disabled={!text.trim() || isSending}
-            className="h-11 w-11 shrink-0 rounded-full bg-[#b8c99a] text-white hover:bg-[#a6b889] shadow-sm">
+            className="h-8 w-8 shrink-0 rounded-[4px] bg-[#8fa36a] text-white shadow-none hover:bg-[#81975f] sm:h-10 sm:w-10">
             <SendHorizontal
               className={cn("h-5 w-5", isRTL && "scale-x-[-1]")}
             />
@@ -60,7 +60,7 @@ function MessageInput({ isRTL, onSendMessage, isSending }: MessageInputProps) {
             type="button"
             variant="ghost"
             size="icon"
-            className="h-11 w-11 text-[#a3a694] hover:bg-[#f4f1e8] rounded-full">
+            className="h-8 w-8 rounded-[4px] text-[#8f9487] hover:bg-[#f4f1e8] sm:h-10 sm:w-10">
             <Mic className="h-5 w-5" />
           </Button>
 
@@ -68,7 +68,7 @@ function MessageInput({ isRTL, onSendMessage, isSending }: MessageInputProps) {
             type="button"
             variant="ghost"
             size="icon"
-            className="h-11 w-11 text-[#a3a694] hover:bg-[#f4f1e8] rounded-full">
+            className="h-8 w-8 rounded-[4px] text-[#8f9487] hover:bg-[#f4f1e8] sm:h-10 sm:w-10">
             <ImagePlus className="h-5 w-5" />
           </Button>
         </div>
@@ -83,7 +83,7 @@ function MessageInput({ isRTL, onSendMessage, isSending }: MessageInputProps) {
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className={cn(
-              "max-h-28 min-h-11 resize-none border-0 bg-transparent px-2 py-3 text-sm sm:text-base text-[#30362c] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0",
+              "max-h-24 min-h-8 resize-none border-0 bg-transparent px-2 py-2 text-[10px] text-[#30362c] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:min-h-10 sm:text-sm",
               "placeholder:text-[#b2ac9f]",
               isRTL ? "text-right" : "text-left",
             )}

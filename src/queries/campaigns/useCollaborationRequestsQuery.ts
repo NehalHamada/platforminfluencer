@@ -6,5 +6,7 @@ export function useCollaborationRequestsQuery() {
   return useQuery<CollaborationRequestResponse, Error>({
     queryKey: ["campaigns", "collaboration-requests"],
     queryFn: () => campaignService.getCollaborationRequests(),
+    refetchInterval: 3000,
+    refetchOnWindowFocus: true,
   });
 }

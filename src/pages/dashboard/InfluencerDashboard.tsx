@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
 import { useInfluencerPostsQuery } from "@/queries/dashboard/useInfluencerPostsQuery";
 import { useAuthStore } from "@/store/auth.store";
@@ -80,6 +81,22 @@ const getStoredUser = (): AuthUser | null => {
   );
 };
 
+const getRequestCompanyName = (request: {
+  company?: { company_name?: string; name?: string } | null;
+  campaign?: {
+    company_name?: string;
+    user?: { company_name?: string; name?: string } | null;
+  };
+  user?: { name?: string } | null;
+}) =>
+  request.company?.company_name ??
+  request.company?.name ??
+  request.campaign?.user?.company_name ??
+  request.campaign?.company_name ??
+  request.campaign?.user?.name ??
+  request.user?.name ??
+  "-";
+
 function SectionTitle({
   title,
   subtitle,
@@ -112,6 +129,7 @@ function InfluencerDashboard() {
     isError,
   } = useInfluencerDashboardQuery();
   const { data: postsData } = useInfluencerPostsQuery();
+  const collaborationRequestsQuery = useCollaborationRequestsQuery();
 
   const isRTL = i18n.dir() === "rtl";
   const storedUser = getStoredUser();
@@ -192,6 +210,38 @@ function InfluencerDashboard() {
         ),
         typeId: campaign.typeId,
       }));
+  const cooperationRequests = useMemo(
+    () =>
+      (collaborationRequestsQuery.data?.data ?? [])
+        .filter((request) => request.campaign)
+        .map((request) => {
+          const campaign = request.campaign!;
+          return {
+            id: request.id,
+            companyName: getRequestCompanyName(request),
+            contentType:
+              campaign.campaign_type?.name ??
+              campaign.campaignType?.name ??
+              campaign.campaign_type_name ??
+              campaign.idea ??
+              "-",
+            date:
+              campaign.execution_time?.name ??
+              campaign.executionTime?.name ??
+              campaign.created_at ??
+              "-",
+            budget:
+              request.price !== undefined && request.price !== null
+                ? String(request.price)
+                : (campaign.budget_range?.name ??
+                  campaign.budgetRange?.name ??
+                  campaign.budget_range_name ??
+                  "-"),
+            status: request.status,
+          };
+        }),
+    [collaborationRequestsQuery.data?.data],
+  );
   const postsCollage = (postsData?.data ?? data.activities)
     .slice(0, 5)
     .map((item, index) => ({
@@ -320,6 +370,99 @@ function InfluencerDashboard() {
               ))}
             </div>
           </section>
+
+          {(collaborationRequestsQuery.isLoading || cooperationRequests.length > 0) ? (
+            <section className="mb-7 sm:mb-10">
+              <SectionTitle title={t("cooperation.title")} />
+
+              {collaborationRequestsQuery.isLoading ? (
+                <div className="flex justify-center py-6">
+                  <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#94a67d] border-t-transparent" />
+                </div>
+              ) : (
+                <div className="space-y-3 sm:mx-auto sm:max-w-147.5">
+                  {cooperationRequests.map((item) => (
+                    <Card
+                      key={`cooperation-${item.id}`}
+                      className="rounded-[10px] border border-[#eceee9] bg-white py-0 shadow-[0_6px_18px_rgba(0,0,0,0.05)] sm:rounded-[8px]">
+                      <CardContent className="px-4 py-4 text-center sm:grid sm:min-h-24 sm:grid-cols-[15rem_1fr] sm:items-center sm:gap-8 sm:px-4 sm:py-3 sm:text-right">
+                        <div className="text-[15px] font-bold tracking-tight text-[#161616] sm:hidden">
+                          {item.companyName}
+                        </div>
+
+                        <div
+                          className={cn(
+                            "mt-4 space-y-3 text-[13px] leading-5 text-[#303030] sm:mt-0 sm:flex sm:items-center sm:justify-end sm:gap-8 sm:space-y-0 sm:text-[12px] sm:leading-5",
+                            isRTL ? "sm:text-right" : "sm:text-left",
+                          )}>
+                          <strong className="hidden shrink-0 text-lg font-black text-[#090909] sm:block">
+                            {item.companyName}
+                          </strong>
+
+                          <div className="space-y-3 sm:space-y-2">
+                            <p>
+                              <span className="font-bold text-[#242424]">
+                                {t("cooperation.contentType")} :
+                              </span>{" "}
+                              {item.contentType}
+                            </p>
+                            <p>
+                              <span className="font-bold text-[#242424]">
+                                {t("cooperation.date")} :
+                              </span>{" "}
+                              {item.date}
+                            </p>
+                            <p>
+                              <span className="font-bold text-[#242424]">
+                                {t("cooperation.budget")} :
+                              </span>{" "}
+                              {item.budget}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="hidden items-center justify-start gap-3 sm:flex">
+                          <Badge className="flex h-9 w-28 items-center justify-center rounded-full bg-[#94a67d] px-5 text-sm font-medium text-white hover:bg-[#94a67d]">
+                            {t(`influencerDashboard.status.${item.status}`, {
+                              defaultValue: item.status,
+                            })}
+                          </Badge>
+
+                          <Button
+                            asChild
+                            type="button"
+                            variant="outline"
+                            className="h-9 w-28 rounded-full border border-[#94a67d] bg-white px-6 text-sm font-medium text-[#555] shadow-none hover:bg-white">
+                            <Link to="/dashboard/influencer/cooperation">
+                              {t("cooperation.title")}
+                            </Link>
+                          </Button>
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-2 gap-3 sm:hidden">
+                          <Badge className="flex h-8 items-center justify-center rounded-full bg-[#94a67d] px-5 text-xs font-medium text-white hover:bg-[#94a67d]">
+                            {t(`influencerDashboard.status.${item.status}`, {
+                              defaultValue: item.status,
+                            })}
+                          </Badge>
+
+                          <Button
+                            asChild
+                            type="button"
+                            variant="outline"
+                            className="h-8 rounded-full border border-[#94a67d] bg-white px-5 text-xs font-medium text-[#555] shadow-none hover:bg-white">
+                            <Link to="/dashboard/influencer/cooperation">
+                              {t("cooperation.title")}
+                            </Link>
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </section>
+          ) : null}
 
           <section className="mb-7 sm:mb-10">
             <SectionTitle title={t("influencerDashboard.upcomingCampaigns")} />

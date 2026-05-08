@@ -36,6 +36,44 @@ const getListFromResponse = (responseData: unknown): unknown[] => {
 
   if (Array.isArray(data)) return data;
   if (isObject(data) && Array.isArray(data.data)) return data.data;
+  if (isObject(data) && Array.isArray(data.applications)) return data.applications;
+  if (isObject(data) && Array.isArray(data.requests)) return data.requests;
+  if (isObject(data) && Array.isArray(data.collaboration_requests)) {
+    return data.collaboration_requests;
+  }
+  if (isObject(data) && Array.isArray(data.collaborationRequests)) {
+    return data.collaborationRequests;
+  }
+  if (Array.isArray(responseData.applications)) return responseData.applications;
+  if (Array.isArray(responseData.requests)) return responseData.requests;
+  if (Array.isArray(responseData.collaboration_requests)) {
+    return responseData.collaboration_requests;
+  }
+  if (Array.isArray(responseData.collaborationRequests)) {
+    return responseData.collaborationRequests;
+  }
+
+  const listKeys = [
+    "items",
+    "results",
+    "records",
+    "collaborations",
+    "collaboration_requests",
+    "collaborationRequests",
+    "requests",
+    "applications",
+  ];
+
+  for (const key of listKeys) {
+    const value = responseData[key];
+    if (Array.isArray(value)) return value;
+    if (isObject(value)) {
+      const nestedList = getListFromResponse(value);
+      if (nestedList.length > 0) return nestedList;
+    }
+  }
+
+  if (isObject(data)) return getListFromResponse(data);
 
   return [];
 };
@@ -174,12 +212,18 @@ export const campaignService = {
 
   async getCollaborationRequests(): Promise<CollaborationRequestResponse> {
     const response = await api.get("/api/influencer/collaboration-requests");
-    return response.data;
+    return {
+      ...(isObject(response.data) ? response.data : { success: true }),
+      data: getListFromResponse(response.data),
+    } as CollaborationRequestResponse;
   },
 
   async getCompanyCollaborationRequests(): Promise<CollaborationRequestResponse> {
     const response = await api.get("/api/company/collaboration-requests");
-    return response.data;
+    return {
+      ...(isObject(response.data) ? response.data : { success: true }),
+      data: getListFromResponse(response.data),
+    } as CollaborationRequestResponse;
   },
 
   async sendCollaborationRequest(

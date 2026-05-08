@@ -10,6 +10,49 @@ import type {
 
 type SendPayload = Omit<SendMessagePayload, "conversation_id">;
 
+const getObject = (value: unknown): Record<string, unknown> | null =>
+  value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+
+const getId = (value: unknown) =>
+  typeof value === "string" || typeof value === "number" ? value : undefined;
+
+const getSentMessage = (
+  response: SendMessageResponse,
+  fallback: SendPayload,
+  conversationId: string | number | undefined,
+  currentUserId: string | number | undefined,
+): Message => {
+  const data = getObject(response.data);
+  const nestedMessage =
+    getObject(data?.message) ??
+    getObject(data?.data) ??
+    data ??
+    getObject(response);
+
+  return {
+    id:
+      getId(nestedMessage?.id) ??
+      `sent-${conversationId ?? "conversation"}-${Date.now()}`,
+    message:
+      typeof nestedMessage?.message === "string"
+        ? nestedMessage.message
+        : fallback.message,
+    sender_id: getId(nestedMessage?.sender_id) ?? currentUserId,
+    type: (nestedMessage?.type as Message["type"]) ?? fallback.type,
+    delivery_date:
+      (nestedMessage?.delivery_date as string | null | undefined) ??
+      fallback.delivery_date,
+    media_url:
+      (nestedMessage?.media_url as string | null | undefined) ??
+      fallback.media_url,
+    notes: (nestedMessage?.notes as string | null | undefined) ?? fallback.notes,
+    created_at:
+      (nestedMessage?.created_at as string | null | undefined) ??
+      new Date().toISOString(),
+    conversation_id: getId(nestedMessage?.conversation_id) ?? conversationId,
+  };
+};
+
 export function useSendMessageMutation(
   conversationId: string | number | undefined,
   currentUserId: string | number | undefined,
@@ -67,10 +110,42 @@ export function useSendMessageMutation(
       }
     },
 
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.chat.messages(conversationId),
-      });
+    onSuccess: (response, variables) => {
+      if (conversationId) {
+        const sentMessage = getSentMessage(
+          response,
+          variables,
+          conversationId,
+          currentUserId,
+        );
+
+        queryClient.setQueryData<MessageListResponse>(
+          queryKeys.chat.messages(conversationId),
+          (old) => {
+            const messages = old?.data ?? [];
+            const nextMessages = messages.some(
+              (message) => String(message.id) === String(sentMessage.id),
+            )
+              ? messages.map((message) =>
+                  String(message.id) === String(sentMessage.id)
+                    ? sentMessage
+                    : message,
+                )
+              : [
+                  ...messages.filter(
+                    (message) => !String(message.id).startsWith("temp-"),
+                  ),
+                  sentMessage,
+                ];
+
+            return {
+              success: true,
+              data: nextMessages,
+            };
+          },
+        );
+      }
+
       void queryClient.invalidateQueries({
         queryKey: queryKeys.chat.conversations(),
       });

@@ -9,5 +9,7 @@ export function useAllCampaignApplicationsQuery(enabled = true) {
     queryKey: queryKeys.campaigns.allApplications(),
     queryFn: () => campaignService.getAllCampaignApplications(),
     enabled,
+    refetchInterval: enabled ? 3000 : false,
+    refetchOnWindowFocus: true,
   });
 }

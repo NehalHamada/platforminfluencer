@@ -76,8 +76,8 @@ const getStoredUser = (): AuthUser | null => {
   };
 
   return (
-    parseUser(localStorage.getItem("user")) ||
-    parseUser(localStorage.getItem("auth-storage"))
+    parseUser(sessionStorage.getItem("user")) ||
+    parseUser(sessionStorage.getItem("auth-storage"))
   );
 };
 

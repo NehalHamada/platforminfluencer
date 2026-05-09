@@ -9,7 +9,7 @@ const attachToken = (config: InternalAxiosRequestConfig) => {
     return config;
   }
 
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -33,8 +33,12 @@ const handleResponseError = (error: AxiosError) => {
     if (error.response.status === 401) {
       const isLogoutRequest = error.config?.url?.includes("/api/logout");
 
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("auth-storage");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      localStorage.removeItem("auth-storage");
 
       if (!isLogoutRequest && window.location.pathname !== "/login") {
         window.location.href = "/login";

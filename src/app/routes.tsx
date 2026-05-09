@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
@@ -40,6 +40,7 @@ import ContactUs from "@/pages/info/ContactUs";
 import WhoUs from "@/pages/info/WhoUs";
 import CreateCampaignPayment from "@/pages/company/CreateCampaignPayment";
 import SureCreateCampaign from "@/pages/company/SureCreateCampaign";
+import CampaignDetails from "@/pages/company/CampaignDetails";
 
 function AppRoutes() {
   return (
@@ -100,12 +101,25 @@ function AppRoutes() {
             />
             <Route path="/dashboard/company/messages" element={<Message />} />
             <Route
-              path="/campaign-payment"
+              path="/dashboard/company/campaign-payment"
               element={<CreateCampaignPayment />}
+            />
+            <Route
+              path="/campaign-payment"
+              element={
+                <Navigate
+                  to="/dashboard/company/campaign-payment"
+                  replace
+                />
+              }
             />
             <Route
               path="/dashboard/company/sure-create-campaign"
               element={<SureCreateCampaign />}
+            />
+            <Route
+              path="/dashboard/company/campaign-details"
+              element={<CampaignDetails />}
             />
           </Route>
 

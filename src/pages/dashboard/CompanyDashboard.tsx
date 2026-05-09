@@ -8,17 +8,39 @@ import {
   Sparkles,
 } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useCompanyHomeQuery } from "@/queries/dashboard/useCompanyHomeQuery";
-import type { SuggestedInfluencer } from "@/types/dashboard.types";
+import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDiscoveryQuery";
+import type { InfluencerDiscoveryItem } from "@/types/dashboard.types";
 
 import hero from "/assets/Hero.png";
+import latestCampaign1 from "/assets/iphone1.png";
+import latestCampaign2 from "/assets/iphone2.png";
+import latestCampaign3 from "/assets/iphone3.png";
+import latestCampaign4 from "/assets/tImg1.png";
+import latestCampaign5 from "/assets/tImg2.png";
+
+type DashboardInfluencer = {
+  id: number;
+  name: string;
+  image: string | null;
+  category: string | null;
+  followers: string | number | null;
+  engagement: string | number | null;
+};
+
+const staticLatestCampaignPosts = [
+  { id: 1, image: latestCampaign1 },
+  { id: 2, image: latestCampaign2 },
+  { id: 3, image: latestCampaign3 },
+  { id: 4, image: latestCampaign4 },
+  { id: 5, image: latestCampaign5 },
+];
 
 function SectionHeader({
   title,
@@ -65,7 +87,7 @@ function SuggestedInfluencerCard({
   isRTL,
   className,
 }: {
-  item: SuggestedInfluencer;
+  item: DashboardInfluencer;
   isRTL: boolean;
   className?: string;
 }) {
@@ -85,7 +107,7 @@ function SuggestedInfluencerCard({
       )}>
       <div className="px-2.5 pt-2.5">
         <img
-          src={item.profile_image ?? ""}
+          src={item.image ?? ""}
           alt={item.name}
           className="h-56 w-full rounded-[9px] object-cover object-center sm:h-44 lg:h-33"
         />
@@ -102,8 +124,8 @@ function SuggestedInfluencerCard({
         <div className="mt-3 grid grid-cols-2 text-[#161616]">
           <div className="space-y-0.5 text-right">
             <p className="text-[11px] font-medium leading-none">
-              {item.followers_count != null
-                ? String(item.followers_count)
+              {item.followers != null
+                ? String(item.followers)
                 : "—"}
             </p>
             <p className="text-[10px] text-[#4f4f4b]">
@@ -112,8 +134,8 @@ function SuggestedInfluencerCard({
           </div>
           <div className="space-y-0.5 border-s border-[#eeeef0] text-right">
             <p className="text-[11px] font-medium leading-none">
-              {item.engagement_rate != null
-                ? String(item.engagement_rate)
+              {item.engagement != null
+                ? String(item.engagement)
                 : "—"}
             </p>
             <p className="text-[10px] text-[#4f4f4b]">
@@ -159,13 +181,25 @@ function BrowseAllInfluencersCard({
   suggested,
   isRTL,
 }: {
-  suggested: SuggestedInfluencer[];
+  suggested: DashboardInfluencer[];
   isRTL: boolean;
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const goToExplore = () => navigate("/dashboard/company/explore");
 
   return (
-    <Card className="relative min-h-full overflow-hidden rounded-[12px] border-0 bg-[#fbf8ee] py-0 shadow-none">
+    <Card
+      role="button"
+      tabIndex={0}
+      onClick={goToExplore}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          goToExplore();
+        }
+      }}
+      className="relative min-h-full cursor-pointer overflow-hidden rounded-[12px] border-0 bg-[#fbf8ee] py-0 shadow-none">
       <CardContent className="relative flex h-full min-h-71 flex-col items-center justify-center px-5 py-8 text-center">
         <div className="absolute left-7 top-31 h-12 w-12 rotate-45 rounded-lg bg-[#bfceb0]" />
         <div className="absolute left-10 top-43 h-6 w-6 rotate-45 rounded-[3px] bg-[#bfceb0]" />
@@ -174,6 +208,10 @@ function BrowseAllInfluencersCard({
           type="button"
           size="icon-sm"
           aria-label={t("companyDashboard.browseAll")}
+          onClick={(event) => {
+            event.stopPropagation();
+            goToExplore();
+          }}
           className="mb-7 h-6 w-6 rounded-full bg-[#fde58f] text-[#9aa172] hover:bg-[#f9dc78]">
           {isRTL ? (
             <ChevronLeft className="h-3.5 w-3.5" />
@@ -191,21 +229,21 @@ function BrowseAllInfluencersCard({
 
         <div className="absolute bottom-9 right-8 h-15 w-15 overflow-hidden rounded-full border-4 border-[#fbf8ee]">
           <img
-            src={suggested[0]?.profile_image ?? ""}
+            src={suggested[0]?.image ?? ""}
             alt=""
             className="h-full w-full object-cover"
           />
         </div>
         <div className="absolute bottom-8 right-21 h-7 w-7 overflow-hidden rounded-full border-3 border-[#fbf8ee]">
           <img
-            src={suggested[1]?.profile_image ?? ""}
+            src={suggested[1]?.image ?? ""}
             alt=""
             className="h-full w-full object-cover"
           />
         </div>
         <div className="absolute bottom-5 right-15 h-9 w-9 overflow-hidden rounded-full border-3 border-[#fbf8ee]">
           <img
-            src={suggested[2]?.profile_image ?? ""}
+            src={suggested[2]?.image ?? ""}
             alt=""
             className="h-full w-full object-cover"
           />
@@ -221,23 +259,43 @@ function CompanyDashboard() {
   const location = useLocation();
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const navigate = useNavigate();
+  const discoveryParams = useMemo(() => ({}), []);
 
-  const { data: homeData } = useCompanyHomeQuery();
-  const { suggested_influencers = [], latest_campaign_posts = [] } =
-    homeData?.data ?? {};
+  const { data: discoveryData } = useInfluencerDiscoveryQuery(discoveryParams);
+  const latestCampaignPosts = staticLatestCampaignPosts;
+  const dashboardInfluencers = useMemo<DashboardInfluencer[]>(
+    () =>
+      (discoveryData?.data ?? []).slice(0, 3).map(
+        (item: InfluencerDiscoveryItem): DashboardInfluencer => ({
+          id: item.id,
+          name: item.name,
+          image: item.image,
+          category: item.category,
+          followers: item.followers || null,
+          engagement: item.engagement || null,
+        }),
+      ),
+    [discoveryData?.data],
+  );
+
+  useEffect(() => {
+    if (featuredIndex >= dashboardInfluencers.length) {
+      setFeaturedIndex(0);
+    }
+  }, [dashboardInfluencers.length, featuredIndex]);
 
   if (location.pathname !== "/dashboard/company") {
     return <Outlet />;
   }
 
-  const activeFeatured = suggested_influencers[featuredIndex];
+  const activeFeatured = dashboardInfluencers[featuredIndex];
   const goFeaturedPrev = () => {
     setFeaturedIndex((prev) =>
-      prev <= 0 ? suggested_influencers.length - 1 : prev - 1,
+      prev <= 0 ? dashboardInfluencers.length - 1 : prev - 1,
     );
   };
   const goFeaturedNext = () => {
-    setFeaturedIndex((prev) => (prev + 1) % suggested_influencers.length);
+    setFeaturedIndex((prev) => (prev + 1) % dashboardInfluencers.length);
   };
 
   const monitorItems = [
@@ -277,7 +335,7 @@ function CompanyDashboard() {
 
       <main className="relative -mt-5 rounded-t-[26px]  px-3 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[34px] sm:px-4 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 lg:space-y-8">
-          {suggested_influencers.length > 0 && (
+          {dashboardInfluencers.length > 0 && (
             <section className="pt-1 sm:pt-2">
               <header className="mx-auto max-w-2xl text-center">
                 <h2 className="text-[19px] font-bold leading-tight text-[#232320] sm:text-3xl">
@@ -297,29 +355,29 @@ function CompanyDashboard() {
                     />
                   )}
                 </div>
-                {suggested_influencers[0] && (
+                {dashboardInfluencers[0] && (
                   <SuggestedInfluencerCard
-                    item={suggested_influencers[0]}
+                    item={dashboardInfluencers[0]}
                     isRTL={isRTL}
                     className="hidden sm:flex"
                   />
                 )}
-                {suggested_influencers[1] && (
+                {dashboardInfluencers[1] && (
                   <SuggestedInfluencerCard
-                    item={suggested_influencers[1]}
+                    item={dashboardInfluencers[1]}
                     isRTL={isRTL}
                     className="hidden sm:flex"
                   />
                 )}
                 <div className="hidden lg:flex lg:flex-col">
                   <BrowseAllInfluencersCard
-                    suggested={suggested_influencers}
+                    suggested={dashboardInfluencers}
                     isRTL={isRTL}
                   />
                 </div>
-                {suggested_influencers[2] && (
+                {dashboardInfluencers[2] && (
                   <SuggestedInfluencerCard
-                    item={suggested_influencers[2]}
+                    item={dashboardInfluencers[2]}
                     isRTL={isRTL}
                     className="hidden md:flex"
                   />
@@ -346,7 +404,7 @@ function CompanyDashboard() {
                 </Button>
 
                 <div className="flex items-center gap-1.5">
-                  {suggested_influencers.map((_, index) => (
+                  {dashboardInfluencers.map((_, index) => (
                     <Button
                       key={index}
                       type="button"
@@ -380,7 +438,7 @@ function CompanyDashboard() {
             </section>
           )}
 
-          {latest_campaign_posts.length > 0 && (
+          {latestCampaignPosts.length > 0 && (
             <section>
               <Card className="overflow-hidden rounded-[24px] border-0 bg-white py-0 shadow-[0_12px_26px_rgba(26,26,20,0.06)] sm:rounded-[30px]">
                 <CardContent className="relative px-3 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
@@ -398,7 +456,7 @@ function CompanyDashboard() {
                     <div className="relative mx-auto mt-8 h-72 w-full max-w-84">
                       <div className="absolute left-7 top-[4.9rem] z-10 h-36 w-[4.6rem] overflow-hidden rounded-[1.6rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-md">
                         <img
-                          src={latest_campaign_posts[4]?.image ?? ""}
+                          src={latestCampaignPosts[4]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -406,7 +464,7 @@ function CompanyDashboard() {
 
                       <div className="absolute left-18 top-[2.15rem] z-20 h-[10.6rem] w-23 overflow-hidden rounded-[1.8rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-lg">
                         <img
-                          src={latest_campaign_posts[3]?.image ?? ""}
+                          src={latestCampaignPosts[3]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -414,7 +472,7 @@ function CompanyDashboard() {
 
                       <div className="absolute left-45 top-0 z-30 h-[12.2rem] w-[6.6rem] -translate-x-1/2 overflow-hidden rounded-[2rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-xl">
                         <img
-                          src={latest_campaign_posts[2]?.image ?? ""}
+                          src={latestCampaignPosts[2]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -422,7 +480,7 @@ function CompanyDashboard() {
 
                       <div className="absolute right-11 top-[2.15rem] z-20 h-[10.6rem] w-23 overflow-hidden rounded-[1.8rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-lg">
                         <img
-                          src={latest_campaign_posts[1]?.image ?? ""}
+                          src={latestCampaignPosts[1]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -430,7 +488,7 @@ function CompanyDashboard() {
 
                       <div className="absolute right-0 top-[4.9rem] z-10 h-36 w-[4.6rem] overflow-hidden rounded-[1.6rem] border-[3.5px] border-[#1f1f1c] bg-white shadow-md">
                         <img
-                          src={latest_campaign_posts[0]?.image ?? ""}
+                          src={latestCampaignPosts[0]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -448,7 +506,7 @@ function CompanyDashboard() {
                     <div className="relative mx-auto mt-10 h-96 w-full max-w-176 lg:h-104 lg:max-w-3xl">
                       <div className="absolute right-135 top-[7.2rem] z-10 h-46 w-[6.4rem] overflow-hidden rounded-[2.1rem] border-4 border-[#1f1f1c] bg-white shadow-md lg:left-30 lg:h-50 lg:w-28">
                         <img
-                          src={latest_campaign_posts[0]?.image ?? ""}
+                          src={latestCampaignPosts[0]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -456,7 +514,7 @@ function CompanyDashboard() {
 
                       <div className="absolute right-105 top-12 z-20 h-64 w-36 overflow-hidden rounded-[2.5rem] border-4 border-[#1f1f1c] bg-white shadow-lg lg:left-50 lg:h-68 lg:w-[9.6rem]">
                         <img
-                          src={latest_campaign_posts[1]?.image ?? ""}
+                          src={latestCampaignPosts[1]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -464,7 +522,7 @@ function CompanyDashboard() {
 
                       <div className="absolute left-1/2 top-0 z-30 h-72 w-[10.2rem] -translate-x-1/2 overflow-hidden rounded-[2.7rem] border-4 border-[#1f1f1c] bg-white shadow-xl lg:h-78 lg:w-44">
                         <img
-                          src={latest_campaign_posts[2]?.image ?? ""}
+                          src={latestCampaignPosts[2]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -472,7 +530,7 @@ function CompanyDashboard() {
 
                       <div className="absolute right-80 top-12 z-20 h-64 w-36 overflow-hidden rounded-[2.5rem] border-4 border-[#1f1f1c] bg-white shadow-lg lg:right-50 lg:h-68 lg:w-[9.6rem]">
                         <img
-                          src={latest_campaign_posts[3]?.image ?? ""}
+                          src={latestCampaignPosts[3]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />
@@ -480,7 +538,7 @@ function CompanyDashboard() {
 
                       <div className="absolute right-6 top-[7.2rem] z-10 h-46 w-[6.4rem] overflow-hidden rounded-[2.1rem] border-4 border-[#1f1f1c] bg-white shadow-md lg:right-30 lg:h-50 lg:w-28">
                         <img
-                          src={latest_campaign_posts[4]?.image ?? ""}
+                          src={latestCampaignPosts[4]?.image ?? ""}
                           alt={t("companyDashboard.campaignPreviewAlt")}
                           className="h-full w-full object-cover"
                         />

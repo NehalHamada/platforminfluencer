@@ -21,7 +21,8 @@
     "logout": "Logout",
     "loggingOut": "Logging out...",
     "logoutSuccess": "Logged out successfully",
-    "logoutError": "Could not log out. Please try again."
+    "logoutError": "Could not log out. Please try again.",
+    "login": "Login"
   },
   "logout": {
     "label": "Logout",
@@ -240,14 +241,15 @@
     "forgetPassword": "Forget Password ?",
     "login": "Login",
     "loading": "Loading",
-
     "createAccount": "Create Account",
     "popup": {
       "title": "Choose Account Type",
       "companyButton": "Company",
       "influencerButton": "Influencer",
       "cancel": "Cancel"
-    }
+    },
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "register": {
     "title": "Create New Account",
@@ -359,7 +361,10 @@
     "resend": "Resend code",
     "resending": "Resending...",
     "resendSuccess": "A new verification code has been sent.",
-    "resendError": "Could not resend the verification code."
+    "resendError": "Could not resend the verification code.",
+    "errors": {
+      "otp_required": "OTP code is required"
+    }
   },
   "resetPassword": {
     "title": "Reset Password",
@@ -389,7 +394,8 @@
     "addAnotherPlatform": "Add another new platform",
     "removePlatform": "Remove platform",
     "acceptTerms": "I agree to the terms, conditions, and privacy policy",
-    "continue": "Continue"
+    "continue": "Continue",
+    "loading": "Loading data..."
   },
   "masterData": {
     "platforms": {
@@ -464,7 +470,11 @@
     "loading": "Sending...",
     "continue": "Continue",
     "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results",
-    "footerCta": "Enter your email to receive every update"
+    "footerCta": "Enter your email to receive every update",
+    "loadingPlatforms": "Loading platforms...",
+    "platformsError": "Could not load platforms",
+    "loadingContentTypes": "Loading content types...",
+    "contentTypesError": "Could not load content types"
   },
   "completeInfluencerPayment": {
     "stepProfit": "Profits",
@@ -494,7 +504,8 @@
     "save": "Save",
     "sar": "SAR",
     "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results",
-    "footerCta": "Enter your email to receive every update"
+    "footerCta": "Enter your email to receive every update",
+    "loading": "Loading payment data..."
   },
   "errors": {
     "name": "Name must be at least 2 Character",
@@ -636,18 +647,21 @@
     "amount": "Amount",
     "status": "Status",
     "statusCompleted": "Completed",
-    "statusPending": "Processing"
+    "statusPending": "Processing",
+    "errorLoading": "Could not load earnings"
   },
   "cooperation": {
-    "heroAlt": "Cooperation hero",
     "title": "New Cooperation Request",
-    "companyName": "Company name",
-    "contentType": "Content type",
+    "empty": "No cooperation requests currently",
+    "companyName": "Company Name",
+    "contentType": "Content Type",
     "date": "Date",
-    "budget": "Suggested budget",
+    "budget": "Suggested Budget",
     "accept": "Accept",
     "reject": "Reject",
-    "negotiate": "Negotiate"
+    "negotiate": "Negotiate",
+    "heroAlt": "Cooperation request hero",
+    "openChat": "Open chat"
   },
   "offer": {
     "heroAlt": "Offer submission hero",
@@ -693,7 +707,8 @@
     "applySuccess": "Your campaign application was sent successfully.",
     "applyError": "Could not send your campaign application.",
     "campaignIdRequired": "Campaign id is missing. Please open the application from a campaign.",
-    "loadingCampaign": "Loading campaign..."
+    "loadingCampaign": "Loading campaign...",
+    "empty": "No campaigns yet"
   },
   "infChat": {
     "heroAlt": "Influencer chat hero",
@@ -825,7 +840,8 @@
     "ctaDescription": "Get notified when qualified influencers apply, campaign performance shifts, or a strong shortlist is ready for review.",
     "emailPlaceholder": "Enter your email for campaign updates",
     "subscribe": "Subscribe",
-    "ctaNote": "Notifications are tailored to your active company campaigns."
+    "ctaNote": "Notifications are tailored to your active company campaigns.",
+    "empty": "No campaign requests yet"
   },
   "exploreInfluencers": {
     "searchPlaceholder": "Search influencers by name or category...",
@@ -841,7 +857,11 @@
     "emptySearchTitle": "No search results",
     "emptySearch": "No influencers matched your search criteria. Try another keyword.",
     "fameLevel": "Fame Level",
-    "k": "K"
+    "k": "K",
+    "loading": "Loading influencers...",
+    "loadError": "Could not load influencers",
+    "resetFilters": "Reset filters",
+    "sendMessage": "Send message"
   },
   "createCampaign": {
     "title": "Start a New Campaign",
@@ -874,7 +894,12 @@
     "estimatedBudgetPlaceholder": "Less than 5000 SAR",
     "influencersCount": "Required number of influencers",
     "influencersCountPlaceholder": "2",
-    "publishCampaign": "Publish Campaign"
+    "publishCampaign": "Publish Campaign",
+    "loadingBudgetRanges": "Loading budget ranges...",
+    "budgetRangesError": "Could not load budget ranges",
+    "loadingInfluencerCountRanges": "Loading influencer count ranges...",
+    "influencerCountRangesError": "Could not load influencer count ranges",
+    "submitting": "Creating campaign..."
   },
   "chat": {
     "empty": "No conversations yet",
@@ -888,6 +913,53 @@
       "attachLabel": "Attach image",
       "pendingAgreement": "Pending agreement",
       "noMessages": "No messages yet"
+    },
+    "contentDelivery": {
+      "trigger": "Deliver content",
+      "modalTitle": "Submit the content for company review",
+      "mediaLabel": "Content link: URL, video, or post",
+      "mediaPlaceholder": "Paste a URL, video link, or post link",
+      "notesLabel": "Delivery notes",
+      "notesPlaceholder": "Write details or notes for the company",
+      "submit": "Send for review",
+      "submitting": "Sending...",
+      "required": "Please add the content link and delivery notes",
+      "submitFailed": "Could not send the content. Please check the link and try again.",
+      "cardTitle": "Content submitted",
+      "influencerName": "Influencer",
+      "fileLabel": "File link",
+      "notesTitle": "Delivery notes",
+      "pendingReview": "The influencer submitted content for review",
+      "waitingReview": "Waiting for company review",
+      "requestModification": "Request changes",
+      "approveContent": "Approve content",
+      "openFile": "Open file",
+      "approvedNotice": "The company approved the content and accepted it for your campaign."
+    },
+    "modificationRequest": {
+      "popupTitle": "Content modification",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "Choose a reason",
+      "deliveryDateLabel": "New delivery date",
+      "detailsLabel": "Modification details",
+      "detailsPlaceholder": "Write the requested changes",
+      "submit": "Send modification request",
+      "submitting": "Sending...",
+      "required": "Please complete the modification reason, date, and details.",
+      "submitFailed": "Could not send the modification request. Please try again.",
+      "cardTitle": "Modification request",
+      "reason": "Reason",
+      "newDeliveryDate": "New delivery date",
+      "description": "Details",
+      "systemNotice": "The company requested content modifications.",
+      "defaultReason": "Content needs changes",
+      "reasonQuality": "Quality improvement",
+      "reasonBrand": "Brand guidelines",
+      "accept": "Accept changes",
+      "reject": "Reject changes",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "rejectionReasonFallback": "The influencer rejected the modification request."
     },
     "status": {
       "active": "Active",
@@ -1039,7 +1111,11 @@
       "phone": "Phone number",
       "message": "Write your message here",
       "note": "Our team usually replies within one business day.",
-      "submit": "Send message"
+      "submit": "Send message",
+      "required": "Please fill in all required fields",
+      "sending": "Sending...",
+      "success": "Message sent successfully",
+      "error": "Could not send the message. Please try again."
     },
     "mapAlt": "Office location map",
     "footerText": "A platform that connects companies with influencers through organized, transparent collaborations built on real results.",
@@ -1069,7 +1145,15 @@
     "expiry": "Valid Until",
     "expiryPlaceholder": "September 20, 2025",
     "cvv": "Security Code",
-    "submit": "Save Card"
+    "submit": "Save Card",
+    "selectMada": "Select Mada",
+    "selectVisa": "Select Visa",
+    "selectMastercard": "Select Mastercard",
+    "saving": "Saving...",
+    "createError": "Could not create the campaign. Please try again.",
+    "validation": {
+      "required": "This field is required"
+    }
   },
   "sureCampaign": {
     "heroAlt": "Campaign confirmation hero",
@@ -1086,19 +1170,44 @@
     "noteTotalPrice": "Total Price: 6,000 SAR",
     "noteCommission": "Commission: 10% = 600 SAR",
     "noteInfluencerAmount": "Amount reserved for influencer: 5,400 SAR",
-    "launch": "Launch Campaign"
+    "launch": "Launch Campaign",
+    "notes": {
+      "totalPriceLabel": "Total price",
+      "commissionLabel": "Commission",
+      "influencerAmountLabel": "Amount reserved for influencer",
+      "currency": "SAR"
+    }
   },
   "footer.description": "A platform that connects companies with influencers through organized, transparent collaborations based on real results.",
   "footer.emailPlaceholder": "Enter your email to receive updates",
-  "cooperation": {
-    "title": "New Cooperation Request",
-    "empty": "No cooperation requests currently",
-    "companyName": "Company Name",
-    "contentType": "Content Type",
-    "date": "Date",
-    "budget": "Suggested Budget",
-    "accept": "Accept",
-    "reject": "Reject",
-    "negotiate": "Negotiate"
+  "common": {
+    "all": "All"
+  },
+  "resultsPrev": "Previous result",
+  "resultsNext": "Next result",
+  "campaignDetails": {
+    "heroAlt": "Campaign details hero",
+    "title": "Campaign Details",
+    "accepted": "Agreement accepted",
+    "sent": "Sent",
+    "waitingDelivery": "Waiting for content delivery",
+    "reviewed": "Reviewed",
+    "waitingContent": "Waiting for content delivery",
+    "launched": "Campaign launched",
+    "agreementAccepted": "Agreement accepted",
+    "contentApproved": "Content approved",
+    "waitingSettlement": "Waiting for settlement",
+    "waitingCommission": "Waiting for commission payment",
+    "agreementDetails": "Agreement details",
+    "campaignName": "Campaign name",
+    "influencerName": "Influencer name",
+    "budget": "Budget",
+    "price": "Price",
+    "content": "Content",
+    "contentDetails": "Content details",
+    "influencerAmount": "Influencer amount",
+    "postsCount": "Posts count",
+    "deliveryDate": "Delivery date",
+    "notes": "Notes"
   }
 }

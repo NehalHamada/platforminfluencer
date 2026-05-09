@@ -64,9 +64,9 @@ export type SendMessagePayload = {
   conversation_id?: string | number;
   message: string;
   type: MessageType;
-  delivery_date: string | null;
-  media_url: string | null;
-  notes: string | null;
+  delivery_date?: string | null;
+  media_url?: string | null;
+  notes?: string | null;
 };
 
 export type SendMessageResponse = {

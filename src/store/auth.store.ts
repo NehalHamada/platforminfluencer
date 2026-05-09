@@ -1,6 +1,6 @@
 import type { AuthStore } from "@/types/auth.types";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export const useAuthStore = create<AuthStore>()(
   persist(
@@ -10,8 +10,11 @@ export const useAuthStore = create<AuthStore>()(
       isAuthenticated: false,
 
       setAuth: ({ user, token }) => {
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("token", token);
+        sessionStorage.setItem("user", JSON.stringify(user));
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("auth-storage");
         set({
           user,
           token,
@@ -20,9 +23,13 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       clearAuth: () => {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("pendingAuth");
+        sessionStorage.removeItem("auth-storage");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        sessionStorage.removeItem("pendingAuth");
+        localStorage.removeItem("auth-storage");
         set({
           user: null,
           token: null,
@@ -37,6 +44,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "auth-storage",
+      storage: createJSONStorage(() => sessionStorage),
     },
   ),
 );

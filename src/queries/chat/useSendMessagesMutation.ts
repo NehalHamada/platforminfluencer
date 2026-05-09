@@ -65,6 +65,7 @@ export function useSendMessageMutation(
     SendPayload,
     { previousMessages?: MessageListResponse } | undefined
   >({
+    retry: false,
     mutationFn: (data) =>
       chatService.sendMessage({
         ...data,
@@ -87,6 +88,10 @@ export function useSendMessageMutation(
         message: newMessage.message,
         sender_id: currentUserId,
         type: newMessage.type,
+        delivery_date: newMessage.delivery_date,
+        media_url: newMessage.media_url,
+        notes: newMessage.notes,
+        conversation_id: conversationId,
         created_at: new Date().toISOString(),
       };
 

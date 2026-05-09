@@ -45,7 +45,9 @@ export type ApproveContentPayload = {
 };
 
 export type RequestModificationPayload = {
-  notes: string;
+  modification_reason_id: string | number;
+  new_delivery_date: string;
+  description: string;
 };
 
 export type CollaborationRequest = {

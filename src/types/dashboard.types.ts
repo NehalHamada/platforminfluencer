@@ -179,11 +179,11 @@ export type InfluencerChatResponse = {
 };
 
 export type ConvertCampaignPayload = {
-  contentNotes: string;
-  finalPrice: string;
-  deliverablesCount: string;
-  deliveryDate: string;
-  agreementTerms: boolean;
+  message: string;
+  final_price: string;
+  deliverables_count: string;
+  delivery_date: string;
+  agreement_terms: boolean;
 };
 
 export type ConvertCampaignFormData = ConvertCampaignPayload;

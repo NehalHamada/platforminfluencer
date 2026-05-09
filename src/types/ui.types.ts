@@ -15,7 +15,8 @@ export type ConvertCampaignPopupProps = {
   open: boolean;
   onClose: () => void;
   campaignName?: string;
-  onSubmitSuccess?: (data: ConvertCampaignFormData) => void;
+  onSubmitSuccess?: (data: ConvertCampaignFormData) => void | Promise<void>;
+  isSubmitting?: boolean;
 };
 
 export type UiStore = {

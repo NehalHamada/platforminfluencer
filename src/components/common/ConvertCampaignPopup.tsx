@@ -35,6 +35,7 @@ function ConvertCampaignPopup({
   onClose,
   campaignName,
   onSubmitSuccess,
+  isSubmitting = false,
 }: ConvertCampaignPopupProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
@@ -44,40 +45,42 @@ function ConvertCampaignPopup({
   const form = useForm<ConvertCampaignSchema>({
     resolver: zodResolver(convertCampaignSchema),
     defaultValues: {
-      contentNotes: campaignName ?? "",
-      finalPrice: "",
-      deliverablesCount: "",
-      deliveryDate: "",
-      agreementTerms: false,
+      message: campaignName ?? "",
+      final_price: "",
+      deliverables_count: "",
+      delivery_date: "",
+      agreement_terms: false,
     },
   });
 
   useEffect(() => {
     if (open) {
       form.reset({
-        contentNotes: campaignName ?? "",
-        finalPrice: "",
-        deliverablesCount: "",
-        deliveryDate: "",
-        agreementTerms: false,
+        message: campaignName ?? "",
+        final_price: "",
+        deliverables_count: "",
+        delivery_date: "",
+        agreement_terms: false,
       });
     }
   }, [campaignName, form, open]);
 
   const closePopup = () => {
     form.reset({
-      contentNotes: campaignName ?? "",
-      finalPrice: "",
-      deliverablesCount: "",
-      deliveryDate: "",
-      agreementTerms: false,
+      message: campaignName ?? "",
+      final_price: "",
+      deliverables_count: "",
+      delivery_date: "",
+      agreement_terms: false,
     });
     onClose();
   };
 
   const onSubmit = async (data: ConvertCampaignSchema) => {
+    if (isSubmitting) return;
+
     try {
-      onSubmitSuccess?.(data);
+      await onSubmitSuccess?.(data);
       toast.success(t("camPopup.success"));
       closePopup();
     } catch (error) {
@@ -123,7 +126,7 @@ function ConvertCampaignPopup({
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <FormField
                     control={form.control}
-                    name="contentNotes"
+                    name="message"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
@@ -145,7 +148,7 @@ function ConvertCampaignPopup({
                         <FormMessage
                           className={isRTL ? "text-right" : "text-left"}>
                           {translateError(
-                            form.formState.errors.contentNotes?.message,
+                            form.formState.errors.message?.message,
                           )}
                         </FormMessage>
                       </FormItem>
@@ -154,7 +157,7 @@ function ConvertCampaignPopup({
 
                   <FormField
                     control={form.control}
-                    name="finalPrice"
+                    name="final_price"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
@@ -171,14 +174,14 @@ function ConvertCampaignPopup({
                             )}
                           />
                         </FormControl>
-                        {form.formState.errors.finalPrice?.message ? (
+                        {form.formState.errors.final_price?.message ? (
                           <p
                             className={cn(
                               "text-sm font-medium text-destructive",
                               isRTL ? "text-right" : "text-left",
                             )}>
                             {translateError(
-                              form.formState.errors.finalPrice.message,
+                              form.formState.errors.final_price.message,
                             )}
                           </p>
                         ) : null}
@@ -188,7 +191,7 @@ function ConvertCampaignPopup({
 
                   <FormField
                     control={form.control}
-                    name="deliverablesCount"
+                    name="deliverables_count"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
@@ -210,7 +213,7 @@ function ConvertCampaignPopup({
                         <FormMessage
                           className={isRTL ? "text-right" : "text-left"}>
                           {translateError(
-                            form.formState.errors.deliverablesCount?.message,
+                            form.formState.errors.deliverables_count?.message,
                           )}
                         </FormMessage>
                       </FormItem>
@@ -219,7 +222,7 @@ function ConvertCampaignPopup({
 
                   <FormField
                     control={form.control}
-                    name="deliveryDate"
+                    name="delivery_date"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
@@ -229,6 +232,7 @@ function ConvertCampaignPopup({
                         <FormControl>
                           <Input
                             {...field}
+                            type="date"
                             placeholder={t(
                               "camPopup.placeholders.deliveryDate",
                             )}
@@ -241,7 +245,7 @@ function ConvertCampaignPopup({
                         <FormMessage
                           className={isRTL ? "text-right" : "text-left"}>
                           {translateError(
-                            form.formState.errors.deliveryDate?.message,
+                            form.formState.errors.delivery_date?.message,
                           )}
                         </FormMessage>
                       </FormItem>
@@ -251,7 +255,7 @@ function ConvertCampaignPopup({
 
                 <FormField
                   control={form.control}
-                  name="agreementTerms"
+                  name="agreement_terms"
                   render={({ field }) => (
                     <FormItem className="space-y-3 rounded-[18px] border border-[#d8d1bf] bg-white px-4 py-4">
                       <div
@@ -283,7 +287,7 @@ function ConvertCampaignPopup({
                       <FormMessage
                         className={isRTL ? "text-right" : "text-left"}>
                         {translateError(
-                          form.formState.errors.agreementTerms?.message,
+                          form.formState.errors.agreement_terms?.message,
                         )}
                       </FormMessage>
                     </FormItem>
@@ -297,7 +301,7 @@ function ConvertCampaignPopup({
                   )}>
                   <Button
                     type="submit"
-                    disabled={form.formState.isSubmitting}
+                    disabled={form.formState.isSubmitting || isSubmitting}
                     className="relative h-12 min-w-52 rounded-full bg-[#98a67e] px-7 text-sm font-medium text-white shadow-[0_10px_24px_rgba(152,166,126,0.3)] hover:bg-[#8f9d74]">
                     <span
                       className={cn(

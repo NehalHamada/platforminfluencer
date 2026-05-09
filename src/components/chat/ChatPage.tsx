@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { queryKeys } from "@/constants/queryKeys";
@@ -14,6 +15,7 @@ import { useSendMessageMutation } from "@/queries/chat/useSendMessagesMutation";
 import { useAuthStore } from "@/store/auth.store";
 import type { AuthStore } from "@/types/auth.types";
 import { chatService } from "@/services/chat.service";
+import { campaignService } from "@/services/campaign.service";
 import { resolveAcceptedConversationId } from "@/utils/chat";
 
 import { pusher } from "@/lib/pusher";
@@ -28,12 +30,32 @@ export type ChatMessage = {
   avatar: string;
   text?: string;
   time: string;
-  type?: "text" | "agreement";
+  type?:
+    | "text"
+    | "agreement"
+    | "agreement_status"
+    | "content_delivery"
+    | "content_approved"
+    | "modification_request"
+    | "modification_response";
   agreement?: ConvertCampaignFormData;
+  agreement_status?: "pending" | "accepted" | "rejected";
+  agreement_target_id?: string;
+  media_url?: string | null;
+  notes?: string | null;
+  modification_reason_id?: string | number | null;
+  modification_reason?: string | null;
+  new_delivery_date?: string | null;
+  description?: string | null;
+  modification_id?: string | number | null;
+  modification_status?: "pending" | "accepted" | "rejected";
+  modification_target_id?: string;
 };
 
 export type ChatConversation = {
   id: string;
+  campaignId?: string;
+  applicationId?: string;
   name: string;
   avatar: string;
   roleLabel: string;
@@ -55,9 +77,22 @@ type ChatPageProps = {
 
 const defaultAvatar =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80";
+const AGREEMENT_STATUS_PREFIX = "__agreement_status__:";
+const MODIFICATION_REQUEST_PREFIX = "__modification_request__:";
+const MODIFICATION_RESPONSE_PREFIX = "__modification_response__:";
+const CONTENT_APPROVED_PREFIX = "__content_approved__";
 
 const getString = (value: unknown, fallback = "") =>
   typeof value === "string" && value ? value : fallback;
+
+const getIdString = (...values: unknown[]) => {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+    if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  }
+
+  return "";
+};
 
 const getAvatar = (user: Record<string, unknown> | null | undefined) => {
   if (!user) return defaultAvatar;
@@ -265,6 +300,30 @@ const getRealtimeConversation = (value: unknown): Conversation | undefined => {
   return undefined;
 };
 
+const getConversationCampaignId = (conv: Conversation) => {
+  const rawConv = conv as Record<string, unknown>;
+  const campaign = getObject(rawConv.campaign);
+
+  return getIdString(rawConv.campaign_id, rawConv.campaignId, campaign?.id);
+};
+
+const getConversationApplicationId = (conv: Conversation) => {
+  const rawConv = conv as Record<string, unknown>;
+  const application =
+    getObject(rawConv.application) ??
+    getObject(rawConv.campaign_application) ??
+    getObject(rawConv.campaignApplication) ??
+    getObject(rawConv.request);
+
+  return getIdString(
+    rawConv.application_id,
+    rawConv.applicationId,
+    rawConv.campaign_application_id,
+    rawConv.campaignApplicationId,
+    application?.id,
+  );
+};
+
 const upsertConversation = (
   conversations: Conversation[],
   conversation: Conversation,
@@ -311,6 +370,8 @@ function mapApiConversation(
 
   return {
     id: String(conv.id),
+    campaignId: getConversationCampaignId(conv),
+    applicationId: getConversationApplicationId(conv),
     name: displayName,
     avatar:
       role === "influencer"
@@ -353,6 +414,78 @@ function mapApiMessage(
         hour12: true,
       })
     : "";
+  const statusEvent = parseAgreementStatusMessage(msg.message ?? "");
+  const modificationEvent = parseModificationRequestMessage(msg.message ?? "");
+  const modificationResponseEvent = parseModificationResponseMessage(
+    msg.message ?? "",
+  );
+  const contentApprovedEvent = isContentApprovedMessage(msg.message ?? "");
+
+  if (statusEvent) {
+    return {
+      id: String(msg.id),
+      sender: isMine ? "me" : "other",
+      name: isMine ? "Me" : otherName,
+      avatar: isMine ? "" : getAvatar(otherObj),
+      text: "",
+      time,
+      type: "agreement_status",
+      agreement_status: statusEvent.status,
+      agreement_target_id: statusEvent.agreementId,
+    };
+  }
+
+  if (modificationEvent) {
+    return {
+      id: String(msg.id),
+      sender: isMine ? "me" : "other",
+      name: isMine ? "Me" : otherName,
+      avatar: isMine ? "" : getAvatar(otherObj),
+      text: modificationEvent.description,
+      time,
+      type: "modification_request",
+      modification_reason_id: modificationEvent.modification_reason_id,
+      modification_reason: modificationEvent.modification_reason,
+      new_delivery_date: modificationEvent.new_delivery_date,
+      description: modificationEvent.description,
+      modification_id: modificationEvent.modification_id,
+      modification_status: modificationEvent.modification_status ?? "pending",
+    };
+  }
+
+  if (modificationResponseEvent) {
+    return {
+      id: String(msg.id),
+      sender: isMine ? "me" : "other",
+      name: isMine ? "Me" : otherName,
+      avatar: isMine ? "" : getAvatar(otherObj),
+      text: "",
+      time,
+      type: "modification_response",
+      modification_status: modificationResponseEvent.status,
+      modification_target_id: modificationResponseEvent.modificationId,
+    };
+  }
+
+  if (contentApprovedEvent) {
+    return {
+      id: String(msg.id),
+      sender: isMine ? "me" : "other",
+      name: isMine ? "Me" : otherName,
+      avatar: isMine ? "" : getAvatar(otherObj),
+      text: msg.message ?? "",
+      time,
+      type: "content_approved",
+    };
+  }
+
+  const isAgreement = msg.type === "agreement";
+  const isContentDelivery =
+    msg.type === "content_delivery" || msg.type === "video_submission";
+  const agreement = isAgreement
+    ? parseAgreementMessage(msg.message ?? "", msg.delivery_date ?? null)
+    : undefined;
+  const agreementStatus = isAgreement ? getAgreementStatus(msg) : undefined;
 
   return {
     id: String(msg.id),
@@ -361,9 +494,150 @@ function mapApiMessage(
     avatar: isMine ? "" : getAvatar(otherObj),
     text: msg.message ?? "",
     time,
-    type: "text",
+    type: isAgreement
+      ? "agreement"
+      : isContentDelivery
+        ? "content_delivery"
+        : "text",
+    agreement,
+    agreement_status: agreementStatus,
+    media_url: msg.media_url,
+    notes: msg.notes,
   };
 }
+
+const buildAgreementStatusMessage = (
+  agreementId: string,
+  status: "accepted" | "rejected",
+) => `${AGREEMENT_STATUS_PREFIX}${agreementId}:${status}`;
+
+type ModificationRequestPayload = {
+  modification_reason_id: string | number;
+  modification_reason?: string | null;
+  new_delivery_date: string;
+  description: string;
+  modification_id?: string | number | null;
+  modification_status?: "pending" | "accepted" | "rejected";
+};
+
+const buildModificationRequestMessage = (data: ModificationRequestPayload) =>
+  `${MODIFICATION_REQUEST_PREFIX}${JSON.stringify(data)}`;
+
+const parseModificationRequestMessage = (
+  message: string,
+): ModificationRequestPayload | null => {
+  if (!message.startsWith(MODIFICATION_REQUEST_PREFIX)) return null;
+
+  try {
+    const parsed = JSON.parse(
+      message.slice(MODIFICATION_REQUEST_PREFIX.length),
+    ) as Partial<ModificationRequestPayload>;
+
+    if (!parsed.new_delivery_date || !parsed.description) return null;
+
+    return {
+      modification_reason_id: parsed.modification_reason_id ?? 1,
+      modification_reason: parsed.modification_reason ?? null,
+      new_delivery_date: parsed.new_delivery_date,
+      description: parsed.description,
+      modification_id: parsed.modification_id ?? null,
+      modification_status: parsed.modification_status ?? "pending",
+    };
+  } catch {
+    return null;
+  }
+};
+
+const buildModificationResponseMessage = (
+  modificationId: string,
+  status: "accepted" | "rejected",
+) => `${MODIFICATION_RESPONSE_PREFIX}${modificationId}:${status}`;
+
+const parseModificationResponseMessage = (
+  message: string,
+): { modificationId: string; status: "accepted" | "rejected" } | null => {
+  if (!message.startsWith(MODIFICATION_RESPONSE_PREFIX)) return null;
+
+  const payload = message.slice(MODIFICATION_RESPONSE_PREFIX.length);
+  const [modificationId, status] = payload.split(":");
+
+  if (
+    !modificationId ||
+    (status !== "accepted" && status !== "rejected")
+  ) {
+    return null;
+  }
+
+  return { modificationId, status };
+};
+
+const isContentApprovedMessage = (message: string) =>
+  message.trim() === CONTENT_APPROVED_PREFIX;
+
+const parseAgreementStatusMessage = (
+  message: string,
+): { agreementId: string; status: "accepted" | "rejected" } | null => {
+  if (!message.startsWith(AGREEMENT_STATUS_PREFIX)) return null;
+
+  const payload = message.slice(AGREEMENT_STATUS_PREFIX.length);
+  const [agreementId, status] = payload.split(":");
+
+  if (
+    !agreementId ||
+    (status !== "accepted" && status !== "rejected")
+  ) {
+    return null;
+  }
+
+  return { agreementId, status };
+};
+
+const getAgreementStatus = (
+  message: Message,
+): "pending" | "accepted" | "rejected" => {
+  const rawStatus = getString(
+    (message as Record<string, unknown>).agreement_status ??
+      (message as Record<string, unknown>).status,
+    "pending",
+  ).toLowerCase();
+
+  if (rawStatus === "accepted" || rawStatus === "rejected") {
+    return rawStatus;
+  }
+
+  return "pending";
+};
+
+const parseAgreementMessage = (
+  message: string,
+  deliveryDate: string | null,
+): ConvertCampaignFormData => {
+  const parts = message
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const getValue = (key: string) => {
+    const prefix = `${key}:`;
+    return (
+      parts
+        .find((part) => part.toLowerCase().startsWith(prefix))
+        ?.slice(prefix.length)
+        .trim() ?? ""
+    );
+  };
+
+  const plainMessage =
+    parts.find((part) => !part.includes(":")) || message.replace(/\|/g, " ");
+
+  return {
+    message: plainMessage.trim(),
+    final_price: getValue("final_price"),
+    deliverables_count: getValue("deliverables_count"),
+    delivery_date: getValue("delivery_date") || deliveryDate || "",
+    agreement_terms: true,
+  };
+};
 
 const mergeApiAndLocalMessages = (
   apiMessages: ChatMessage[],
@@ -381,13 +655,79 @@ const mergeApiAndLocalMessages = (
       )
     : localMessages;
 
-  return [
+  return applySystemStatusMessages([
     ...apiMessages,
     ...scopedLocalMessages.filter(
       (message) =>
         !apiMessageKeys.has(`${message.sender}::${message.text ?? ""}`),
     ),
-  ];
+  ]);
+};
+
+const applySystemStatusMessages = (messages: ChatMessage[]) => {
+  const agreementStatuses = new Map<
+    string,
+    "accepted" | "rejected"
+  >();
+  const modificationStatuses = new Map<
+    string,
+    "accepted" | "rejected"
+  >();
+
+  messages.forEach((message) => {
+    if (
+      message.type === "agreement_status" &&
+      message.agreement_target_id &&
+      (message.agreement_status === "accepted" ||
+        message.agreement_status === "rejected")
+    ) {
+      agreementStatuses.set(message.agreement_target_id, message.agreement_status);
+    }
+
+    if (
+      message.type === "modification_response" &&
+      message.modification_target_id &&
+      (message.modification_status === "accepted" ||
+        message.modification_status === "rejected")
+    ) {
+      modificationStatuses.set(
+        message.modification_target_id,
+        message.modification_status,
+      );
+    }
+  });
+
+  return messages
+    .filter(
+      (message) =>
+        message.type !== "agreement_status" &&
+        message.type !== "modification_response",
+    )
+    .map((message) => {
+      if (message.type === "agreement") {
+        return {
+          ...message,
+          agreement_status:
+            agreementStatuses.get(message.id) ??
+            message.agreement_status ??
+            "pending",
+        };
+      }
+
+      if (message.type === "modification_request") {
+        const modificationId = getIdString(message.modification_id, message.id);
+
+        return {
+          ...message,
+          modification_status:
+            modificationStatuses.get(modificationId) ??
+            message.modification_status ??
+            "pending",
+        };
+      }
+
+      return message;
+    });
 };
 
 function ChatPage({
@@ -563,6 +903,8 @@ function ChatPage({
         id: String(
           selectedConvId ?? `pending-${statePeerName ?? "conversation"}`,
         ),
+        campaignId: "",
+        applicationId: "",
         campaignName:
           stateLocation?.campaignName || statePeerName || "New Conversation",
         category: "",
@@ -688,9 +1030,6 @@ function ChatPage({
         const payload = {
           message: text,
           type: "text",
-          delivery_date: null,
-          media_url: null,
-          notes: null,
         } as const;
 
         if (!conversationId) {
@@ -754,28 +1093,314 @@ function ChatPage({
   ]);
 
   // ─── Agreement submit (convert campaign popup) ───
-  const handleAgreementSubmit = (data: ConvertCampaignFormData) => {
-    // For now, send the agreement as a text summary
+  const handleAgreementSubmit = async (data: ConvertCampaignFormData) => {
     const summaryText = [
-      data.contentNotes,
-      data.finalPrice,
-      data.deliverablesCount,
-      data.deliveryDate,
-      data.agreementTerms,
+      data.message,
+      data.final_price ? `final_price: ${data.final_price}` : "",
+      data.deliverables_count
+        ? `deliverables_count: ${data.deliverables_count}`
+        : "",
+      data.delivery_date ? `delivery_date: ${data.delivery_date}` : "",
     ]
       .filter(Boolean)
       .join(" | ");
 
     if (selectedConvId && summaryText) {
-      sendMutation.mutate({
+      await sendMutation.mutateAsync({
         message: summaryText,
         type: "agreement",
-        delivery_date: data.deliveryDate || null,
-        media_url: null,
-        notes: null,
+        delivery_date: data.delivery_date,
       });
     }
   };
+
+  const handleAgreementAction = useCallback(
+    async (
+      agreementId: string,
+      status: "accepted" | "rejected",
+    ) => {
+      if (!selectedConvId) return false;
+
+      await sendMutation.mutateAsync({
+        message: buildAgreementStatusMessage(agreementId, status),
+        type: "text",
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chat.messages(selectedConvId),
+      });
+
+      return true;
+    },
+    [queryClient, selectedConvId, sendMutation],
+  );
+
+  const handleContentDeliverySubmit = useCallback(
+    async (data: { media_url: string; message: string; notes: string }) => {
+      if (!selectedConvId) return false;
+
+      try {
+        await sendMutation.mutateAsync({
+          message: data.message,
+          type: "content_delivery",
+          media_url: data.media_url,
+          notes: data.notes,
+        });
+      } catch (error) {
+        const isValidationError =
+          axios.isAxiosError(error) && error.response?.status === 422;
+
+        if (!isValidationError) {
+          throw error;
+        }
+
+        try {
+          await sendMutation.mutateAsync({
+            message: data.notes || data.message,
+            type: "content_delivery",
+            media_url: data.media_url,
+          });
+        } catch (fallbackError) {
+          const shouldTryVideoSubmission =
+            axios.isAxiosError(fallbackError) &&
+            fallbackError.response?.status === 422;
+
+          if (!shouldTryVideoSubmission) {
+            throw fallbackError;
+          }
+
+          await sendMutation.mutateAsync({
+            message: data.notes || data.message,
+            type: "video_submission",
+            media_url: data.media_url,
+          });
+        }
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chat.messages(selectedConvId),
+      });
+
+      return true;
+    },
+    [queryClient, selectedConvId, sendMutation],
+  );
+
+  const handleModificationRequestSubmit = useCallback(
+    async (data: ModificationRequestPayload) => {
+      if (!selectedConvId) return false;
+
+      let applicationId = selectedConversation?.applicationId || "";
+
+      if (!applicationId && selectedConversation?.campaignId) {
+        const applications = await campaignService.getCampaignApplications(
+          selectedConversation.campaignId,
+        );
+        const matchingApplication =
+          applications.data.find(
+            (application) =>
+              application.conversation_id &&
+              String(application.conversation_id) === String(selectedConvId),
+          ) ||
+          applications.data.find(
+            (application) =>
+              ["accepted", "modification_requested", "content_approved"].indexOf(
+                getString(application.status).toLowerCase(),
+              ) !== -1,
+          ) ||
+          applications.data[0];
+
+        applicationId = matchingApplication?.id
+          ? String(matchingApplication.id)
+          : "";
+      }
+
+      let modificationId: string | number | null = null;
+
+      if (applicationId) {
+        const response = await campaignService.requestModification(
+          applicationId,
+          {
+            modification_reason_id: data.modification_reason_id,
+            new_delivery_date: data.new_delivery_date,
+            description: data.description,
+          },
+        );
+        const responseObject = getObject(response);
+        const responseData = getObject(responseObject?.data);
+        const modificationObject =
+          getObject(responseObject?.modification) ??
+          getObject(responseData?.modification) ??
+          responseData ??
+          responseObject;
+
+        modificationId =
+          getIdString(
+            modificationObject?.id,
+            modificationObject?.modification_id,
+            responseObject?.modification_id,
+            responseData?.modification_id,
+          ) || null;
+      }
+
+      await sendMutation.mutateAsync({
+        message: buildModificationRequestMessage({
+          ...data,
+          modification_id: modificationId,
+          modification_status: "pending",
+        }),
+        type: "text",
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chat.messages(selectedConvId),
+      });
+
+      return true;
+    },
+    [
+      queryClient,
+      selectedConvId,
+      selectedConversation?.applicationId,
+      selectedConversation?.campaignId,
+      sendMutation,
+    ],
+  );
+
+  const handleModificationAction = useCallback(
+    async (
+      messageId: string,
+      status: "accepted" | "rejected",
+    ) => {
+      if (!selectedConvId) return false;
+
+      const modificationMessage = selectedConversation?.messages.find(
+        (message) => message.id === messageId,
+      );
+      const modificationId = getIdString(
+        modificationMessage?.modification_id,
+        messageId,
+      );
+
+      if (modificationMessage?.modification_id) {
+        await campaignService.respondToModification(modificationId, {
+          status,
+          rejection_reason:
+            status === "rejected"
+              ? t(
+                  "chat.modificationRequest.rejectionReasonFallback",
+                  "The influencer rejected the modification request.",
+                )
+              : null,
+        });
+      }
+
+      await sendMutation.mutateAsync({
+        message: buildModificationResponseMessage(modificationId, status),
+        type: "text",
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chat.messages(selectedConvId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.chat.conversations(),
+      });
+
+      return true;
+    },
+    [
+      queryClient,
+      selectedConvId,
+      selectedConversation?.messages,
+      sendMutation,
+      t,
+    ],
+  );
+
+  const handleApproveContent = useCallback(async () => {
+    if (!selectedConvId) return false;
+
+    const latestDelivery = [...(selectedConversation?.messages ?? [])]
+      .reverse()
+      .find((message) => message.type === "content_delivery");
+    const mediaUrl = latestDelivery?.media_url || "";
+    const campaignTitle =
+      selectedConversation?.campaignName ||
+      stateLocation?.campaignName ||
+      (isRTL ? "محتوى الحملة" : "Campaign content");
+
+    let applicationId = selectedConversation?.applicationId || "";
+
+    if (!applicationId && selectedConversation?.campaignId) {
+      const applications = await campaignService.getCampaignApplications(
+        selectedConversation.campaignId,
+      );
+      const matchingApplication =
+        applications.data.find(
+          (application) =>
+            application.conversation_id &&
+            String(application.conversation_id) === String(selectedConvId),
+        ) ||
+        applications.data.find(
+          (application) =>
+            ["accepted", "content_approved"].indexOf(
+              getString(application.status).toLowerCase(),
+            ) !== -1,
+        ) ||
+        applications.data[0];
+
+      applicationId = matchingApplication?.id
+        ? String(matchingApplication.id)
+        : "";
+    }
+
+    if (applicationId && mediaUrl) {
+      await campaignService.approveContent(applicationId, {
+        type: "video",
+        media_url: mediaUrl,
+        title: campaignTitle,
+      });
+    }
+
+    await sendMutation.mutateAsync({
+      message: CONTENT_APPROVED_PREFIX,
+      type: "text",
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.chat.messages(selectedConvId),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.chat.conversations(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.campaigns.myApplications(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.campaigns.allApplications(),
+    });
+    if (selectedConversation?.campaignId) {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.details(selectedConversation.campaignId),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.applications(selectedConversation.campaignId),
+      });
+    }
+
+    return true;
+  }, [
+    isRTL,
+    queryClient,
+    selectedConvId,
+    selectedConversation?.applicationId,
+    selectedConversation?.campaignId,
+    selectedConversation?.campaignName,
+    selectedConversation?.messages,
+    sendMutation,
+    stateLocation?.campaignName,
+  ]);
 
   // ─── Loading state ───
   if (conversationsQuery.isLoading) {
@@ -866,6 +1491,11 @@ function ChatPage({
             role={role}
             isRTL={isRTL}
             onAgreementSubmit={handleAgreementSubmit}
+            onAgreementAction={handleAgreementAction}
+            onContentDeliverySubmit={handleContentDeliverySubmit}
+            onApproveContent={handleApproveContent}
+            onModificationRequestSubmit={handleModificationRequestSubmit}
+            onModificationAction={handleModificationAction}
             onSendMessage={handleSendMessage}
             isSending={sendMutation.isPending || isSendingMessage}
             isLoadingMessages={messagesQuery.isLoading}

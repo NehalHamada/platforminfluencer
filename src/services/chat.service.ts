@@ -8,6 +8,15 @@ import type {
 
 type ApiObject = Record<string, unknown>;
 
+type BackendSendMessagePayload = {
+  conversation_id?: string | number;
+  message: string;
+  type: SendMessagePayload["type"];
+  delivery_date?: string;
+  media_url?: string;
+  notes?: string;
+};
+
 const isObject = (value: unknown): value is ApiObject =>
   Boolean(value && typeof value === "object");
 
@@ -31,14 +40,16 @@ const getListFromResponse = (responseData: unknown): unknown[] => {
   return [];
 };
 
-const cleanMessagePayload = (data: SendMessagePayload): SendMessagePayload => {
-  const payload: Partial<SendMessagePayload> = {
+const cleanMessagePayload = (
+  data: SendMessagePayload,
+): BackendSendMessagePayload => {
+  const payload: Partial<BackendSendMessagePayload> = {
     conversation_id: data.conversation_id,
     message: data.message,
     type: data.type,
-    delivery_date: data.delivery_date,
-    media_url: data.media_url,
-    notes: data.notes,
+    delivery_date: data.delivery_date ?? undefined,
+    media_url: data.media_url ?? undefined,
+    notes: data.notes ?? undefined,
   };
 
   if (payload.type === "text") {
@@ -47,7 +58,14 @@ const cleanMessagePayload = (data: SendMessagePayload): SendMessagePayload => {
     delete payload.notes;
   }
 
-  return payload as SendMessagePayload;
+  Object.keys(payload).forEach((key) => {
+    const payloadKey = key as keyof BackendSendMessagePayload;
+    if (payload[payloadKey] === null || payload[payloadKey] === undefined) {
+      delete payload[payloadKey];
+    }
+  });
+
+  return payload as BackendSendMessagePayload;
 };
 
 export const chatService = {

@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useCampaignDetailsQuery } from "@/queries/campaigns/useCampaignsDetailsQuery";
+import type { Campaign } from "@/types/campaign.types";
 
 interface CampaignData {
   totalPrice: string;
@@ -22,29 +24,85 @@ interface CampaignData {
   paymentMethod: string;
 }
 
+type CampaignPaymentApiData = {
+  source?: string;
+  total_price?: string;
+  posts_count?: string;
+  ad_plan?: string;
+  execution_date?: string;
+  content_link?: string;
+  payment_method?: string;
+};
+
+type SureCreateCampaignState = {
+  campaignId?: string | number;
+  createdCampaign?: Campaign;
+};
+
+const emptyCampaignData: CampaignData = {
+  totalPrice: "",
+  postsCount: "",
+  adPlan: "",
+  executionDate: "",
+  campaignName: "",
+  contentLink: "",
+  paymentMethod: "",
+};
+
+const parsePaymentDataFromCampaign = (
+  campaign?: Campaign,
+): Partial<CampaignData> => {
+  if (!campaign) return {};
+
+  try {
+    const parsed = JSON.parse(campaign.idea || "{}") as CampaignPaymentApiData;
+
+    if (parsed.source !== "campaign_payment") return {};
+
+    return {
+      totalPrice: parsed.total_price || "",
+      postsCount: parsed.posts_count || "",
+      adPlan: parsed.ad_plan || "",
+      executionDate: parsed.execution_date || "",
+      campaignName: campaign.name || "",
+      contentLink: parsed.content_link || "",
+      paymentMethod: parsed.payment_method || "",
+    };
+  } catch {
+    return {
+      campaignName: campaign.name || "",
+      adPlan: campaign.idea || "",
+    };
+  }
+};
+
+const getNumericAmount = (value: string) => {
+  const normalized = value
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[^\d.]/g, "");
+  const amount = Number(normalized);
+  return Number.isFinite(amount) ? amount : 0;
+};
+
+const formatAmount = (value: number) =>
+  new Intl.NumberFormat("ar-EG", {
+    maximumFractionDigits: 0,
+  }).format(value);
+
 function SureCreateCampaign() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const location = useLocation();
   const navigate = useNavigate();
+  const routeState = (location.state || {}) as SureCreateCampaignState;
+  const campaignId = routeState.campaignId ? String(routeState.campaignId) : "";
+  const { data: campaignDetails } = useCampaignDetailsQuery(campaignId);
+  const apiCampaign = campaignDetails?.data || routeState.createdCampaign;
 
-  const campaignData = (location.state as CampaignData) || {
-    totalPrice: t("campaignPayment.totalPricePlaceholder", "ر.س29500"),
-    postsCount: t("campaignPayment.postsCountPlaceholder", "1 بوست + 1 أستوري"),
-    adPlan: t(
-      "campaignPayment.adPlanPlaceholder",
-      "لا يمكن التعامل مع اي شركة منافسة قبل انتهاء هذا الاعلان",
-    ),
-    executionDate: t(
-      "campaignPayment.executionDatePlaceholder",
-      "3 - 20 - 2026",
-    ),
-    campaignName: t(
-      "campaignPayment.campaignNamePlaceholder",
-      "تجربة المنتج الجديد + Glow",
-    ),
-    contentLink: "55",
-    paymentMethod: "mada",
+  const campaignData: CampaignData = {
+    ...emptyCampaignData,
+    ...parsePaymentDataFromCampaign(apiCampaign),
   };
 
   const paymentLabels: Record<string, string> = {
@@ -52,6 +110,10 @@ function SureCreateCampaign() {
     visa: "VISA",
     mastercard: "Mastercard",
   };
+  const totalAmount = getNumericAmount(campaignData.totalPrice);
+  const commissionPercentage = 10;
+  const commissionAmount = totalAmount * (commissionPercentage / 100);
+  const influencerAmount = totalAmount - commissionAmount;
 
   const readOnlyField = cn(
     "h-11 rounded-full border-[#d9d7cf] bg-[#fafaf8] px-4 text-sm text-[#2f2f2b] read-only:cursor-default read-only:opacity-80 focus-visible:ring-0 focus-visible:border-[#d9d7cf]",
@@ -64,7 +126,13 @@ function SureCreateCampaign() {
   );
 
   const handleLaunch = () => {
-    navigate("/dashboard/company");
+    navigate("/dashboard/company/campaign-details", {
+      state: {
+        campaignId,
+        campaignData,
+        createdCampaign: apiCampaign,
+      },
+    });
   };
 
   return (
@@ -91,7 +159,7 @@ function SureCreateCampaign() {
 
       <div className="relative z-10 -mt-4 rounded-t-[28px] bg-white px-4 pb-12 pt-7 sm:-mt-6 sm:px-6 sm:pt-9 lg:-mt-8 lg:rounded-t-[40px] lg:px-10 lg:pb-16">
         <div className="mx-auto max-w-7xl">
-          <div className="mx-auto max-w-[900px]">
+          <div className="mx-auto max-w-225">
             <Card className="rounded-[24px] border-0! ring-0! bg-white shadow-[0_14px_35px_rgba(34,34,31,0.06)] sm:rounded-[28px]">
               <CardContent className="p-5 sm:p-7 lg:p-8">
                 <div className="space-y-5 sm:space-y-6">
@@ -225,9 +293,13 @@ function SureCreateCampaign() {
                           </span>
                           <span>
                             {t(
-                              "sureCampaign.noteTotalPrice",
-                              "السعر الإجمالي: 6,000 ريال",
+                              "sureCampaign.notes.totalPriceLabel",
+                              "السعر الإجمالي",
                             )}
+                            {": "}
+                            {formatAmount(totalAmount)}
+                            {" "}
+                            {t("sureCampaign.notes.currency", "ريال")}
                           </span>
                         </li>
                         <li className="flex items-start gap-2 text-sm text-[#2f2f2b]">
@@ -236,9 +308,14 @@ function SureCreateCampaign() {
                           </span>
                           <span>
                             {t(
-                              "sureCampaign.noteCommission",
-                              "العمولة: 10% = 600 ريال",
+                              "sureCampaign.notes.commissionLabel",
+                              "العمولة",
                             )}
+                            {": "}
+                            {commissionPercentage}% ={" "}
+                            {formatAmount(commissionAmount)}
+                            {" "}
+                            {t("sureCampaign.notes.currency", "ريال")}
                           </span>
                         </li>
                         <li className="flex items-start gap-2 text-sm text-[#2f2f2b]">
@@ -247,9 +324,13 @@ function SureCreateCampaign() {
                           </span>
                           <span>
                             {t(
-                              "sureCampaign.noteInfluencerAmount",
-                              "المبلغ الذي سيُحجز للمؤثر: 5,400 ريال",
+                              "sureCampaign.notes.influencerAmountLabel",
+                              "المبلغ الذي سيُحجز للمؤثر",
                             )}
+                            {": "}
+                            {formatAmount(influencerAmount)}
+                            {" "}
+                            {t("sureCampaign.notes.currency", "ريال")}
                           </span>
                         </li>
                       </ul>
@@ -260,7 +341,7 @@ function SureCreateCampaign() {
                     <Button
                       type="button"
                       onClick={handleLaunch}
-                      className="group relative inline-flex h-11 min-w-[168px] items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-[182px]">
+                      className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
                       <span
                         className={cn(
                           "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3f7eb] text-[#8c9878] sm:h-8 sm:w-8",

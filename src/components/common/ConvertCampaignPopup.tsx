@@ -80,7 +80,8 @@ function ConvertCampaignPopup({
     if (isSubmitting) return;
 
     try {
-      await onSubmitSuccess?.(data);
+      const saved = await onSubmitSuccess?.(data);
+      if (saved === false) return;
       toast.success(t("camPopup.success"));
       closePopup();
     } catch (error) {

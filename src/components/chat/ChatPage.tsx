@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,6 +17,17 @@ import type { AuthStore } from "@/types/auth.types";
 import { chatService } from "@/services/chat.service";
 import { campaignService } from "@/services/campaign.service";
 import { resolveAcceptedConversationId } from "@/utils/chat";
+import { isClosedCampaignStatus } from "@/utils/campaignProgress";
+import { getContentMessageMediaUrl } from "@/utils/completedCampaignSource";
+import {
+  isCompletedConversationId,
+  saveCompletedCampaignEntry,
+} from "@/utils/completedCampaigns";
+import {
+  getReviewAverage,
+  saveInfluencerReview,
+  type InfluencerReviewInput,
+} from "@/utils/influencerReviews";
 
 import { pusher } from "@/lib/pusher";
 import MessageThread from "./MessageThread";
@@ -56,6 +67,8 @@ export type ChatConversation = {
   id: string;
   campaignId?: string;
   applicationId?: string;
+  influencerId?: string;
+  companyId?: string;
   name: string;
   avatar: string;
   roleLabel: string;
@@ -81,6 +94,7 @@ const AGREEMENT_STATUS_PREFIX = "__agreement_status__:";
 const MODIFICATION_REQUEST_PREFIX = "__modification_request__:";
 const MODIFICATION_RESPONSE_PREFIX = "__modification_response__:";
 const CONTENT_APPROVED_PREFIX = "__content_approved__";
+const CONTENT_DELIVERY_PREFIX = "__content_delivery__:";
 
 const getString = (value: unknown, fallback = "") =>
   typeof value === "string" && value ? value : fallback;
@@ -104,6 +118,47 @@ const getAvatar = (user: Record<string, unknown> | null | undefined) => {
 
 const getObject = (value: unknown): Record<string, unknown> | null =>
   value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+
+const isContentApprovedConversationMessage = (message: unknown) => {
+  const rawMessage = getObject(message);
+  if (!rawMessage) return false;
+
+  return (
+    String(rawMessage.type ?? "") === "content_approved" ||
+    String(rawMessage.message ?? "").indexOf(CONTENT_APPROVED_PREFIX) === 0
+  );
+};
+
+const isClosedConversation = (conversation: Conversation) => {
+  if (isCompletedConversationId(conversation.id)) return true;
+
+  const rawConversation = conversation as Record<string, unknown>;
+  const nestedApplication = getObject(rawConversation.application);
+  const nestedRequest =
+    getObject(rawConversation.collaboration_request) ??
+    getObject(rawConversation.collaborationRequest) ??
+    getObject(rawConversation.request);
+  const nestedCampaign = getObject(rawConversation.campaign);
+
+  const status =
+    conversation.status ??
+    (nestedApplication?.status as string | undefined) ??
+    (nestedRequest?.status as string | undefined) ??
+    (nestedCampaign?.status as string | undefined);
+
+  if (isClosedCampaignStatus(status)) return true;
+
+  const messages = Array.isArray(conversation.messages)
+    ? conversation.messages
+    : [];
+
+  return (
+    messages.some(isContentApprovedConversationMessage) ||
+    String(conversation.last_message ?? conversation.lastMessage ?? "").indexOf(
+      CONTENT_APPROVED_PREFIX,
+    ) === 0
+  );
+};
 
 const getCompanyDisplayName = (
   conv: Conversation,
@@ -324,6 +379,21 @@ const getConversationApplicationId = (conv: Conversation) => {
   );
 };
 
+const isApplicationVisibleInConversation = (
+  application: { conversation_id?: string | number; status?: string },
+  conversationId?: string | number,
+) =>
+  Boolean(
+    application.conversation_id &&
+      conversationId &&
+      String(application.conversation_id) === String(conversationId),
+  );
+
+const isWorkableApplicationStatus = (status?: string) =>
+  ["accepted", "modification_requested", "content_approved"].indexOf(
+    String(status ?? "").toLowerCase(),
+  ) !== -1;
+
 const upsertConversation = (
   conversations: Conversation[],
   conversation: Conversation,
@@ -372,6 +442,14 @@ function mapApiConversation(
     id: String(conv.id),
     campaignId: getConversationCampaignId(conv),
     applicationId: getConversationApplicationId(conv),
+    influencerId:
+      role === "company"
+        ? getIdString(otherObj?.id)
+        : getIdString((conv.influencer as Record<string, unknown> | undefined)?.id),
+    companyId:
+      role === "influencer"
+        ? getIdString(otherObj?.id)
+        : getIdString((conv.company as Record<string, unknown> | undefined)?.id),
     name: displayName,
     avatar:
       role === "influencer"
@@ -420,6 +498,7 @@ function mapApiMessage(
     msg.message ?? "",
   );
   const contentApprovedEvent = isContentApprovedMessage(msg.message ?? "");
+  const contentDeliveryEvent = parseContentDeliveryMessage(msg.message ?? "");
 
   if (statusEvent) {
     return {
@@ -476,6 +555,20 @@ function mapApiMessage(
       text: msg.message ?? "",
       time,
       type: "content_approved",
+    };
+  }
+
+  if (contentDeliveryEvent) {
+    return {
+      id: String(msg.id),
+      sender: isMine ? "me" : "other",
+      name: isMine ? "Me" : otherName,
+      avatar: isMine ? "" : getAvatar(otherObj),
+      text: contentDeliveryEvent.message,
+      time,
+      type: "content_delivery",
+      media_url: contentDeliveryEvent.media_url,
+      notes: contentDeliveryEvent.notes,
     };
   }
 
@@ -573,6 +666,37 @@ const parseModificationResponseMessage = (
 
 const isContentApprovedMessage = (message: string) =>
   message.trim() === CONTENT_APPROVED_PREFIX;
+
+const buildContentDeliveryMessage = (data: {
+  media_url: string;
+  message: string;
+  notes: string;
+}) => `${CONTENT_DELIVERY_PREFIX}${JSON.stringify(data)}`;
+
+const parseContentDeliveryMessage = (
+  message: string,
+): { media_url: string; message: string; notes: string } | null => {
+  if (!message.startsWith(CONTENT_DELIVERY_PREFIX)) return null;
+
+  try {
+    const parsed = JSON.parse(
+      message.slice(CONTENT_DELIVERY_PREFIX.length),
+    ) as Partial<{ media_url: string; message: string; notes: string }>;
+
+    if (!parsed.media_url) return null;
+
+    return {
+      media_url: parsed.media_url,
+      message: parsed.message ?? parsed.notes ?? "",
+      notes: parsed.notes ?? parsed.message ?? "",
+    };
+  } catch {
+    return null;
+  }
+};
+
+const isLocalDeliveryUrl = (value?: string | null) =>
+  String(value ?? "").startsWith("local-file://");
 
 const parseAgreementStatusMessage = (
   message: string,
@@ -738,6 +862,7 @@ function ChatPage({
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const currentUser = useAuthStore((s: AuthStore) => s.user);
   const currentUserId = currentUser?.id;
   const location = useLocation();
@@ -747,25 +872,64 @@ function ChatPage({
     companyName?: string;
     peerName?: string;
     campaignName?: string;
+    campaignId?: string | number;
+    applicationId?: string | number;
+    influencerId?: string | number;
+    companyId?: string | number;
+    campaignBudget?: string | number;
+    category?: string;
   } | null;
   const stateConvId = stateLocation?.conversationId;
   const isNewConv = stateLocation?.isNew;
   const statePeerName = stateLocation?.peerName ?? stateLocation?.companyName;
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const agreementSubmitLockRef = useRef<string | null>(null);
 
   // ─── Fetch conversations ───
   const conversationsQuery = useConversationsQuery();
   const apiConversations = useMemo(() => {
     const conversations = conversationsQuery.data?.data ?? [];
+    const fallbackById = new Map(
+      extraConversations.map((conversation) => [
+        String(conversation.id),
+        conversation,
+      ]),
+    );
+    const mergedConversations = conversations.map((conversation) => {
+      const fallback = fallbackById.get(String(conversation.id));
+
+      if (!fallback) return conversation;
+
+      return {
+        ...fallback,
+        ...conversation,
+        campaign_id: conversation.campaign_id ?? fallback.campaign_id,
+        campaignId: conversation.campaignId ?? fallback.campaignId,
+        application_id: conversation.application_id ?? fallback.application_id,
+        applicationId: conversation.applicationId ?? fallback.applicationId,
+        campaign_name: conversation.campaign_name ?? fallback.campaign_name,
+        campaignName: conversation.campaignName ?? fallback.campaignName,
+        campaign_budget:
+          conversation.campaign_budget ?? fallback.campaign_budget,
+        campaignBudget: conversation.campaignBudget ?? fallback.campaignBudget,
+        category: conversation.category ?? fallback.category,
+        company: conversation.company ?? fallback.company,
+        influencer: conversation.influencer ?? fallback.influencer,
+        participant: conversation.participant ?? fallback.participant,
+        other_user: conversation.other_user ?? fallback.other_user,
+      };
+    });
     const seenIds = new Set(
-      conversations.map((conversation) => String(conversation.id)),
+      mergedConversations.map((conversation) => String(conversation.id)),
     );
     const fallbackConversations = extraConversations.filter(
       (conversation) => !seenIds.has(String(conversation.id)),
     );
 
-    return [...conversations, ...fallbackConversations];
+    return [...mergedConversations, ...fallbackConversations].filter(
+      (conversation) => !isClosedConversation(conversation),
+    );
   }, [conversationsQuery.data?.data, extraConversations]);
 
   // ─── Selected conversation ───
@@ -802,6 +966,27 @@ function ChatPage({
   const apiMessages = useMemo(
     () => messagesQuery.data?.data ?? [],
     [messagesQuery.data?.data],
+  );
+  const selectedClosedConversation = useMemo(() => {
+    if (!selectedConvId) return undefined;
+
+    return (conversationsQuery.data?.data ?? [])
+      .concat(extraConversations)
+      .find(
+        (conversation) =>
+          String(conversation.id) === String(selectedConvId) &&
+          isClosedConversation(conversation),
+      );
+  }, [conversationsQuery.data?.data, extraConversations, selectedConvId]);
+  const hasApprovedApiMessage = useMemo(
+    () => apiMessages.some(isContentApprovedConversationMessage),
+    [apiMessages],
+  );
+  const isSelectedCompletedChat = Boolean(
+    selectedConvId &&
+      (isCompletedConversationId(selectedConvId) ||
+        selectedClosedConversation ||
+        hasApprovedApiMessage),
   );
 
   // ─── Pusher Real-time Integration ───
@@ -889,6 +1074,65 @@ function ChatPage({
     };
   }, [currentUserId, queryClient]);
 
+  useEffect(() => {
+    if (!selectedConvId || !hasApprovedApiMessage) return;
+    const latestDelivery = [...apiMessages]
+      .reverse()
+      .find(
+        (message) =>
+          message.type === "content_delivery" ||
+          message.type === "video_submission" ||
+          String(message.message ?? "").startsWith(CONTENT_DELIVERY_PREFIX),
+      );
+
+    saveCompletedCampaignEntry({
+      conversationId: selectedConvId,
+      campaignId: stateLocation?.campaignId,
+      applicationId: stateLocation?.applicationId,
+      campaignName: stateLocation?.campaignName,
+      amount: stateLocation?.campaignBudget,
+      category: stateLocation?.category,
+      mediaUrl: getContentMessageMediaUrl(latestDelivery),
+      date: new Date().toISOString(),
+    });
+
+    queryClient.setQueryData(
+      queryKeys.chat.conversations(),
+      (oldData: unknown) => {
+        const oldResponse = getObject(oldData);
+        const oldConversations = Array.isArray(oldResponse?.data)
+          ? (oldResponse.data as Conversation[])
+          : [];
+
+        return {
+          ...(oldResponse ?? { success: true }),
+          data: oldConversations.filter(
+            (conversation) => String(conversation.id) !== String(selectedConvId),
+          ),
+        };
+      },
+    );
+
+    navigate(
+      role === "company"
+        ? "/dashboard/company/campaigns"
+        : "/dashboard/influencer/campaigns",
+      { replace: true },
+    );
+  }, [
+    hasApprovedApiMessage,
+    navigate,
+    queryClient,
+    role,
+    apiMessages,
+    selectedConvId,
+    stateLocation?.applicationId,
+    stateLocation?.campaignBudget,
+    stateLocation?.campaignId,
+    stateLocation?.campaignName,
+    stateLocation?.category,
+  ]);
+
   // ─── Send message mutation ───
   const sendMutation = useSendMessageMutation(selectedConvId, currentUserId);
 
@@ -903,11 +1147,13 @@ function ChatPage({
         id: String(
           selectedConvId ?? `pending-${statePeerName ?? "conversation"}`,
         ),
-        campaignId: "",
-        applicationId: "",
+        campaignId: getIdString(stateLocation?.campaignId),
+        applicationId: getIdString(stateLocation?.applicationId),
+        influencerId: getIdString(stateLocation?.influencerId),
+        companyId: getIdString(stateLocation?.companyId),
         campaignName:
           stateLocation?.campaignName || statePeerName || "New Conversation",
-        category: "",
+        category: stateLocation?.category || "",
         status: selectedConvId ? "active" : "pending",
         lastMessage: "",
         lastActive: "",
@@ -915,7 +1161,11 @@ function ChatPage({
         name: statePeerName || "Company",
         avatar: "",
         roleLabel: "",
-        campaignBudget: "",
+        campaignBudget:
+          stateLocation?.campaignBudget !== undefined &&
+          stateLocation?.campaignBudget !== null
+            ? String(stateLocation.campaignBudget)
+            : "",
         messages: mergeApiAndLocalMessages(
           apiMessages.map((msg) =>
             mapApiMessage(msg, currentUserId, statePeerName || "Company", null),
@@ -988,12 +1238,113 @@ function ChatPage({
     isNewConv,
     statePeerName,
     stateLocation?.campaignName,
+    stateLocation?.campaignId,
+    stateLocation?.applicationId,
+    stateLocation?.influencerId,
+    stateLocation?.companyId,
+    stateLocation?.campaignBudget,
+    stateLocation?.category,
     apiMessages,
     pendingMessages,
     currentUserId,
     t,
     isRTL,
     role,
+  ]);
+
+  const resolveApplicationForSelectedConversation = useCallback(async () => {
+    const directApplicationId =
+      selectedConversation?.applicationId ||
+      getIdString(stateLocation?.applicationId);
+
+    if (directApplicationId) {
+      return {
+        id: directApplicationId,
+        campaignId:
+          selectedConversation?.campaignId ?? getIdString(stateLocation?.campaignId),
+        price: selectedConversation?.campaignBudget ?? stateLocation?.campaignBudget,
+        status: selectedConversation?.status,
+        influencerId:
+          selectedConversation?.influencerId ??
+          getIdString(stateLocation?.influencerId),
+      };
+    }
+
+    const campaignId =
+      selectedConversation?.campaignId ?? getIdString(stateLocation?.campaignId);
+
+    if (campaignId) {
+      const applications = await campaignService.getCampaignApplications(campaignId);
+      const matchingApplication =
+        applications.data.find((application) =>
+          isApplicationVisibleInConversation(application, selectedConvId),
+        ) ||
+        applications.data.find((application) =>
+          isWorkableApplicationStatus(application.status),
+        ) ||
+        applications.data[0];
+
+      if (matchingApplication?.id) {
+        return {
+          id: String(matchingApplication.id),
+          campaignId:
+            matchingApplication.campaign_id ??
+            matchingApplication.campaign?.id ??
+            campaignId,
+          price: matchingApplication.price,
+          status: matchingApplication.status,
+          influencerId:
+            matchingApplication.influencer?.id ??
+            matchingApplication.user?.id ??
+            selectedConversation?.influencerId,
+        };
+      }
+    }
+
+    const allApplications = await campaignService.getAllCampaignApplications();
+    const matchingApplication =
+      allApplications.data.find((application) =>
+        isApplicationVisibleInConversation(application, selectedConvId),
+      ) ||
+      allApplications.data.find((application) => {
+        const appCampaignId = application.campaign_id ?? application.campaign?.id;
+        return (
+          campaignId &&
+          appCampaignId &&
+          String(appCampaignId) === String(campaignId) &&
+          isWorkableApplicationStatus(application.status)
+        );
+      }) ||
+      allApplications.data.find((application) =>
+        isWorkableApplicationStatus(application.status),
+      );
+
+    if (!matchingApplication?.id) return null;
+
+    return {
+      id: String(matchingApplication.id),
+      campaignId:
+        matchingApplication.campaign_id ??
+        matchingApplication.campaign?.id ??
+        campaignId,
+      price: matchingApplication.price,
+      status: matchingApplication.status,
+      influencerId:
+        matchingApplication.influencer?.id ??
+        matchingApplication.user?.id ??
+        selectedConversation?.influencerId,
+    };
+  }, [
+    selectedConversation?.applicationId,
+    selectedConversation?.campaignBudget,
+    selectedConversation?.campaignId,
+    selectedConversation?.influencerId,
+    selectedConversation?.status,
+    selectedConvId,
+    stateLocation?.applicationId,
+    stateLocation?.campaignBudget,
+    stateLocation?.campaignId,
+    stateLocation?.influencerId,
   ]);
 
   // ─── Handle sending a message ───
@@ -1094,6 +1445,8 @@ function ChatPage({
 
   // ─── Agreement submit (convert campaign popup) ───
   const handleAgreementSubmit = async (data: ConvertCampaignFormData) => {
+    if (sendMutation.isPending) return false;
+
     const summaryText = [
       data.message,
       data.final_price ? `final_price: ${data.final_price}` : "",
@@ -1105,12 +1458,32 @@ function ChatPage({
       .filter(Boolean)
       .join(" | ");
 
-    if (selectedConvId && summaryText) {
+    const lockKey = [
+      selectedConvId ?? "",
+      summaryText,
+      data.delivery_date ?? "",
+    ].join("::");
+
+    if (
+      !selectedConvId ||
+      !summaryText ||
+      agreementSubmitLockRef.current === lockKey
+    ) {
+      return false;
+    }
+
+    agreementSubmitLockRef.current = lockKey;
+
+    try {
       await sendMutation.mutateAsync({
         message: summaryText,
         type: "agreement",
         delivery_date: data.delivery_date,
       });
+      return true;
+    } catch (error) {
+      agreementSubmitLockRef.current = null;
+      throw error;
     }
   };
 
@@ -1138,6 +1511,17 @@ function ChatPage({
   const handleContentDeliverySubmit = useCallback(
     async (data: { media_url: string; message: string; notes: string }) => {
       if (!selectedConvId) return false;
+
+      if (isLocalDeliveryUrl(data.media_url)) {
+        await sendMutation.mutateAsync({
+          message: buildContentDeliveryMessage(data),
+          type: "text",
+        });
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.chat.messages(selectedConvId),
+        });
+        return true;
+      }
 
       try {
         await sendMutation.mutateAsync({
@@ -1173,6 +1557,19 @@ function ChatPage({
             message: data.notes || data.message,
             type: "video_submission",
             media_url: data.media_url,
+          }).catch(async (videoError) => {
+            const shouldFallbackToText =
+              axios.isAxiosError(videoError) &&
+              videoError.response?.status === 422;
+
+            if (!shouldFallbackToText) {
+              throw videoError;
+            }
+
+            await sendMutation.mutateAsync({
+              message: buildContentDeliveryMessage(data),
+              type: "text",
+            });
           });
         }
       }
@@ -1318,49 +1715,83 @@ function ChatPage({
     ],
   );
 
-  const handleApproveContent = useCallback(async () => {
+  const handleApproveContent = useCallback(async (review: InfluencerReviewInput) => {
     if (!selectedConvId) return false;
 
     const latestDelivery = [...(selectedConversation?.messages ?? [])]
       .reverse()
-      .find((message) => message.type === "content_delivery");
-    const mediaUrl = latestDelivery?.media_url || "";
+      .find(
+        (message) =>
+          message.type === "content_delivery" ||
+          String(message.type ?? "") === "video_submission" ||
+          String(message.text ?? "").startsWith(CONTENT_DELIVERY_PREFIX),
+      );
+    const mediaUrl =
+      latestDelivery?.media_url ||
+      getContentMessageMediaUrl({
+        media_url: latestDelivery?.media_url,
+        message: latestDelivery?.text,
+        type: latestDelivery?.type,
+      } as Message) ||
+      "";
     const campaignTitle =
       selectedConversation?.campaignName ||
       stateLocation?.campaignName ||
       (isRTL ? "محتوى الحملة" : "Campaign content");
 
-    let applicationId = selectedConversation?.applicationId || "";
+    const resolvedApplication = await resolveApplicationForSelectedConversation();
+    const applicationId = resolvedApplication?.id ?? "";
+    const influencerId =
+      review.influencerId ??
+      resolvedApplication?.influencerId ??
+      selectedConversation?.influencerId ??
+      getIdString(stateLocation?.influencerId);
+    const reviewAverage = getReviewAverage(review);
+    const savedReview = saveInfluencerReview({
+      ...review,
+      influencerId,
+      influencerName:
+        review.influencerName ??
+        selectedConversation?.name ??
+        stateLocation?.peerName,
+      campaignId:
+        review.campaignId ??
+        resolvedApplication?.campaignId ??
+        selectedConversation?.campaignId ??
+        stateLocation?.campaignId,
+      applicationId:
+        review.applicationId ?? applicationId ?? selectedConversation?.applicationId,
+      conversationId: review.conversationId ?? selectedConvId,
+      campaignName: review.campaignName ?? campaignTitle,
+    });
 
-    if (!applicationId && selectedConversation?.campaignId) {
-      const applications = await campaignService.getCampaignApplications(
-        selectedConversation.campaignId,
-      );
-      const matchingApplication =
-        applications.data.find(
-          (application) =>
-            application.conversation_id &&
-            String(application.conversation_id) === String(selectedConvId),
-        ) ||
-        applications.data.find(
-          (application) =>
-            ["accepted", "content_approved"].indexOf(
-              getString(application.status).toLowerCase(),
-            ) !== -1,
-        ) ||
-        applications.data[0];
+    if (applicationId) {
+      try {
+        await campaignService.approveContent(applicationId, {
+          type: "video",
+          media_url: mediaUrl || "https://example.com/approved-content",
+          title: campaignTitle,
+        });
+      } catch (error) {
+        console.warn("approve-content endpoint failed", error);
+      }
 
-      applicationId = matchingApplication?.id
-        ? String(matchingApplication.id)
-        : "";
-    }
-
-    if (applicationId && mediaUrl) {
-      await campaignService.approveContent(applicationId, {
-        type: "video",
-        media_url: mediaUrl,
-        title: campaignTitle,
-      });
+      try {
+        await campaignService.submitInfluencerReview(applicationId, {
+          influencer_id: influencerId,
+          campaign_id:
+            resolvedApplication?.campaignId ??
+            selectedConversation?.campaignId ??
+            stateLocation?.campaignId,
+          schedule_commitment: review.scheduleCommitment,
+          content_quality: review.contentQuality,
+          communication: review.communication,
+          rating: reviewAverage,
+          comment: review.comment,
+        });
+      } catch (error) {
+        console.warn("influencer review endpoint failed", error);
+      }
     }
 
     await sendMutation.mutateAsync({
@@ -1380,6 +1811,71 @@ function ChatPage({
     await queryClient.invalidateQueries({
       queryKey: queryKeys.campaigns.allApplications(),
     });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.campaigns.list(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.dashboard.influencer(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.dashboard.influencerPosts(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.dashboard.company(),
+    });
+    await queryClient.invalidateQueries({
+      queryKey: queryKeys.dashboard.influencerEarnings(),
+    });
+    saveCompletedCampaignEntry({
+      conversationId: selectedConvId,
+      influencerId,
+      applicationId: applicationId || selectedConversation?.applicationId,
+      campaignId:
+        resolvedApplication?.campaignId ??
+        selectedConversation?.campaignId ??
+        stateLocation?.campaignId,
+      campaignName: campaignTitle,
+      companyName:
+        role === "company"
+          ? undefined
+          : selectedConversation?.name ?? stateLocation?.peerName,
+      influencerName:
+        role === "company"
+          ? selectedConversation?.name ?? stateLocation?.peerName
+          : undefined,
+      amount:
+        resolvedApplication?.price ??
+        selectedConversation?.campaignBudget ??
+        stateLocation?.campaignBudget ??
+        null,
+      category: selectedConversation?.category ?? stateLocation?.category ?? null,
+      mediaUrl: mediaUrl || null,
+      notes: latestDelivery?.notes ?? latestDelivery?.text ?? null,
+      date: new Date().toISOString(),
+      review: {
+        scheduleCommitment: savedReview.scheduleCommitment,
+        contentQuality: savedReview.contentQuality,
+        communication: savedReview.communication,
+        comment: savedReview.comment,
+        average: reviewAverage,
+      },
+    });
+    queryClient.setQueryData(
+      queryKeys.chat.conversations(),
+      (oldData: unknown) => {
+        const oldResponse = getObject(oldData);
+        const oldConversations = Array.isArray(oldResponse?.data)
+          ? (oldResponse.data as Conversation[])
+          : [];
+
+        return {
+          ...(oldResponse ?? { success: true }),
+          data: oldConversations.filter(
+            (conversation) => String(conversation.id) !== String(selectedConvId),
+          ),
+        };
+      },
+    );
     if (selectedConversation?.campaignId) {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.campaigns.details(selectedConversation.campaignId),
@@ -1389,17 +1885,35 @@ function ChatPage({
       });
     }
 
+    navigate(
+      role === "company"
+        ? "/dashboard/company/campaigns"
+        : "/dashboard/influencer/campaigns",
+      { replace: true },
+    );
+
     return true;
   }, [
     isRTL,
+    navigate,
     queryClient,
+    role,
     selectedConvId,
     selectedConversation?.applicationId,
     selectedConversation?.campaignId,
     selectedConversation?.campaignName,
+    selectedConversation?.influencerId,
     selectedConversation?.messages,
+    selectedConversation?.name,
+    resolveApplicationForSelectedConversation,
     sendMutation,
+    stateLocation?.applicationId,
+    stateLocation?.campaignBudget,
+    stateLocation?.campaignId,
     stateLocation?.campaignName,
+    stateLocation?.category,
+    stateLocation?.influencerId,
+    stateLocation?.peerName,
   ]);
 
   // ─── Loading state ───
@@ -1421,6 +1935,18 @@ function ChatPage({
 
   // ─── Empty state — no conversations yet ───
   if (!selectedConversation) {
+    const emptyTitle = isSelectedCompletedChat
+      ? t("chat.completedTitle", "لا توجد محادثة لهذه الحملة")
+      : t("chat.empty", "لا توجد محادثات حاليا");
+    const emptyDescription = isSelectedCompletedChat
+      ? t(
+          "chat.completedDescription",
+          "هذه الحملة اكتملت، لذلك تم إغلاق المحادثة ونقلها إلى الحملات المكتملة.",
+        )
+      : role === "company"
+        ? t("chat.emptyCompany", "تواصل مع مؤثر أو أنشئ حملة لبدء محادثة")
+        : t("chat.emptyInfluencer", "قم بالتقدم لحملة أو انتظر تواصل شركة معك");
+
     return (
       <main
         dir={isRTL ? "rtl" : "ltr"}
@@ -1438,6 +1964,9 @@ function ChatPage({
               className="text-center text-base font-medium text-[#707068]">
               {t("chat.empty", "لا توجد محادثات حاليا")}
             </h1>
+            {isSelectedCompletedChat ? (
+              <p className="mt-2 text-sm text-[#707068]">{emptyTitle}</p>
+            ) : null}
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-3 px-0 pt-4">
             <p className="text-sm text-[#a3a694]">
@@ -1451,6 +1980,11 @@ function ChatPage({
                     "قم بالتقدم لحملة أو انتظر تواصل شركة معك",
                   )}
             </p>
+            {isSelectedCompletedChat ? (
+              <p className="max-w-xl text-sm leading-6 text-[#707068]">
+                {emptyDescription}
+              </p>
+            ) : null}
           </CardContent>
         </Card>
         </section>

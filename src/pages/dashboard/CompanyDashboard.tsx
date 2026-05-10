@@ -6,6 +6,7 @@ import {
   Plus,
   ShieldCheck,
   Sparkles,
+  Star,
 } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 import { useEffect, useMemo, useState } from "react";
@@ -17,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDiscoveryQuery";
 import type { InfluencerDiscoveryItem } from "@/types/dashboard.types";
+import { getInfluencerReviewSummary } from "@/utils/influencerReviews";
 
 import hero from "/assets/Hero.png";
 import latestCampaign1 from "/assets/iphone1.png";
@@ -32,6 +34,8 @@ type DashboardInfluencer = {
   category: string | null;
   followers: string | number | null;
   engagement: string | number | null;
+  rating?: number | null;
+  reviewsCount?: number | null;
 };
 
 const staticLatestCampaignPosts = [
@@ -98,6 +102,12 @@ function SuggestedInfluencerCard({
     e.stopPropagation();
     navigate("/dashboard/company/messages");
   };
+  const reviewSummary = getInfluencerReviewSummary({
+    influencerId: item.id,
+    influencerName: item.name,
+  });
+  const rating = reviewSummary?.average ?? item.rating ?? null;
+  const reviewsCount = reviewSummary?.count ?? item.reviewsCount ?? null;
 
   return (
     <Card
@@ -148,6 +158,18 @@ function SuggestedInfluencerCard({
           <span>{item.category ?? ""}</span>
           <BadgeCheck className="h-3 w-3 fill-[#a7b78e] text-white" />
         </div>
+
+        {rating ? (
+          <div className="mt-2 flex items-center justify-center gap-1 text-[10px] font-medium text-[#7b806f]">
+            <Star className="h-3.5 w-3.5 fill-[#f5c988] text-[#f5c988]" />
+            <span>{rating.toFixed(1)}</span>
+            {reviewsCount ? (
+              <span className="text-[#9a9a91]">
+                ({reviewsCount} {isRTL ? "تقييم" : "reviews"})
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
         <div
           className={cn(
@@ -273,6 +295,8 @@ function CompanyDashboard() {
           category: item.category,
           followers: item.followers || null,
           engagement: item.engagement || null,
+          rating: item.rating ?? null,
+          reviewsCount: item.reviewsCount ?? null,
         }),
       ),
     [discoveryData?.data],

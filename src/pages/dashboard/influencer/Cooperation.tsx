@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 import hero from "/assets/Hero.png";
 
@@ -14,9 +14,19 @@ import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsReques
 import { useRespondToCollaborationRequestMutation } from "@/queries/campaigns/useRespondToCollaborationRequestMutation";
 import { queryKeys } from "@/constants/queryKeys";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
+import { useConversationsQuery } from "@/queries/chat/useConversationsQuery";
+import { chatService } from "@/services/chat.service";
 import type { Campaign } from "@/types/campaign.types";
 import { getConversationIdFromResponse } from "@/utils/apiResponse";
 import { resolveAcceptedConversationId } from "@/utils/chat";
+import { isClosedCampaignStatus } from "@/utils/campaignProgress";
+import {
+  getCompletedCampaignEntries,
+  isCompletedApplicationId,
+  isCompletedCampaignId,
+  isCompletedConversationId,
+  saveCompletedCampaignEntry,
+} from "@/utils/completedCampaigns";
 
 type CooperationItem = {
   id: string;
@@ -34,6 +44,137 @@ type CooperationItem = {
 const isAcceptedStatus = (status?: string) =>
   String(status ?? "").toLowerCase() === "accepted";
 
+const isApprovedMessage = (message: unknown) => {
+  if (!message || typeof message !== "object") return false;
+  const value = message as Record<string, unknown>;
+
+  return (
+    String(value.type ?? "") === "content_approved" ||
+    String(value.message ?? "").indexOf("__content_approved__") === 0
+  );
+};
+
+const normalizeText = (value?: string | number | null) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+const getRecord = (value: unknown) =>
+  value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+
+const getNestedRecord = (value: unknown, key: string) => getRecord(getRecord(value)[key]);
+
+const getAnyText = (...values: unknown[]) =>
+  values
+    .map((value) => String(value ?? "").trim())
+    .find(Boolean);
+
+const getAnyId = (...values: unknown[]) =>
+  values
+    .map((value) => String(value ?? "").trim())
+    .find(Boolean);
+
+const getCampaignName = (campaign?: Campaign | null) => {
+  const raw = getRecord(campaign);
+
+  return getAnyText(
+    campaign?.name,
+    campaign?.campaign_type?.name,
+    campaign?.campaignType?.name,
+    campaign?.campaign_type_name,
+    raw.title,
+    raw.idea,
+  );
+};
+
+const getConversationApplicationId = (conversation: unknown) => {
+  const raw = getRecord(conversation);
+  const application = getNestedRecord(conversation, "application");
+
+  return getAnyId(
+    raw.application_id,
+    raw.applicationId,
+    application.id,
+    raw.campaign_application_id,
+    raw.campaignApplicationId,
+  );
+};
+
+const getConversationCampaignId = (conversation: unknown) => {
+  const raw = getRecord(conversation);
+  const campaign = getNestedRecord(conversation, "campaign");
+
+  return getAnyId(raw.campaign_id, raw.campaignId, campaign.id);
+};
+
+const getConversationCampaignName = (conversation: unknown) => {
+  const raw = getRecord(conversation);
+  const campaign = getNestedRecord(conversation, "campaign");
+
+  return getAnyText(
+    raw.campaign_name,
+    raw.campaignName,
+    campaign.name,
+    campaign.title,
+    campaign.idea,
+  );
+};
+
+const getConversationCompanyName = (conversation: unknown) => {
+  const raw = getRecord(conversation);
+  const company = getNestedRecord(conversation, "company");
+  const campaign = getNestedRecord(conversation, "campaign");
+  const campaignUser = getNestedRecord(campaign, "user");
+
+  return getAnyText(
+    raw.company_name,
+    raw.companyName,
+    company.company_name,
+    company.name,
+    campaign.company_name,
+    campaignUser.company_name,
+    campaignUser.name,
+  );
+};
+
+const isCompletedByIdentity = ({
+  applicationId,
+  campaignId,
+  conversationId,
+  campaignName,
+  companyName,
+}: {
+  applicationId?: string | number | null;
+  campaignId?: string | number | null;
+  conversationId?: string | number | null;
+  campaignName?: string | null;
+  companyName?: string | null;
+}) => {
+  const entries = getCompletedCampaignEntries();
+  const appId = normalizeText(applicationId);
+  const campId = normalizeText(campaignId);
+  const convId = normalizeText(conversationId);
+  const campName = normalizeText(campaignName);
+  const company = normalizeText(companyName);
+
+  return entries.some((entry) => {
+    if (appId && normalizeText(entry.applicationId) === appId) return true;
+    if (campId && normalizeText(entry.campaignId) === campId) return true;
+    if (convId && normalizeText(entry.conversationId) === convId) return true;
+
+    const sameCampaignName =
+      campName && normalizeText(entry.campaignName) === campName;
+    const sameCompany =
+      company &&
+      (normalizeText(entry.companyName) === company ||
+        normalizeText(entry.influencerName) === company);
+
+    return Boolean(
+      sameCampaignName && (!company || !entry.companyName || sameCompany),
+    );
+  });
+};
+
 function Cooperation() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
@@ -44,6 +185,7 @@ function Cooperation() {
   const influencerDashboardQuery = useInfluencerDashboardQuery();
   const collabRequestsQuery = useCollaborationRequestsQuery();
   const myApplicationsQuery = useCampaignRequestsQuery();
+  const conversationsQuery = useConversationsQuery();
 
   const applyCampaignMutation = useApplyCampaignMutation();
   const respondMutation = useRespondToCollaborationRequestMutation();
@@ -52,6 +194,141 @@ function Cooperation() {
   const [rejectedCampaignIds, setRejectedCampaignIds] = useState<Set<string>>(
     () => new Set(),
   );
+  const cooperationConversationIds = useMemo(() => {
+    const ids = new Set<string>();
+    const targets = [
+      ...(collabRequestsQuery.data?.data ?? []).map((request) => ({
+        applicationId: normalizeText(request.id),
+        campaignId: normalizeText(request.campaign_id ?? request.campaign?.id),
+        campaignName: normalizeText(getCampaignName(request.campaign)),
+        companyName: normalizeText(
+          request.company?.company_name ??
+            request.company?.name ??
+            request.campaign?.user?.company_name ??
+            request.campaign?.user?.name,
+        ),
+      })),
+      ...(myApplicationsQuery.data?.data ?? []).map((application) => ({
+        applicationId: normalizeText(application.id),
+        campaignId: normalizeText(
+          application.campaign_id ?? application.campaign?.id,
+        ),
+        campaignName: normalizeText(getCampaignName(application.campaign)),
+        companyName: normalizeText(
+          application.campaign?.user?.company_name ??
+            application.campaign?.user?.name ??
+            application.campaign?.company_name,
+        ),
+      })),
+    ];
+
+    for (const request of collabRequestsQuery.data?.data ?? []) {
+      if (request.conversation_id) ids.add(String(request.conversation_id));
+      const responseConversationId = getConversationIdFromResponse(request);
+      if (responseConversationId) ids.add(String(responseConversationId));
+    }
+
+    for (const application of myApplicationsQuery.data?.data ?? []) {
+      if (application.conversation_id) {
+        ids.add(String(application.conversation_id));
+      }
+      const responseConversationId = getConversationIdFromResponse(application);
+      if (responseConversationId) ids.add(String(responseConversationId));
+    }
+
+    for (const conversation of conversationsQuery.data?.data ?? []) {
+      const conversationApplicationId = normalizeText(
+        getConversationApplicationId(conversation),
+      );
+      const conversationCampaignId = normalizeText(
+        getConversationCampaignId(conversation),
+      );
+      const conversationCampaignName = normalizeText(
+        getConversationCampaignName(conversation),
+      );
+      const conversationCompanyName = normalizeText(
+        getConversationCompanyName(conversation),
+      );
+
+      const matched = targets.some((target) => {
+        if (
+          target.applicationId &&
+          conversationApplicationId === target.applicationId
+        ) {
+          return true;
+        }
+
+        if (target.campaignId && conversationCampaignId === target.campaignId) {
+          return true;
+        }
+
+        return Boolean(
+          target.campaignName &&
+            conversationCampaignName === target.campaignName &&
+            (!target.companyName ||
+              !conversationCompanyName ||
+              conversationCompanyName === target.companyName),
+        );
+      });
+
+      if (matched && conversation.id) ids.add(String(conversation.id));
+    }
+
+    return Array.from(ids);
+  }, [
+    collabRequestsQuery.data?.data,
+    conversationsQuery.data?.data,
+    myApplicationsQuery.data?.data,
+  ]);
+
+  const conversationMessagesQueries = useQueries({
+    queries: cooperationConversationIds.map((conversationId) => ({
+      queryKey: queryKeys.chat.messages(conversationId),
+      queryFn: () => chatService.getMessages(conversationId),
+      enabled: Boolean(conversationId),
+      staleTime: 30000,
+    })),
+  });
+
+  const approvedConversationIds = useMemo(() => {
+    const ids = new Set<string>();
+
+    conversationMessagesQueries.forEach((query, index) => {
+      const hasApproval = query.data?.data?.some(isApprovedMessage);
+      if (!hasApproval) return;
+
+      ids.add(cooperationConversationIds[index]);
+    });
+
+    return ids;
+  }, [conversationMessagesQueries, cooperationConversationIds]);
+
+  const approvedConversationMatches = useMemo(() => {
+    const matches = {
+      applicationIds: new Set<string>(),
+      campaignIds: new Set<string>(),
+      campaignNames: new Set<string>(),
+      companyNames: new Set<string>(),
+    };
+
+    for (const conversation of conversationsQuery.data?.data ?? []) {
+      if (!conversation.id || !approvedConversationIds.has(String(conversation.id))) {
+        continue;
+      }
+
+      const applicationId = normalizeText(getConversationApplicationId(conversation));
+      const campaignId = normalizeText(getConversationCampaignId(conversation));
+      const campaignName = normalizeText(getConversationCampaignName(conversation));
+      const companyName = normalizeText(getConversationCompanyName(conversation));
+
+      if (applicationId) matches.applicationIds.add(applicationId);
+      if (campaignId) matches.campaignIds.add(campaignId);
+      if (campaignName) matches.campaignNames.add(campaignName);
+      if (companyName) matches.companyNames.add(companyName);
+    }
+
+    return matches;
+  }, [approvedConversationIds, conversationsQuery.data?.data]);
 
   // ─── Merge all sources into one list ───
   const cooperationItems = useMemo<CooperationItem[]>(() => {
@@ -61,6 +338,28 @@ function Cooperation() {
     // 1) Collaboration requests (Invitations from companies)
     for (const request of collabRequestsQuery.data?.data ?? []) {
       if (!request.campaign) continue;
+      if (isClosedCampaignStatus(request.status)) continue;
+      if (isCompletedConversationId(request.conversation_id)) continue;
+      if (
+        request.conversation_id &&
+        approvedConversationIds.has(String(request.conversation_id))
+      ) {
+        saveCompletedCampaignEntry({
+          conversationId: request.conversation_id,
+          applicationId: request.id,
+          campaignId: request.campaign_id ?? request.campaign.id,
+          campaignName: request.campaign.name,
+          companyName: request.company?.company_name ?? request.company?.name,
+          amount: request.price,
+          category:
+            request.campaign.campaign_type?.name ??
+            request.campaign.campaignType?.name ??
+            request.campaign.campaign_type_name,
+          date: request.updated_at ?? request.created_at,
+        });
+        continue;
+      }
+      if (isCompletedCampaignId(request.campaign_id ?? request.campaign.id)) continue;
       const cId = String(request.campaign.id);
       seenCampaignIds.add(cId);
 
@@ -79,6 +378,51 @@ function Cooperation() {
         (reqUser?.name as string | undefined) ??
         (campaignUser?.name as string | undefined) ??
         "-";
+      const campaignName = getCampaignName(request.campaign);
+      const approvedByConversationMatch =
+        approvedConversationMatches.applicationIds.has(normalizeText(request.id)) ||
+        approvedConversationMatches.campaignIds.has(
+          normalizeText(request.campaign_id ?? request.campaign.id),
+        ) ||
+        Boolean(
+          campaignName &&
+            approvedConversationMatches.campaignNames.has(
+              normalizeText(campaignName),
+            ) &&
+            (!companyName ||
+              approvedConversationMatches.companyNames.has(
+                normalizeText(companyName),
+              )),
+        );
+
+      if (approvedByConversationMatch) {
+        saveCompletedCampaignEntry({
+          conversationId: request.conversation_id,
+          applicationId: request.id,
+          campaignId: request.campaign_id ?? request.campaign.id,
+          campaignName,
+          companyName,
+          amount: request.price,
+          category:
+            request.campaign.campaign_type?.name ??
+            request.campaign.campaignType?.name ??
+            request.campaign.campaign_type_name,
+          date: request.updated_at ?? request.created_at,
+        });
+        continue;
+      }
+
+      if (
+        isCompletedByIdentity({
+          conversationId: request.conversation_id,
+          applicationId: request.id,
+          campaignId: request.campaign_id ?? request.campaign.id,
+          campaignName,
+          companyName,
+        })
+      ) {
+        continue;
+      }
 
       items.push({
         id: `request-${request.id}`,
@@ -95,6 +439,29 @@ function Cooperation() {
     // 2) My applications (Requests I made to join campaigns)
     for (const app of myApplicationsQuery.data?.data ?? []) {
       if (!app.campaign) continue;
+      if (isClosedCampaignStatus(app.status)) continue;
+      if (isCompletedConversationId(app.conversation_id)) continue;
+      if (
+        app.conversation_id &&
+        approvedConversationIds.has(String(app.conversation_id))
+      ) {
+        saveCompletedCampaignEntry({
+          conversationId: app.conversation_id,
+          applicationId: app.id,
+          campaignId: app.campaign_id ?? app.campaign.id,
+          campaignName: app.campaign.name,
+          companyName: app.campaign.user?.company_name ?? app.campaign.user?.name,
+          amount: app.price,
+          category:
+            app.campaign.campaign_type?.name ??
+            app.campaign.campaignType?.name ??
+            app.campaign.campaign_type_name,
+          date: app.updated_at ?? app.created_at,
+        });
+        continue;
+      }
+      if (isCompletedApplicationId(app.id)) continue;
+      if (isCompletedCampaignId(app.campaign_id ?? app.campaign.id)) continue;
       const cId = String(app.campaign.id);
       if (seenCampaignIds.has(cId)) continue;
       seenCampaignIds.add(cId);
@@ -109,6 +476,51 @@ function Cooperation() {
         (appCampaign.brand as string | undefined) ??
         (appUser?.name as string | undefined) ??
         "-";
+      const campaignName = getCampaignName(app.campaign);
+      const approvedByConversationMatch =
+        approvedConversationMatches.applicationIds.has(normalizeText(app.id)) ||
+        approvedConversationMatches.campaignIds.has(
+          normalizeText(app.campaign_id ?? app.campaign.id),
+        ) ||
+        Boolean(
+          campaignName &&
+            approvedConversationMatches.campaignNames.has(
+              normalizeText(campaignName),
+            ) &&
+            (!companyName ||
+              approvedConversationMatches.companyNames.has(
+                normalizeText(companyName),
+              )),
+        );
+
+      if (approvedByConversationMatch) {
+        saveCompletedCampaignEntry({
+          conversationId: app.conversation_id,
+          applicationId: app.id,
+          campaignId: app.campaign_id ?? app.campaign.id,
+          campaignName,
+          companyName,
+          amount: app.price,
+          category:
+            app.campaign.campaign_type?.name ??
+            app.campaign.campaignType?.name ??
+            app.campaign.campaign_type_name,
+          date: app.updated_at ?? app.created_at,
+        });
+        continue;
+      }
+
+      if (
+        isCompletedByIdentity({
+          conversationId: app.conversation_id,
+          applicationId: app.id,
+          campaignId: app.campaign_id ?? app.campaign.id,
+          campaignName,
+          companyName,
+        })
+      ) {
+        continue;
+      }
 
       items.push({
         id: `application-${app.id}`,
@@ -182,6 +594,8 @@ function Cooperation() {
     influencerDashboardQuery.data?.upcomingCampaigns,
     collabRequestsQuery.data?.data,
     myApplicationsQuery.data?.data,
+    approvedConversationIds,
+    approvedConversationMatches,
     rejectedCampaignIds,
   ]);
 
@@ -470,8 +884,20 @@ function Cooperation() {
                               <Button
                                 type="button"
                                 variant="outline"
+                                onClick={() => {
+                                  if (isAcceptedStatus(item.status)) {
+                                    navigate(
+                                      `/dashboard/influencer/${item.campaign.id}/publish?applicationId=${item.applicationId ?? ""}`,
+                                    );
+                                  }
+                                }}
                                 className="h-9 w-full rounded-[8px] border border-[#d7d4ca] bg-transparent text-xs font-medium text-[#6f6d66] hover:bg-[#faf9f5] sm:h-11 sm:text-sm">
-                                {t("cooperation.negotiate")}
+                                {isAcceptedStatus(item.status)
+                                  ? t(
+                                      "campaign.followPublishing",
+                                      "متابعة النشر",
+                                    )
+                                  : t("cooperation.negotiate")}
                               </Button>
                             </div>
                           </CardContent>

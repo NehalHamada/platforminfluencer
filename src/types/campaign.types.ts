@@ -89,6 +89,16 @@ export type RespondToModificationPayload = {
   rejection_reason?: string | null;
 };
 
+export type InfluencerReviewPayload = {
+  influencer_id?: string | number | null;
+  campaign_id?: string | number | null;
+  schedule_commitment: number;
+  content_quality: number;
+  communication: number;
+  rating: number;
+  comment: string;
+};
+
 export type Campaign = {
   id: string | number;
   user_id?: string | number;
@@ -159,6 +169,7 @@ export type CampaignRequest = {
   updated_at: string;
   campaign?: Campaign;
   user?: ApiUser;
+  influencer?: ApiUser;
   conversation_id?: string | number;
 };
 

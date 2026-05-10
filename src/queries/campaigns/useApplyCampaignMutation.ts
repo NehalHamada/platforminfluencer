@@ -34,6 +34,14 @@ export function useApplyCampaignMutation() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.campaigns.myApplications(),
       });
+
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.allApplications(),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.campaigns.applications(variables.campaignId),
+      });
     },
   });
 }

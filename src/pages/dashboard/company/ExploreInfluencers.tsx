@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadgeCheck,
   Bookmark,
   ChevronDown,
@@ -8,10 +8,9 @@ import {
   Star,
 } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,12 +28,15 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDiscoveryQuery";
 import { useContentTypesQuery } from "@/queries/masterData/useContentTypesQuery";
+import { useEngagementRatesQuery } from "@/queries/masterData/useEngagementRatesQuery";
+import { useFameLevelsQuery } from "@/queries/masterData/useFameLevelsQuery";
 import { useFollowerRangesQuery } from "@/queries/masterData/useFollowerRangesQuery";
 import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import type {
   InfluencerDiscoveryItem,
   InfluencerDiscoveryQueryParams,
 } from "@/types/dashboard.types";
+import { getInfluencerReviewSummary } from "@/utils/influencerReviews";
 
 import hero from "/assets/Hero.png";
 import emptySearchImage from "/assets/search.png";
@@ -86,6 +88,15 @@ function InfluencerCard({
       },
     });
   };
+  const reviewSummary = getInfluencerReviewSummary({
+    influencerId: item.id,
+    influencerName: item.name,
+  });
+  const averageRating = reviewSummary?.average ?? item.rating ?? null;
+  const averageDisplay =
+    averageRating !== null && averageRating !== undefined
+      ? averageRating.toFixed(1)
+      : item.engagement || "—";
 
   return (
     <div
@@ -110,7 +121,7 @@ function InfluencerCard({
           <div className="flex items-start">
             <div className="flex-1 pe-3">
               <p className="text-[15px] font-bold leading-none text-[#1d1d1a]">
-                {item.followers || "—"}
+                {item.followers || "â€”"}
               </p>
               <p className="mt-0.5 text-[10px] text-[#8b8b84]">
                 {t("exploreInfluencers.followersLabel")}
@@ -119,7 +130,7 @@ function InfluencerCard({
             <div className="flex-1 border-s border-[#ebebeb] ps-3">
               <div className="flex items-center gap-0.5">
                 <p className="text-[15px] font-bold leading-none text-[#1d1d1a]">
-                  {item.engagement || "—"}
+                  {averageDisplay}
                 </p>
                 <Star className="h-3 w-3 fill-[#f5c518] text-[#f5c518]" />
               </div>
@@ -130,7 +141,7 @@ function InfluencerCard({
           </div>
           <div className="flex items-center gap-1">
             <span className="truncate text-[11px] text-[#6f6e67]">
-              {item.category || item.audience || "—"}
+              {item.category || item.audience || "â€”"}
             </span>
             <BadgeCheck className="h-3.5 w-3.5 shrink-0 fill-[#a7b78e] text-white" />
           </div>
@@ -146,7 +157,7 @@ function InfluencerCard({
           </Button>
         </div>
 
-        {/* Image — right side, full card height, no padding */}
+        {/* Image â€” right side, full card height, no padding */}
         <div className="relative w-[38%] shrink-0 overflow-hidden">
           <img
             src={item.image}
@@ -179,6 +190,8 @@ function ExploreInfluencers() {
   const platformsQuery = usePlatformsQuery();
   const followerRangesQuery = useFollowerRangesQuery();
   const contentTypesQuery = useContentTypesQuery();
+  const engagementRatesQuery = useEngagementRatesQuery();
+  const fameLevelsQuery = useFameLevelsQuery();
 
   const discoveryParams = useMemo<InfluencerDiscoveryQueryParams>(
     () => ({
@@ -243,22 +256,24 @@ function ExploreInfluencers() {
       label: t("exploreInfluencers.engagement"),
       value: selectedEngagement,
       onChange: setSelectedEngagement,
-      options: withAllOption([
-        { label: "1", value: "1" },
-        { label: "2", value: "2" },
-        { label: "3", value: "3" },
-      ]),
+      options: withAllOption(
+        engagementRatesQuery.data?.map((rate) => ({
+          label: t(`masterData.engagementRates.${rate.id}`, rate.label),
+          value: rate.id.toString(),
+        })) ?? [],
+      ),
     },
     {
       key: "fame_level_id",
       label: t("exploreInfluencers.fameLevel"),
       value: selectedFameLevel,
       onChange: setSelectedFameLevel,
-      options: withAllOption([
-        { label: "1", value: "1" },
-        { label: "2", value: "2" },
-        { label: "3", value: "3" },
-      ]),
+      options: withAllOption(
+        fameLevelsQuery.data?.map((level) => ({
+          label: t(`masterData.fameLevels.${level.id}`, level.label),
+          value: level.id.toString(),
+        })) ?? [],
+      ),
     },
     {
       key: "content_type_id",
@@ -281,37 +296,6 @@ function ExploreInfluencers() {
     setSelectedFameLevel("");
     setSelectedContentType("");
   };
-
-  useEffect(() => {
-    const fetchInfluencers = async () => {
-      try {
-        const params = {
-          search: searchQuery.trim() || undefined,
-          platform_id: selectedPlatform || undefined,
-          follower_range_id: selectedFollowers || undefined,
-          engagement_rate_id: selectedEngagement || undefined,
-          fame_level_id: selectedFameLevel || undefined,
-          content_type_id: selectedContentType || undefined,
-        };
-
-        await axios.get("/api/influencer-discovery", {
-          params,
-        });
-
-      } catch (error) {
-        console.error("Error fetching influencers:", error);
-      }
-    };
-
-    fetchInfluencers();
-  }, [
-    searchQuery,
-    selectedPlatform,
-    selectedFollowers,
-    selectedEngagement,
-    selectedFameLevel,
-    selectedContentType,
-  ]);
 
   return (
     <section
@@ -452,3 +436,7 @@ function ExploreInfluencers() {
 }
 
 export default ExploreInfluencers;
+
+
+
+

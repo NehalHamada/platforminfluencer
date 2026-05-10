@@ -8,9 +8,7 @@ export function useMessagesQuery(conversationId: string | number | undefined) {
     queryKey: queryKeys.chat.messages(conversationId),
     queryFn: () => chatService.getMessages(conversationId as string | number),
     enabled: Boolean(conversationId),
-    staleTime: 5000,
-    refetchInterval: 15000,
-    refetchIntervalInBackground: false,
+    staleTime: 30000,
     refetchOnWindowFocus: false,
     retry: false,
   });

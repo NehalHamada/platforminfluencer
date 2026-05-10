@@ -25,7 +25,9 @@ export const authService = {
   },
 
   register: async (data: SharedRegisterData): Promise<AuthResponse> => {
-    const response = await authClients.post("/api/register", data);
+    const endpoint =
+      data.type === "influencer" ? "/api/register/influencer" : "/api/register";
+    const response = await authClients.post(endpoint, data);
 
     return response.data;
   },

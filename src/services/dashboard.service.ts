@@ -395,6 +395,16 @@ const mapInfluencerDiscoveryItem = (
       ["country", "audience", "target_location", "targetLocation"],
       getString(item.country_name ?? item.audience_name, ""),
     ),
+    rating:
+      getNumber(
+        item.rating ??
+          item.average_rating ??
+          item.review_average ??
+          item.reviews_avg_rating,
+      ) ?? null,
+    reviewsCount:
+      getNumber(item.reviews_count ?? item.review_count ?? item.ratings_count) ??
+      null,
   };
 };
 
@@ -433,6 +443,13 @@ const mapEarningsResponse = (responseData: unknown): EarningsResponse => {
   };
 };
 
+const getEmptyEarnings = (): EarningsResponse => ({
+  total_earnings: 0,
+  pending_earnings: 0,
+  currency: "SAR",
+  transactions: [],
+});
+
 export const dashboardService = {
   async getInfluencerDashboard(): Promise<InfluencerDashboardResponse> {
     const response = await api.get("/api/influencer/home");
@@ -460,8 +477,13 @@ export const dashboardService = {
   },
 
   async getInfluencerEarnings(): Promise<EarningsResponse> {
-    const response = await api.get("/api/influencer/earnings");
-    return mapEarningsResponse(response.data);
+    try {
+      const response = await api.get("/api/influencer/earnings");
+      return mapEarningsResponse(response.data);
+    } catch (error) {
+      console.warn("influencer earnings endpoint failed", error);
+      return getEmptyEarnings();
+    }
   },
 
   async getCompanyHome(): Promise<CompanyHomeResponse> {

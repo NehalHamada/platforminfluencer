@@ -112,7 +112,7 @@ function Offers() {
         onSuccess: () => {
           toast.success(t("campaign.applySuccess"));
           reset();
-          navigate("/dashboard/influencer");
+          navigate("/dashboard/influencer", { replace: true });
         },
         onError: () => {
           toast.error(t("campaign.applyError"));

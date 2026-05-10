@@ -41,6 +41,7 @@ import WhoUs from "@/pages/info/WhoUs";
 import CreateCampaignPayment from "@/pages/company/CreateCampaignPayment";
 import SureCreateCampaign from "@/pages/company/SureCreateCampaign";
 import CampaignDetails from "@/pages/company/CampaignDetails";
+import CampaignPublish from "@/pages/influencers/CampaignPublish";
 
 function AppRoutes() {
   return (
@@ -107,10 +108,7 @@ function AppRoutes() {
             <Route
               path="/campaign-payment"
               element={
-                <Navigate
-                  to="/dashboard/company/campaign-payment"
-                  replace
-                />
+                <Navigate to="/dashboard/company/campaign-payment" replace />
               }
             />
             <Route
@@ -141,6 +139,14 @@ function AppRoutes() {
             <Route
               path="/dashboard/influencer/:campaignId/offers"
               element={<Offers />}
+            />
+            <Route
+              path="/dashboard/influencer/:campaignId/publish"
+              element={<CampaignPublish />}
+            />
+            <Route
+              path="/dashboard/influencer/campaign-publish"
+              element={<CampaignPublish />}
             />
             <Route
               path="/dashboard/influencer/cooperation"

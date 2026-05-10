@@ -29,6 +29,10 @@ export type ChatApiUser = {
 
 export type Conversation = {
   id: string | number;
+  campaign_id?: string | number | null;
+  campaignId?: string | number | null;
+  application_id?: string | number | null;
+  applicationId?: string | number | null;
   name?: string;
   title?: string;
   campaign_name?: string;

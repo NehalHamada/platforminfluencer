@@ -16,6 +16,11 @@ import { useCampaignApplicationsQuery } from "@/queries/campaigns/useCampaignApp
 import { useUpdateApplicationStatusMutation } from "@/queries/campaigns/useUpdateApplicationStatusMutation";
 import type { CampaignRequest } from "@/types/campaign.types";
 import { queryKeys } from "@/constants/queryKeys";
+import { isClosedCampaignStatus } from "@/utils/campaignProgress";
+import {
+  isCompletedApplicationId,
+  isCompletedCampaignId,
+} from "@/utils/completedCampaigns";
 
 function CampaignsRequests() {
   const { t, i18n } = useTranslation();
@@ -29,15 +34,57 @@ function CampaignsRequests() {
   const statusMutation = useUpdateApplicationStatusMutation();
   const [updatingRequestId, setUpdatingRequestId] = useState<number | null>(null);
   const activeQuery = campaignId ? requestsQuery : allRequestsQuery;
-  const requests = activeQuery.data?.data ?? [];
-  const getPlatformLabel = (
-    request: CampaignRequest,
-  ) => {
-    return request.campaign?.platform?.name ?? "-";
-  };
+  const requests = (activeQuery.data?.data ?? []).filter(
+    (request) =>
+      !isClosedCampaignStatus(request.status) &&
+      !isCompletedApplicationId(request.id) &&
+      !isCompletedCampaignId(request.campaign_id ?? request.campaign?.id),
+  );
+  const getPlatformLabel = (request: CampaignRequest) =>
+    request.campaign?.platform?.name ?? "-";
 
   const getInfluencerName = (request: CampaignRequest) =>
-    request.user?.name || t("campaignsRequest.creatorLabel");
+    request.user?.name ||
+    request.influencer?.name ||
+    t("campaignsRequest.creatorLabel");
+
+  const getInfluencerImage = (request: CampaignRequest) =>
+    request.user?.avatar ||
+    request.user?.image ||
+    request.user?.profile_image ||
+    request.influencer?.avatar ||
+    request.influencer?.image ||
+    request.influencer?.profile_image ||
+    "";
+
+  const getCampaignName = (request: CampaignRequest) =>
+    request.campaign?.name ||
+    request.campaign?.idea ||
+    t("campaignsRequest.unknownCampaign", "Campaign");
+
+  const getContentType = (request: CampaignRequest) =>
+    request.campaign?.campaign_type?.name ??
+    request.campaign?.campaignType?.name ??
+    request.campaign?.campaign_type_name ??
+    "-";
+
+  const getCampaignBudget = (request: CampaignRequest) =>
+    request.campaign?.budget_range?.name ??
+    request.campaign?.budgetRange?.name ??
+    request.campaign?.budget_range_name ??
+    request.price ??
+    "";
+
+  const getExecutionDate = (request: CampaignRequest) =>
+    request.execution_date ||
+    request.campaign?.execution_time?.name ||
+    request.campaign?.executionTime?.name ||
+    "-";
+
+  const getReadinessLabel = (request: CampaignRequest) =>
+    Number(request.is_ready) === 1
+      ? t("campaignsRequest.ready", "Ready")
+      : t("campaignsRequest.notReady", "Not ready");
 
   const handleStatusChange = (
     request: CampaignRequest,
@@ -78,6 +125,11 @@ function CampaignsRequests() {
               isNew: Boolean(conversationId),
               peerName,
               peerRole: "influencer",
+              campaignId: request.campaign_id ?? request.campaign?.id,
+              applicationId: request.id,
+              campaignName: getCampaignName(request),
+              campaignBudget: getCampaignBudget(request),
+              category: getContentType(request),
             },
           });
           setUpdatingRequestId(null);
@@ -135,8 +187,13 @@ function CampaignsRequests() {
                         isRTL ? "flex-row-reverse" : "flex-row",
                       )}>
                       <Avatar className="h-8 w-8 sm:h-12 sm:w-12">
-                        <AvatarImage src={request.user?.avatar ?? ""} alt={request.user?.name} />
-                        <AvatarFallback>{request.user?.name?.[0]}</AvatarFallback>
+                        <AvatarImage
+                          src={getInfluencerImage(request)}
+                          alt={getInfluencerName(request)}
+                        />
+                        <AvatarFallback>
+                          {getInfluencerName(request).charAt(0)}
+                        </AvatarFallback>
                       </Avatar>
 
                       <div
@@ -148,12 +205,13 @@ function CampaignsRequests() {
                           {getInfluencerName(request)}
                         </p>
                         <p className="text-[7px] text-[#8b8b8b] sm:text-xs">
-                          {request.campaign?.name || t("campaignsRequest.creatorLabel")}
+                          {getCampaignName(request)}
                         </p>
                       </div>
 
-                      <Badge className="bg-[#eef2e6] px-1.5 py-1 text-[#8b9677] sm:px-2.5">
+                      <Badge className="gap-1 bg-[#eef2e6] px-1.5 py-1 text-[7px] text-[#8b9677] sm:px-2.5 sm:text-xs">
                         <BadgeCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                        {request.status}
                       </Badge>
                     </div>
 
@@ -166,34 +224,57 @@ function CampaignsRequests() {
                         {isRTL ? "المنصات :" : "Platforms:"}
                       </p>
 
-                      <div className="mt-2 grid grid-cols-3 gap-1 sm:flex sm:flex-wrap sm:gap-2">
+                      <div className="mt-2 flex flex-wrap gap-1 sm:gap-2">
                           <Badge
                             key={request.campaign?.platform?.id}
                             variant="secondary"
                             className="justify-center rounded-sm bg-[#f7f7f4] px-2 py-1 text-[8px] font-normal text-[#55554f] shadow-none sm:rounded-full sm:text-xs">
                             {getPlatformLabel(request)}
                           </Badge>
+                          <Badge
+                            variant="secondary"
+                            className="justify-center rounded-sm bg-[#f7f7f4] px-2 py-1 text-[8px] font-normal text-[#55554f] shadow-none sm:rounded-full sm:text-xs">
+                            {getContentType(request)}
+                          </Badge>
                       </div>
                     </div>
 
-                    {/* Followers */}
-                    <div className={isRTL ? "text-right" : "text-left"}>
-                      <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
-                        {t("campaignsRequest.note")}:
-                      </p>
-                      <p className="text-[9px] text-[#55554f] sm:text-sm">
-                        {request.note || "-"}
-                      </p>
-                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className={isRTL ? "text-right" : "text-left"}>
+                        <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
+                          {t("campaignsRequest.requestedPrice")}:
+                        </p>
+                        <p className="text-[9px] text-[#55554f] sm:text-sm">
+                          {request.price}
+                        </p>
+                      </div>
 
-                    {/* Price */}
-                    <div className={isRTL ? "text-right" : "text-left"}>
-                      <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
-                        {t("campaignsRequest.requestedPrice")}:
-                      </p>
-                      <p className="text-[9px] text-[#55554f] sm:text-sm">
-                        {request.price}
-                      </p>
+                      <div className={isRTL ? "text-right" : "text-left"}>
+                        <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
+                          {t("campaignsRequest.executionDate", "Execution date")}:
+                        </p>
+                        <p className="text-[9px] text-[#55554f] sm:text-sm">
+                          {getExecutionDate(request)}
+                        </p>
+                      </div>
+
+                      <div className={isRTL ? "text-right" : "text-left"}>
+                        <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
+                          {t("campaignsRequest.readiness", "Readiness")}:
+                        </p>
+                        <p className="text-[9px] text-[#55554f] sm:text-sm">
+                          {getReadinessLabel(request)}
+                        </p>
+                      </div>
+
+                      <div className={isRTL ? "text-right" : "text-left"}>
+                        <p className="text-[9px] font-semibold text-[#2d2d28] sm:text-sm">
+                          {t("campaignsRequest.note")}:
+                        </p>
+                        <p className="line-clamp-2 text-[9px] text-[#55554f] sm:text-sm">
+                          {request.note || "-"}
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
 

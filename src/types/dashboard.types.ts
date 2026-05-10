@@ -117,6 +117,8 @@ export type Influencer = {
 export type InfluencerDiscoveryItem = Influencer & {
   platform: string;
   audience: string;
+  rating?: number | null;
+  reviewsCount?: number | null;
 };
 
 export type InfluencerDiscoveryQueryParams = {
@@ -146,7 +148,7 @@ export type InputFieldProps = {
 };
 
 export type EarningRow = {
-  id: number;
+  id: number | string;
   campaignName: string;
   companyName: string;
   date: string;

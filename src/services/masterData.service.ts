@@ -121,4 +121,18 @@ export const masterDataService = {
       .map(mapMasterDataOption)
       .filter((item): item is MasterDataOption => Boolean(item));
   },
+
+  getEngagementRates: async (): Promise<MasterDataOption[]> => {
+    const response = await api.get("/api/master-data/engagement-rates");
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
+  },
+
+  getFameLevels: async (): Promise<MasterDataOption[]> => {
+    const response = await api.get("/api/master-data/fame-levels");
+    return getMasterDataList(response.data)
+      .map(mapMasterDataOption)
+      .filter((item): item is MasterDataOption => Boolean(item));
+  },
 };

@@ -8,36 +8,203 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { CircleAlert, CreditCard, Landmark, Loader2, Wallet } from "lucide-react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useQueries } from "@tanstack/react-query";
 import hero from "/assets/Hero.png";
 import { useInfluencerEarningsQuery } from "@/queries/dashboard/useInfluencerEarningsQuery";
+import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
+import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
+import { useCampaignsQuery } from "@/queries/campaigns/useCampaignsQuery";
+import { useConversationsQuery } from "@/queries/chat/useConversationsQuery";
+import { queryKeys } from "@/constants/queryKeys";
+import { chatService } from "@/services/chat.service";
+import { campaignService } from "@/services/campaign.service";
+import type { Campaign } from "@/types/campaign.types";
+import type { EarningRow } from "@/types/dashboard.types";
+import { getCompletedCampaignEntries } from "@/utils/completedCampaigns";
+import {
+  buildCompletedEntryFromConversation,
+  hasContentApprovalMessage,
+} from "@/utils/completedCampaignSource";
+import { buildCompletedCampaignViews } from "@/utils/completedCampaignViews";
+import { getNumericAmount, normalizeCampaignText } from "@/utils/campaignPayment";
+
+const isCampaign = (value: Campaign | undefined): value is Campaign =>
+  Boolean(value);
+
+const getUniqueIds = (...values: Array<string | number | null | undefined>) =>
+  Array.from(
+    new Set(
+      values
+        .map((value) => String(value ?? "").trim())
+        .filter(Boolean),
+    ),
+  );
+
+const getEarningRowKey = (
+  row: Pick<EarningRow, "campaignName" | "companyName" | "date" | "amount">,
+) =>
+  [
+    normalizeCampaignText(row.campaignName),
+    normalizeCampaignText(row.companyName),
+    normalizeCampaignText(row.date),
+    getNumericAmount(row.amount),
+  ].join("::");
+
+const withCurrency = (amount: string, currency: string) =>
+  amount && amount !== "-" ? `${amount} ${currency}` : `0 ${currency}`;
 
 function Earnings() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const { data, isLoading, isError } = useInfluencerEarningsQuery();
+  const applicationsQuery = useCampaignRequestsQuery();
+  const collaborationRequestsQuery = useCollaborationRequestsQuery();
+  const campaignsQuery = useCampaignsQuery();
+  const conversationsQuery = useConversationsQuery();
+  const conversations = conversationsQuery.data?.data ?? [];
+  const conversationIds = useMemo(
+    () => conversations.map((conversation) => conversation.id).filter(Boolean),
+    [conversations],
+  );
+  const conversationMessagesQueries = useQueries({
+    queries: conversationIds.map((conversationId) => ({
+      queryKey: queryKeys.chat.messages(conversationId),
+      queryFn: () => chatService.getMessages(conversationId),
+      enabled: Boolean(conversationId),
+      staleTime: 30000,
+    })),
+  });
+  const completedConversationEntries = useMemo(
+    () =>
+      conversationMessagesQueries.reduce<ReturnType<typeof getCompletedCampaignEntries>>(
+        (entries, query, index) => {
+          if (!hasContentApprovalMessage(query.data?.data)) return entries;
+          const conversation = conversations.find(
+            (item) => String(item.id) === String(conversationIds[index]),
+          );
+          if (conversation) {
+            entries.push(
+              buildCompletedEntryFromConversation(conversation, query.data?.data),
+            );
+          }
+          return entries;
+        },
+        [],
+      ),
+    [conversationIds, conversationMessagesQueries, conversations],
+  );
+  const allCompletedEntries = [
+    ...completedConversationEntries,
+    ...getCompletedCampaignEntries(),
+  ];
+  const detailCampaignIds = useMemo(
+    () =>
+      getUniqueIds(
+        ...allCompletedEntries.map((entry) => entry.campaignId),
+        ...conversations.map(
+          (conversation) => conversation.campaign_id ?? conversation.campaignId,
+        ),
+        ...(applicationsQuery.data?.data ?? []).map(
+          (application) => application.campaign_id ?? application.campaign?.id,
+        ),
+        ...(collaborationRequestsQuery.data?.data ?? []).map(
+          (request) => request.campaign_id ?? request.campaign?.id,
+        ),
+      ),
+    [
+      allCompletedEntries,
+      applicationsQuery.data?.data,
+      collaborationRequestsQuery.data?.data,
+      conversations,
+    ],
+  );
+  const campaignDetailsQueries = useQueries({
+    queries: detailCampaignIds.map((campaignId) => ({
+      queryKey: queryKeys.campaigns.details(campaignId),
+      queryFn: () => campaignService.getCampaignById(campaignId),
+      enabled: Boolean(campaignId),
+      staleTime: 30000,
+      retry: 1,
+    })),
+  });
+  const detailedCampaigns = campaignDetailsQueries
+    .map((query) => query.data?.data)
+    .filter(isCampaign);
 
-  const rows = data?.transactions ?? [];
   const currency = data?.currency ?? "SAR";
+  const completedEarningRows = useMemo<EarningRow[]>(
+    () =>
+      buildCompletedCampaignViews({
+        role: "influencer",
+        applications: applicationsQuery.data?.data,
+        collaborationRequests: collaborationRequestsQuery.data?.data,
+        campaigns: [...(campaignsQuery.data?.data ?? []), ...detailedCampaigns],
+        entries: allCompletedEntries,
+        conversations,
+      })
+        .map<EarningRow | null>((campaign) => {
+          const netAmount = getNumericAmount(campaign.paymentSummary.influencerNet);
+
+          if (!netAmount) return null;
+
+          return {
+            id: campaign.key,
+            campaignName: campaign.title,
+            companyName: campaign.companyName || "-",
+            date: campaign.date,
+            amount: withCurrency(campaign.paymentSummary.influencerNet, currency),
+            status: "completed" as const,
+          };
+        })
+        .filter((row): row is EarningRow => Boolean(row)),
+    [
+      allCompletedEntries,
+      applicationsQuery.data?.data,
+      campaignsQuery.data?.data,
+      collaborationRequestsQuery.data?.data,
+      conversations,
+      currency,
+      detailedCampaigns,
+    ],
+  );
+  const rows = useMemo(() => {
+    const seen = new Set<string>();
+    const mergedRows = [...completedEarningRows, ...(data?.transactions ?? [])];
+
+    return mergedRows.filter((row) => {
+      const key = getEarningRowKey(row);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [completedEarningRows, data?.transactions]);
+  const completedTotal = completedEarningRows.reduce(
+    (total, row) => total + getNumericAmount(row.amount),
+    0,
+  );
+  const totalEarnings = (data?.total_earnings ?? 0) + completedTotal;
+  const pendingEarnings = data?.pending_earnings ?? 0;
 
   const summaryCards = [
     {
       id: "available",
       icon: CreditCard,
       label: t("earn.availableBalance"),
-      value: data ? `${data.total_earnings} ${currency}` : t("earn.availableBalanceValue"),
+      value: `${totalEarnings} ${currency}`,
     },
     {
       id: "transfer",
       icon: Landmark,
       label: t("earn.transferCode"),
-      value: data ? `${data.pending_earnings} ${currency}` : t("earn.transferCodeValue"),
+      value: `${pendingEarnings} ${currency}`,
     },
     {
       id: "total",
       icon: Wallet,
       label: t("earn.totalIncome"),
-      value: data ? `${data.total_earnings} ${currency}` : t("earn.totalIncomeValue"),
+      value: `${totalEarnings} ${currency}`,
     },
   ];
 

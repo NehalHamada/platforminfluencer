@@ -4,9 +4,18 @@ import { useMemo } from "react";
 import { useAllCampaignApplicationsQuery } from "@/queries/campaigns/useAllCampaignApplicationsQuery";
 import { useCompanyCollaborationRequestsQuery } from "@/queries/campaigns/useCompanyCollaborationRequestsQuery";
 import type { Conversation } from "@/types/chat.types";
+import { getConversationIdFromResponse } from "@/utils/apiResponse";
+import { isClosedCampaignStatus } from "@/utils/campaignProgress";
+import {
+  isCompletedApplicationId,
+  isCompletedCampaignId,
+  isCompletedConversationId,
+} from "@/utils/completedCampaigns";
 
 const isAcceptedStatus = (status?: string) =>
-  status === "accepted" || status === "accept" || status === "content_approved";
+  ["accepted", "accept", "approved"].indexOf(
+    String(status ?? "").toLowerCase(),
+  ) !== -1 && !isClosedCampaignStatus(status);
 
 function Message() {
   const location = useLocation();
@@ -17,28 +26,72 @@ function Message() {
   const fallbackConversations = useMemo<Conversation[]>(
     () => {
       const collabRequestConversations = (companyRequestsQuery.data?.data ?? [])
-        .filter((request) => isAcceptedStatus(request.status) && request.conversation_id)
         .map((request) => {
-          const influencer = request.influencer ?? request.user ?? null;
+          const conversationId =
+            request.conversation_id ?? getConversationIdFromResponse(request);
+
+          return { request, conversationId };
+        })
+        .filter(({ request, conversationId }) =>
+          Boolean(
+            isAcceptedStatus(request.status) &&
+              conversationId &&
+              !isCompletedConversationId(conversationId) &&
+              !isCompletedCampaignId(request.campaign_id ?? request.campaign?.id),
+          ),
+        )
+        .map((request) => {
+          const item = request.request;
+          const influencer = item.influencer ?? item.user ?? null;
 
           return {
-            id: request.conversation_id as string | number,
-            status: request.status,
-            campaign_name: request.campaign?.name,
+            id: request.conversationId as string | number,
+            status: item.status,
+            campaign_id: item.campaign_id ?? item.campaign?.id,
+            campaign_name: item.campaign?.name,
+            campaign_budget:
+              item.campaign?.budget_range?.name ??
+              item.campaign?.budgetRange?.name ??
+              item.campaign?.budget_range_name ??
+              item.price,
+            category:
+              item.campaign?.campaign_type?.name ??
+              item.campaign?.campaignType?.name ??
+              item.campaign?.campaign_type_name,
             influencer,
-            company: request.company ?? null,
+            company: item.company ?? item.campaign?.user ?? null,
             last_message: "",
             messages: [],
           };
         });
 
       const applicationConversations = (campaignApplicationsQuery.data?.data ?? [])
-        .filter((application) => isAcceptedStatus(application.status) && application.conversation_id)
+        .filter(
+          (application) =>
+            isAcceptedStatus(application.status) &&
+            application.conversation_id &&
+            !isCompletedConversationId(application.conversation_id) &&
+            !isCompletedApplicationId(application.id) &&
+            !isCompletedCampaignId(
+              application.campaign_id ?? application.campaign?.id,
+            ),
+        )
         .map((application) => ({
           id: application.conversation_id as string | number,
           status: application.status,
+          application_id: application.id,
+          campaign_id: application.campaign_id ?? application.campaign?.id,
           campaign_name: application.campaign?.name,
-          influencer: application.user ?? null,
+          campaign_budget:
+            application.campaign?.budget_range?.name ??
+            application.campaign?.budgetRange?.name ??
+            application.campaign?.budget_range_name ??
+            application.price,
+          category:
+            application.campaign?.campaign_type?.name ??
+            application.campaign?.campaignType?.name ??
+            application.campaign?.campaign_type_name,
+          influencer: application.influencer ?? application.user ?? null,
           company: application.campaign?.user ?? null,
           last_message: "",
           messages: [],

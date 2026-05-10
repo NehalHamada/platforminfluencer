@@ -12,7 +12,6 @@ export function useCampaignApplicationsQuery(
     queryKey: queryKeys.campaigns.applications(campaignId),
     queryFn: () => campaignService.getCampaignApplications(campaignId),
     enabled: enabled && Boolean(campaignId),
-    refetchInterval: enabled && Boolean(campaignId) ? 3000 : false,
     refetchOnWindowFocus: true,
   });
 }

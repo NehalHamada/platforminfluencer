@@ -20,10 +20,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { ConvertCampaignFormData } from "@/types/dashboard.types";
 import { cn } from "@/lib/utils";
+import { saveCompletedCampaignEntry } from "@/utils/completedCampaigns";
+import type { InfluencerReviewInput } from "@/utils/influencerReviews";
 
 import ConvertCampaignPopup from "../common/ConvertCampaignPopup";
 import { Button } from "../ui/Button";
-import { Eye, X } from "lucide-react";
+import { Eye, Send, Star, X } from "lucide-react";
 import type { ChatConversation, ChatMessage } from "./ChatPage";
 import MessageInput from "./MessageInput";
 
@@ -38,7 +40,9 @@ type MessageThreadProps = {
   conversation: ChatConversation;
   role: "company" | "influencer";
   isRTL: boolean;
-  onAgreementSubmit: (data: ConvertCampaignFormData) => void | Promise<void>;
+  onAgreementSubmit: (
+    data: ConvertCampaignFormData,
+  ) => boolean | void | Promise<boolean | void>;
   onAgreementAction?: (
     messageId: string,
     status: "accepted" | "rejected",
@@ -49,7 +53,9 @@ type MessageThreadProps = {
     message: string;
     notes: string;
   }) => boolean | Promise<boolean>;
-  onApproveContent?: () => boolean | Promise<boolean>;
+  onApproveContent?: (
+    review: InfluencerReviewInput,
+  ) => boolean | Promise<boolean>;
   onModificationRequestSubmit?: (
     data: ModificationRequestFormData,
   ) => boolean | Promise<boolean>;
@@ -322,6 +328,10 @@ function ContentDeliveryBubble({
 }) {
   const { t } = useTranslation();
   const fileUrl = message.media_url || "";
+  const isLocalFile = fileUrl.startsWith("local-file://");
+  const localFileName = isLocalFile
+    ? decodeURIComponent(fileUrl.replace("local-file://", ""))
+    : "";
   const notes = message.notes || message.text;
   const isInfluencerView = role === "influencer";
   const currentUserName = (() => {
@@ -355,7 +365,7 @@ function ContentDeliveryBubble({
             <span className="min-w-0 truncate font-semibold">
               {deliveryOwnerName}
             </span>
-            {fileUrl ? (
+            {fileUrl && !isLocalFile ? (
               <a
                 href={fileUrl}
                 target="_blank"
@@ -369,6 +379,15 @@ function ContentDeliveryBubble({
                   {t("chat.contentDelivery.fileLabel", "File link")}
                 </span>
               </a>
+            ) : isLocalFile ? (
+              <span
+                className={cn(
+                  "inline-flex min-w-0 max-w-[44%] items-center gap-1 text-[#77736b]",
+                  isRTL ? "flex-row-reverse" : "flex-row",
+                )}>
+                <Eye className="h-3 w-3 shrink-0" aria-hidden="true" />
+                <span className="truncate">{localFileName}</span>
+              </span>
             ) : null}
           </div>
         </CardHeader>
@@ -418,7 +437,7 @@ function ContentDeliveryBubble({
         </div>
 
         <div className="space-y-2 text-[10px] leading-5 text-[#34342f] sm:text-[11px]">
-          {fileUrl ? (
+          {fileUrl && !isLocalFile ? (
             <a
               href={fileUrl}
               target="_blank"
@@ -426,6 +445,10 @@ function ContentDeliveryBubble({
               className="block rounded-[3px] border border-[#d9d6cd] bg-white px-2 py-1 text-[#3f3f3a] underline-offset-2 hover:underline">
               {t("chat.contentDelivery.openFile", "Open file")}
             </a>
+          ) : isLocalFile ? (
+            <div className="block rounded-[3px] border border-[#d9d6cd] bg-white px-2 py-1 text-[#3f3f3a]">
+              {localFileName}
+            </div>
           ) : null}
           {notes ? (
             <p className="rounded-[3px] bg-white/65 px-2 py-1">
@@ -805,8 +828,11 @@ function ContentDeliveryPopup({
 
   if (!open) return null;
 
-  const normalizeMediaUrl = (value: string) =>
-    /^(https?:|blob:)/i.test(value) ? value : `https://${value}`;
+  const normalizeMediaUrl = (value: string) => {
+    const trimmedValue = value.trim();
+    if (/^https?:\/\//i.test(trimmedValue)) return trimmedValue;
+    return `https://${trimmedValue}`;
+  };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -832,11 +858,21 @@ function ContentDeliveryPopup({
       return;
     }
 
+    const selectedMediaUrl = mediaFile
+      ? `local-file://${encodeURIComponent(mediaFile.name)}`
+      : normalizeMediaUrl(trimmedUrl);
+    if (!mediaFile && !/^https?:\/\/\S+\.\S+/i.test(selectedMediaUrl)) {
+      setError(
+        t(
+          "chat.contentDelivery.invalidUrl",
+          "Please add a valid public link starting with https://",
+        ),
+      );
+      return;
+    }
+
     setError("");
     try {
-      const selectedMediaUrl = mediaFile
-        ? URL.createObjectURL(mediaFile)
-        : normalizeMediaUrl(trimmedUrl);
       const saved = await onSubmit?.({
         media_url: selectedMediaUrl,
         message: trimmedNotes,
@@ -972,6 +1008,280 @@ function ContentDeliveryPopup({
   );
 }
 
+function StarRatingInput({
+  label,
+  value,
+  onChange,
+  isRTL,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  isRTL: boolean;
+}) {
+  return (
+    <div className={cn("space-y-2", isRTL ? "text-right" : "text-left")}>
+      <p className="text-[10px] font-medium text-[#34342f] sm:text-[11px]">
+        {label}
+      </p>
+      <div
+        className={cn(
+          "flex items-center gap-2",
+          isRTL ? "flex-row-reverse justify-center" : "justify-center",
+        )}>
+        {[1, 2, 3, 4, 5].map((rating) => (
+          <Button
+            key={rating}
+            type="button"
+            onClick={() => onChange(rating)}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[#8f9488] transition hover:bg-[#f1f3ec]">
+            <Star
+              className={cn(
+                "h-4 w-4",
+                rating <= value
+                  ? "fill-[#f7caa9] text-[#f7caa9]"
+                  : "fill-white text-[#8f9488]",
+              )}
+            />
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InfluencerReviewPopup({
+  open,
+  isRTL,
+  isSubmitting,
+  influencerName,
+  campaignName,
+  onClose,
+  onSubmit,
+}: {
+  open: boolean;
+  isRTL: boolean;
+  isSubmitting?: boolean;
+  influencerName?: string;
+  campaignName?: string;
+  onClose: () => void;
+  onSubmit?: (review: InfluencerReviewInput) => boolean | Promise<boolean>;
+}) {
+  const { t } = useTranslation();
+  const [scheduleCommitment, setScheduleCommitment] = useState(0);
+  const [contentQuality, setContentQuality] = useState(0);
+  const [communication, setCommunication] = useState(0);
+  const [comment, setComment] = useState("");
+  const [error, setError] = useState("");
+
+  if (!open) return null;
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!scheduleCommitment || !contentQuality || !communication) {
+      setError(
+        t(
+          "chat.review.required",
+          isRTL ? "من فضلك أكمل كل التقييمات" : "Please complete all ratings",
+        ),
+      );
+      return;
+    }
+
+    setError("");
+    const saved = await onSubmit?.({
+      influencerName,
+      campaignName,
+      scheduleCommitment,
+      contentQuality,
+      communication,
+      comment: comment.trim(),
+    });
+
+    if (saved === false) {
+      setError(
+        t(
+          "chat.review.submitFailed",
+          isRTL
+            ? "تعذر إرسال التقييم، حاول مرة أخرى"
+            : "Could not send the review. Please try again.",
+        ),
+      );
+      return;
+    }
+
+    setScheduleCommitment(0);
+    setContentQuality(0);
+    setCommunication(0);
+    setComment("");
+    onClose();
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-3 py-5"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      role="dialog"
+      aria-modal="true">
+      <form
+        dir={isRTL ? "rtl" : "ltr"}
+        onSubmit={handleSubmit}
+        className="relative flex max-h-[92vh] w-full max-w-126 flex-col overflow-hidden rounded-[22px] bg-[#f7f7f6] shadow-[0_20px_70px_rgba(0,0,0,0.28)] sm:rounded-[26px]">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("common.close", "Close")}
+          className={cn(
+            "absolute top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#dedbd2] bg-white text-[#77736b] transition hover:bg-[#f0efe9]",
+            isRTL ? "left-4" : "right-4",
+          )}>
+          <X className="h-3.5 w-3.5" />
+        </button>
+
+        <div className="overflow-y-auto px-6 pb-6 pt-7 sm:px-10">
+          <div className="mx-auto mb-5 w-fit border-b border-[#20231f] pb-1 text-center text-[13px] font-semibold text-[#22271f]">
+            {t("chat.review.title", isRTL ? "قيّم المؤثر" : "Rate influencer")}
+          </div>
+
+          <div className="mx-auto mb-6 grid max-w-78 grid-cols-[1fr_auto] items-center gap-5">
+            <div className="space-y-3">
+              <div className="h-13 rounded-[3px] border border-[#b9b9b9] bg-white px-5 py-2">
+                <div className="mb-1 h-1.5 w-22 rounded-full bg-[#c9c9c9]" />
+                <div className="h-1.5 w-16 rounded-full bg-[#d8d8d8]" />
+              </div>
+              <div className="flex justify-center gap-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <Star
+                    key={`preview-a-${rating}`}
+                    className={cn(
+                      "h-3 w-3",
+                      rating <= 3
+                        ? "fill-[#f7caa9] text-[#f7caa9]"
+                        : "fill-white text-[#8f9488]",
+                    )}
+                  />
+                ))}
+              </div>
+              <div className="h-13 rounded-[3px] border border-[#b9b9b9] bg-white px-5 py-2">
+                <div className="mb-1 h-1.5 w-22 rounded-full bg-[#c9c9c9]" />
+                <div className="h-1.5 w-16 rounded-full bg-[#d8d8d8]" />
+              </div>
+              <div className="flex justify-center gap-1">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <Star
+                    key={`preview-b-${rating}`}
+                    className={cn(
+                      "h-3 w-3",
+                      rating <= 4
+                        ? "fill-[#f7caa9] text-[#f7caa9]"
+                        : "fill-white text-[#8f9488]",
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="h-31 w-16 rounded-b-full rounded-t-[32px] bg-[#30364a]" />
+          </div>
+
+          <div className="space-y-4">
+            <StarRatingInput
+              label={t(
+                "chat.review.scheduleCommitment",
+                isRTL ? "الالتزام بالمواعيد" : "Schedule commitment",
+              )}
+              value={scheduleCommitment}
+              onChange={setScheduleCommitment}
+              isRTL={isRTL}
+            />
+
+            <label className={cn("block", isRTL ? "text-right" : "text-left")}>
+              <span className="mb-2 block text-[10px] font-medium text-[#34342f] sm:text-[11px]">
+                {t("chat.review.comment", isRTL ? "تعليق" : "Comment")}
+              </span>
+              <input
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                placeholder={t(
+                  "chat.review.commentPlaceholder",
+                  isRTL
+                    ? "ممتاز كانت تجربة جيدة جداً ونوصي به لهذه التعاونات"
+                    : "Great experience and we recommend this influencer",
+                )}
+                className="h-8 w-full rounded-full border border-[#dedbd2] bg-white px-4 text-center text-[10px] text-[#34342f] outline-none placeholder:text-[#8d887e] focus:border-[#9fb88d] sm:text-[11px]"
+              />
+            </label>
+
+            <StarRatingInput
+              label={t(
+                "chat.review.contentQuality",
+                isRTL ? "جودة المحتوى" : "Content quality",
+              )}
+              value={contentQuality}
+              onChange={setContentQuality}
+              isRTL={isRTL}
+            />
+
+            <StarRatingInput
+              label={t(
+                "chat.review.communication",
+                isRTL ? "سهولة التواصل" : "Communication",
+              )}
+              value={communication}
+              onChange={setCommunication}
+              isRTL={isRTL}
+            />
+          </div>
+
+          {error ? (
+            <p className="mt-3 text-center text-xs font-medium text-[#c85353]">
+              {error}
+            </p>
+          ) : null}
+
+          <div className="mt-5 flex justify-center">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className={cn(
+                "h-9 min-w-42 rounded-full bg-[#8d9978] px-5 text-[10px] font-semibold text-white hover:bg-[#7f8d6d] sm:text-[11px]",
+                isRTL ? "flex-row" : "flex-row-reverse",
+              )}>
+              <Send className="h-3.5 w-3.5" />
+              {isSubmitting
+                ? t(
+                    "chat.review.submitting",
+                    isRTL ? "جارٍ الإرسال..." : "Sending...",
+                  )
+                : t(
+                    "chat.review.submit",
+                    isRTL ? "إرسال التقييم" : "Send review",
+                  )}
+            </Button>
+          </div>
+        </div>
+
+        <div className="bg-[linear-gradient(100deg,#252923_0%,#30352f_100%)] px-6 py-5 text-center text-white">
+          <p className="text-[11px] font-semibold">
+            {t("chat.review.footerBrand", "GROWTH")}
+          </p>
+          <p className="mx-auto mt-2 max-w-82 text-[10px] leading-5 text-white/90">
+            {t(
+              "chat.review.footerText",
+              isRTL
+                ? "منصة تربط بين الشركات والمؤثرين عبر تعاونات منظمة، شفافة، ومبنية على نتائج حقيقية"
+                : "A platform for organized, transparent collaborations built on real results",
+            )}
+          </p>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 function MessageThread({
   conversation,
   role,
@@ -987,9 +1297,11 @@ function MessageThread({
   isLoadingMessages,
 }: MessageThreadProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isDeliveryPopupOpen, setIsDeliveryPopupOpen] = useState(false);
   const [isModificationPopupOpen, setIsModificationPopupOpen] = useState(false);
+  const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
   const [agreementActions, setAgreementActions] = useState<
     Record<string, AgreementStatus>
   >({});
@@ -1052,6 +1364,37 @@ function MessageThread({
   const hasContentApproved = conversation.messages.some(
     (message) => message.type === "content_approved",
   );
+
+  useEffect(() => {
+    if (role !== "influencer" || !hasContentApproved) return;
+
+    const redirectKey = `content-approved-publish-${conversation.id}`;
+    if (sessionStorage.getItem(redirectKey)) return;
+    sessionStorage.setItem(redirectKey, "1");
+    saveCompletedCampaignEntry({
+      conversationId: conversation.id,
+      applicationId: conversation.applicationId,
+      campaignId: conversation.campaignId,
+      campaignName: conversation.campaignName,
+      amount: conversation.campaignBudget,
+      category: conversation.category,
+      companyName: conversation.name,
+      date: new Date().toISOString(),
+    });
+
+    navigate("/dashboard/influencer/campaigns", { replace: true });
+  }, [
+    conversation.applicationId,
+    conversation.campaignBudget,
+    conversation.campaignId,
+    conversation.campaignName,
+    conversation.category,
+    conversation.id,
+    conversation.name,
+    hasContentApproved,
+    navigate,
+    role,
+  ]);
 
   return (
     <div className="bg-white px-3 py-4 sm:px-8 sm:py-7 lg:px-10">
@@ -1164,7 +1507,7 @@ function MessageThread({
                     onRequestModification={() =>
                       setIsModificationPopupOpen(true)
                     }
-                    onApproveContent={() => void onApproveContent?.()}
+                    onApproveContent={() => setIsReviewPopupOpen(true)}
                     isContentApproved={hasContentApproved}
                     modificationStatus={getMessageModificationStatus(message)}
                     onModificationAction={handleModificationAction}
@@ -1205,6 +1548,16 @@ function MessageThread({
         onClose={() => setIsModificationPopupOpen(false)}
         onSubmit={onModificationRequestSubmit}
         isSubmitting={isSending}
+      />
+
+      <InfluencerReviewPopup
+        open={isReviewPopupOpen}
+        isRTL={isRTL}
+        onClose={() => setIsReviewPopupOpen(false)}
+        onSubmit={onApproveContent}
+        isSubmitting={isSending}
+        influencerName={conversation.name}
+        campaignName={conversation.campaignName}
       />
     </div>
   );

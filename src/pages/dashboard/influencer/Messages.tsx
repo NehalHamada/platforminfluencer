@@ -4,9 +4,18 @@ import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsReques
 import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
 import type { Conversation } from "@/types/chat.types";
 import type { ApiUser } from "@/types/campaign.types";
+import { isClosedCampaignStatus } from "@/utils/campaignProgress";
+import {
+  isCompletedApplicationId,
+  isCompletedCampaignId,
+  isCompletedConversationId,
+} from "@/utils/completedCampaigns";
 
 const isAcceptedStatus = (status?: string) =>
-  status === "accepted" || status === "accept" || status === "content_approved";
+  ["accepted", "accept", "approved"].indexOf(
+    String(status ?? "").toLowerCase(),
+  ) !== -1 &&
+  !isClosedCampaignStatus(status);
 
 const getRequestCompany = (request: {
   company?: ApiUser | null;
@@ -63,10 +72,18 @@ function Message() {
   const fallbackConversations = useMemo<Conversation[]>(() => {
     const acceptedCollabRequests =
       collabRequestsQuery.data?.data
-        ?.filter((request) => isAcceptedStatus(request.status) && request.conversation_id)
+        ?.filter(
+          (request) =>
+            isAcceptedStatus(request.status) &&
+            request.conversation_id &&
+            !isCompletedConversationId(request.conversation_id) &&
+            !isCompletedCampaignId(request.campaign_id ?? request.campaign?.id),
+        )
         .map((request) => ({
           id: request.conversation_id as string | number,
           status: request.status,
+          application_id: request.id,
+          campaign_id: request.campaign_id ?? request.campaign?.id,
           campaign_name: request.campaign?.name,
           company: getRequestCompany(request),
           influencer: request.influencer ?? null,
@@ -76,10 +93,21 @@ function Message() {
 
     const acceptedApplications =
       myApplicationsQuery.data?.data
-        ?.filter((application) => isAcceptedStatus(application.status) && application.conversation_id)
+        ?.filter(
+          (application) =>
+            isAcceptedStatus(application.status) &&
+            application.conversation_id &&
+            !isCompletedConversationId(application.conversation_id) &&
+            !isCompletedApplicationId(application.id) &&
+            !isCompletedCampaignId(
+              application.campaign_id ?? application.campaign?.id,
+            ),
+        )
         .map((application) => ({
           id: application.conversation_id as string | number,
           status: application.status,
+          application_id: application.id,
+          campaign_id: application.campaign_id ?? application.campaign?.id,
           campaign_name: application.campaign?.name,
           company: getApplicationCompany(application),
           influencer: application.user ?? null,

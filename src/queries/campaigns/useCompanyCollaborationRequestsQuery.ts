@@ -8,7 +8,6 @@ export function useCompanyCollaborationRequestsQuery(enabled = true) {
     queryKey: ["campaigns", "company-collaboration-requests"],
     queryFn: () => campaignService.getCompanyCollaborationRequests(),
     enabled,
-    refetchInterval: 3000,
     refetchOnWindowFocus: true,
   });
 }

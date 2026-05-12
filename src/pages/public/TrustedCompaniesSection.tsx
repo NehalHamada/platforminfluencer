@@ -25,9 +25,12 @@ type CompanyRowItem = {
 function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
-  const apiCompanies = Array.isArray(data?.content?.companies)
-    ? data.content.companies.filter(isRecord)
-    : [];
+  const contentItems = Array.isArray(data?.content?.partners)
+    ? data.content.partners
+    : Array.isArray(data?.content?.companies)
+      ? data.content.companies
+      : [];
+  const apiCompanies = contentItems.filter(isRecord);
 
   const fallbackFirstRow: CompanyRowItem[] = [
     {
@@ -102,6 +105,7 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
       t(`trustedCompanies.items.${(index % 8) + 1}.name`),
     sub:
       getString(company, "sub") ||
+      getString(company, "desc") ||
       getString(company, "description") ||
       t(`trustedCompanies.items.${(index % 8) + 1}.sub`),
   }));

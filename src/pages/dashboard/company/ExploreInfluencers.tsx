@@ -10,7 +10,7 @@
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -179,8 +179,11 @@ function ExploreInfluencers() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const allLabel = t("common.all", "All");
+  const [searchParams] = useSearchParams();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("search") ?? "",
+  );
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [selectedFollowers, setSelectedFollowers] = useState("");
   const [selectedEngagement, setSelectedEngagement] = useState("");

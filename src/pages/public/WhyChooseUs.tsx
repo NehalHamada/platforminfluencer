@@ -7,7 +7,7 @@ import chI2 from "/assets/choImg2.png";
 import chI3 from "/assets/choImg3.png";
 import chI4 from "/assets/choImg4.png";
 import type { LandingSection } from "@/types/landing.types";
-import { getString, isRecord } from "@/utils/landing";
+import { getImageList, getString, isRecord, sectionText } from "@/utils/landing";
 
 type WhyChooseUsProps = {
   data?: LandingSection | null;
@@ -19,6 +19,11 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
   const apiPoints = Array.isArray(data?.content?.points)
     ? data.content.points.filter(isRecord)
     : [];
+  const apiImages = getImageList(data?.content);
+  const images = [chI1, chI2, chI3, chI4].map(
+    (fallback, index) => apiImages[index] ?? fallback,
+  );
+  const title = sectionText(data, "title", t("whyChooseUs"), isRTL);
   const features =
     isRTL && apiPoints.length
       ? apiPoints.map(
@@ -38,22 +43,22 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
           <Card className="w-full max-w-120 border-0 bg-transparent py-0 shadow-none">
             <CardContent className="grid grid-cols-3 grid-rows-2 gap-3 p-0 sm:gap-4">
               <img
-                src={chI1}
+                src={images[0]}
                 className="row-span-2 h-64 w-full rounded-3xl object-cover sm:h-80 md:h-105"
                 alt=""
               />
               <img
-                src={chI2}
+                src={images[1]}
                 className="h-30 w-full rounded-3xl object-cover sm:h-40 md:h-50.5"
                 alt=""
               />
               <img
-                src={chI3}
+                src={images[2]}
                 className="row-span-2 h-64 w-full rounded-3xl object-cover sm:h-80 md:h-105"
                 alt=""
               />
               <img
-                src={chI4}
+                src={images[3]}
                 className="h-30 w-full rounded-3xl object-cover sm:h-40 md:h-50.5"
                 alt=""
               />
@@ -69,7 +74,7 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 isRTL ? "md:text-right" : "md:text-left",
               )}>
               <CardTitle className="mb-6 text-3xl font-bold text-white underline">
-                {(isRTL && data?.title) || t("whyChooseUs")}
+                {title}
               </CardTitle>
 
               <ul className="space-y-4">

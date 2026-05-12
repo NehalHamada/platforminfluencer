@@ -71,13 +71,18 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const profileMenuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
   const user = useAuthStore((state: AuthStore) => state.user);
-  const isAuthenticated = useAuthStore((state: AuthStore) => state.isAuthenticated);
+  const isAuthenticated = useAuthStore(
+    (state: AuthStore) => state.isAuthenticated,
+  );
   const clearAuth = useAuthStore((state: AuthStore) => state.clearAuth);
 
   const authRoutes = [
@@ -107,6 +112,15 @@ function Navbar() {
     { label: t("nav.whoUs"), href: "#about" },
     { label: t("nav.ourServices"), href: "#services" },
     { label: t("nav.influencers"), href: "#influencers" },
+  ];
+
+  const homeMobileNavLinks: HomeLink[] = [
+    { label: t("nav.home"), href: "#" },
+    { label: t("nav.ourResults"), href: "#follow" },
+    { label: t("nav.whoUs"), href: "#about" },
+    { label: t("nav.influencers"), href: "#influencers" },
+    { label: t("whyChooseUs"), href: "#why-choose-us" },
+    { label: t("nav.contactUs"), href: "#contact" },
   ];
 
   const influencerNavLinks: DashboardLink[] = [
@@ -145,6 +159,23 @@ function Navbar() {
   ];
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const openMobileSearch = () => {
+    setIsMobileSearchOpen(true);
+    window.setTimeout(() => mobileSearchInputRef.current?.focus(), 0);
+  };
+
+  const submitMobileSearch = () => {
+    const query = mobileSearchQuery.trim();
+
+    if (!query) {
+      setIsMobileSearchOpen(false);
+      return;
+    }
+
+    navigate(`/dashboard/company/explore?search=${encodeURIComponent(query)}`);
+    setIsMobileSearchOpen(false);
+  };
 
   const changeLanguage = () => {
     void i18n.changeLanguage(isArabic ? "en" : "ar");
@@ -287,7 +318,7 @@ function Navbar() {
       type="button"
       variant="ghost"
       onClick={changeLanguage}
-      className="h-12 w-full justify-between rounded-md bg-white/10 px-4 text-white hover:bg-white/15 hover:text-white">
+      className="h-14 w-full justify-between rounded-md bg-white/10 px-5 text-white hover:bg-white/15 hover:text-white">
       <span className="flex items-center gap-2">
         <Globe size={24} />
       </span>
@@ -373,7 +404,7 @@ function Navbar() {
               (isCompanyProfilePage &&
                 link.path === "/dashboard/company/explore"),
           }))
-        : homeNavLinks.map((link) => ({
+        : homeMobileNavLinks.map((link) => ({
             key: link.href,
             label: link.label,
             action: () => closeMenu(),
@@ -421,11 +452,10 @@ function Navbar() {
             </div>
 
             <div className="flex flex-1 flex-col pt-7">
-              {isHome && <div className="mb-5">{renderSearch()}</div>}
 
               <div
                 className={cn(
-                  "flex flex-col gap-2",
+                  isHome ? "flex flex-col gap-5 pt-2" : "flex flex-col gap-2",
                   isArabic ? "items-end text-right" : "items-start text-left",
                 )}>
                 {mobileLinks.map((link) =>
@@ -435,7 +465,9 @@ function Navbar() {
                       href={link.href}
                       onClick={link.action}
                       className={cn(
-                        "w-full rounded-md py-2 text-lg font-semibold text-white/90 transition hover:text-white",
+                        isHome
+                          ? "w-full rounded-md py-1 text-lg font-semibold text-white/95 transition hover:text-white"
+                          : "w-full rounded-md py-2 text-lg font-semibold text-white/90 transition hover:text-white",
                         isArabic ? "text-right" : "text-left",
                       )}>
                       {link.label}
@@ -462,10 +494,10 @@ function Navbar() {
                 )}
               </div>
 
-              <div className="mt-auto space-y-6 pb-3">
+              <div className={cn("space-y-6 pb-3", isHome ? "mt-8" : "mt-auto")}>
                 {renderMobileLanguageToggle()}
 
-                {showAuthLogin && (
+                {showAuthLogin && !isHome && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -533,6 +565,8 @@ function Navbar() {
           <div className="flex items-center justify-between rounded-full border border-white/10 bg-[rgba(104,139,52,0.45)] px-4 py-3 backdrop-blur-md md:px-5 md:py-4">
             {mobileMenuButton}
 
+            <div className="hidden md:block">{brandButton("/")}</div>
+
             <nav
               aria-label="Primary navigation"
               className="hidden items-center gap-3 text-sm font-medium text-white md:flex">
@@ -559,7 +593,57 @@ function Navbar() {
             </div>
 
             <div className="flex items-center gap-3 text-white">
-              <LanguageToggle />
+              <div className="hidden md:block">
+                <LanguageToggle />
+              </div>
+              {isMobileSearchOpen ? (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    submitMobileSearch();
+                  }}
+                  className="relative md:hidden">
+                  <Input
+                    ref={mobileSearchInputRef}
+                    type="search"
+                    value={mobileSearchQuery}
+                    onChange={(event) =>
+                      setMobileSearchQuery(event.target.value)
+                    }
+                    onBlur={() => {
+                      if (!mobileSearchQuery.trim()) {
+                        setIsMobileSearchOpen(false);
+                      }
+                    }}
+                    placeholder={t("nav.search")}
+                    className={cn(
+                      "h-9 w-40 rounded-full border border-white/25 bg-white/10 text-sm text-white placeholder:text-white/60 focus-visible:ring-0 focus-visible:ring-offset-0",
+                      isArabic ? "pl-9 pr-3 text-right" : "pr-9 pl-3 text-left",
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={t("nav.search")}
+                    className={cn(
+                      "absolute top-1/2 -translate-y-1/2 rounded-full text-white hover:bg-white/10 hover:text-white",
+                      isArabic ? "left-1" : "right-1",
+                    )}>
+                    <Search size={15} />
+                  </Button>
+                </form>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={openMobileSearch}
+                  aria-label={t("nav.search")}
+                  className="rounded-full cursor-pointer text-white hover:bg-white/10 hover:text-white md:hidden">
+                  <Search size={22} />
+                </Button>
+              )}
             </div>
           </div>
         </header>

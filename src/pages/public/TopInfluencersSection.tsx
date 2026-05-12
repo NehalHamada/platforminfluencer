@@ -20,18 +20,74 @@ type TopInfluencersSectionProps = {
   data?: LandingCollection | null;
 };
 
+const fallbackImages = [inf1, inf2, inf3];
+
+const isUsableImage = (value: unknown): value is string =>
+  typeof value === "string" &&
+  value.trim().length > 0 &&
+  !value.includes("example.com");
+
+const readString = (record: Record<string, unknown> | null, key: string) => {
+  const value = record?.[key];
+  return typeof value === "string" && value.trim() ? value : null;
+};
+
+const getProfile = (user: Record<string, unknown>) => {
+  const profile = user.influencer_profile;
+  return isRecord(profile) ? profile : null;
+};
+
+const orderUsersByContentIds = (
+  users: Record<string, unknown>[],
+  content: Record<string, unknown> | null | undefined,
+) => {
+  const userIds = content?.user_ids;
+  if (!Array.isArray(userIds)) return users;
+
+  const order = new Map(
+    userIds
+      .filter((id): id is number => typeof id === "number")
+      .map((id, index) => [id, index]),
+  );
+
+  return [...users].sort((a, b) => {
+    const aId = typeof a.id === "number" ? a.id : null;
+    const bId = typeof b.id === "number" ? b.id : null;
+    const aOrder =
+      aId !== null
+        ? order.get(aId) ?? Number.MAX_SAFE_INTEGER
+        : Number.MAX_SAFE_INTEGER;
+    const bOrder =
+      bId !== null
+        ? order.get(bId) ?? Number.MAX_SAFE_INTEGER
+        : Number.MAX_SAFE_INTEGER;
+
+    return aOrder - bOrder;
+  });
+};
+
 function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const apiUsers =
+    data?.users?.filter((user): user is Record<string, unknown> =>
+      isRecord(user),
+    ) ?? [];
   const apiInfluencers =
-    data?.users
-      ?.map((user, index) => {
-        if (!isRecord(user)) return null;
+    orderUsersByContentIds(apiUsers, data?.info?.content)
+      .map((user, index) => {
+        const profile = getProfile(user);
+        const fameLevel = profile?.fame_level;
+        const fameLevelName = isRecord(fameLevel)
+          ? readString(fameLevel, "name")
+          : null;
         return {
           id: typeof user.id === "number" ? user.id : index + 1,
-          image: [inf1, inf2, inf3][index % 3],
+          image: isUsableImage(user.avatar)
+            ? user.avatar
+            : fallbackImages[index % fallbackImages.length],
           name:
             typeof user.name === "string"
               ? user.name
@@ -41,10 +97,11 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
               ? user.followers
               : typeof user.followers_count === "number"
                 ? `${user.followers_count}`
-                : t(`topInfluencers2.items.${(index % 3) + 1}.followers`),
+                : fameLevelName ||
+                  readString(profile, "content_field") ||
+                  t(`topInfluencers2.items.${(index % 3) + 1}.followers`),
         };
-      })
-      .filter((user): user is NonNullable<typeof user> => !!user) ?? [];
+      });
 
   const influencers = apiInfluencers.length
     ? apiInfluencers

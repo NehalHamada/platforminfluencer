@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import style from "/assets/image2.png";
 import us from "/assets/user1.png";
 import type { LandingCollection } from "@/types/landing.types";
-import { sectionText } from "@/utils/landing";
+import { getString, isRecord, isUsableImageUrl, sectionText } from "@/utils/landing";
 
 const images = [style, style, style, style, us, us, us, us];
 
@@ -18,7 +18,17 @@ type ResultsLandingProps = {
 function ResultsLanding({ data }: ResultsLandingProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
-  const resultImages = images;
+  const apiImages =
+    data?.posts
+      ?.filter(isRecord)
+      .map(
+        (post) =>
+          getString(post, "thumbnail_url") ||
+          getString(post, "media_url") ||
+          getString(post, "image"),
+      )
+      .filter(isUsableImageUrl) ?? [];
+  const resultImages = apiImages.length ? apiImages : images;
   const title = sectionText(data?.info, "title", t("resultsTitle"), isRTL);
   const description = sectionText(data?.info, "description", t("resultsDesc"), isRTL);
   const [currentPage, setCurrentPage] = useState(0);

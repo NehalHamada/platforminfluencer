@@ -10,7 +10,7 @@ import centerImg from "/assets/platImg.png";
 import profileImg from "/assets/platImg1.png";
 import logoImg from "/assets/platLogo.png";
 import type { LandingSection } from "@/types/landing.types";
-import { getString, sectionText } from "@/utils/landing";
+import { getImageList, getString, sectionText } from "@/utils/landing";
 
 type AboutPlatformSectionProps = {
   data?: LandingSection | null;
@@ -25,6 +25,10 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
   const cardDesc =
     (isRTL && getString(content, "about_desc")) ||
     sectionText(data, "description", t("aboutPlatform.cardDesc"), isRTL);
+  const apiImages = getImageList(content);
+  const mainImage = apiImages[0] ?? centerImg;
+  const firstProfileImage = apiImages[1] ?? profileImg;
+  const secondProfileImage = apiImages[2] ?? bgImg;
 
   const stats = [
     {
@@ -55,7 +59,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
         <div className="md:hidden">
           <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,246,241,0.9))] px-5 py-6 shadow-[0_12px_34px_rgba(0,0,0,0.06)]">
             <img
-              src={centerImg}
+              src={mainImage}
               alt=""
               className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-8"
             />
@@ -80,7 +84,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
 
                 <div className="relative overflow-hidden rounded-[26px] bg-[#1c1c1c]">
                   <img
-                    src={centerImg}
+                    src={mainImage}
                     alt={t("aboutPlatform.centerAlt")}
                     className="h-48 w-full object-cover opacity-80"
                   />
@@ -166,7 +170,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
                 <div className="relative mx-auto w-full max-w-[20rem] sm:max-w-md lg:max-w-117.5">
                   <Card className="relative overflow-hidden rounded-[28px] border-0 bg-[#1c1c1c] py-0 shadow-[0_12px_30px_rgba(0,0,0,0.14)]">
                     <img
-                    src={centerImg}
+                    src={mainImage}
                       alt={t("aboutPlatform.centerAlt")}
                       className="h-64 w-full object-cover opacity-85 sm:h-72 md:h-80"
                     />
@@ -199,7 +203,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
                   <div className="pointer-events-none absolute -top-7 left-4 z-10">
                     <Avatar className="h-16 w-16 border-4 border-white shadow-md sm:h-19.5 sm:w-19.5">
                       <AvatarImage
-                        src={profileImg}
+                        src={firstProfileImage}
                         alt={t("aboutPlatform.profileAlt")}
                       />
                     </Avatar>
@@ -207,7 +211,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
                   <div className="pointer-events-none absolute -top-7 left-18 z-10 sm:left-25">
                     <Avatar className="h-16 w-16 border-4 border-white shadow-md sm:h-19.5 sm:w-19.5">
                       <AvatarImage
-                        src={bgImg}
+                        src={secondProfileImage}
                         alt={t("aboutPlatform.profileAlt")}
                       />
                     </Avatar>

@@ -10,7 +10,7 @@ import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import featImg from "/assets/featImg.jpg";
 import type { LandingSection } from "@/types/landing.types";
-import { getString, isRecord } from "@/utils/landing";
+import { getImage, getString, isRecord, sectionText } from "@/utils/landing";
 
 type FeaturesSectionProps = {
   data?: LandingSection | null;
@@ -23,6 +23,14 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
   const apiPoints = Array.isArray(data?.content?.points)
     ? data.content.points.filter(isRecord)
     : [];
+  const featureImage = getImage(data?.content, "image") ?? featImg;
+  const title = sectionText(data, "title", t("features.title", ""), isRTL);
+  const description = sectionText(
+    data,
+    "description",
+    t("features.description", ""),
+    isRTL,
+  );
   const features = isRTL && apiPoints.length
     ? apiPoints.map((point, index) => ({
         id: String(index + 1),
@@ -42,11 +50,25 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
       <div className="mx-auto max-w-6xl">
         <Card className="relative overflow-hidden rounded-2xl border-0 py-0 shadow-none">
           <img
-            src={featImg}
+            src={featureImage}
             alt={t("features.bannerAlt")}
             className="h-24 w-full object-cover sm:h-28 md:h-35"
           />
           <div className="absolute inset-0 bg-[rgba(205,205,205,0.47)]" />
+          {(title || description) && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
+              {title ? (
+                <h2 className="text-xl font-bold drop-shadow md:text-3xl">
+                  {title}
+                </h2>
+              ) : null}
+              {description ? (
+                <p className="mt-2 max-w-2xl text-sm leading-6 drop-shadow md:text-base">
+                  {description}
+                </p>
+              ) : null}
+            </div>
+          )}
         </Card>
 
         <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2 md:gap-x-14">

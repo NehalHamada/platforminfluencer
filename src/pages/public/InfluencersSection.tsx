@@ -20,6 +20,62 @@ type InfluencersSectionProps = {
   data?: LandingCollection | null;
 };
 
+const fallbackImages = [inf1, inf2, inf3];
+
+const isUsableImage = (value: unknown): value is string =>
+  typeof value === "string" &&
+  value.trim().length > 0 &&
+  !value.includes("example.com");
+
+const readString = (record: Record<string, unknown>, key: string) => {
+  const value = record[key];
+  return typeof value === "string" && value.trim() ? value : null;
+};
+
+const getProfile = (user: Record<string, unknown>) => {
+  const profile = user.influencer_profile;
+  return isRecord(profile) ? profile : null;
+};
+
+const getPlatformsLabel = (user: Record<string, unknown>) => {
+  const platforms = user.platforms;
+
+  if (!Array.isArray(platforms)) return null;
+
+  const names = platforms
+    .map((platform) => {
+      if (!isRecord(platform)) return null;
+      return readString(platform, "name");
+    })
+    .filter((name): name is string => !!name);
+
+  return names.length ? names.join(" / ") : null;
+};
+
+const orderUsersByContentIds = (
+  users: Record<string, unknown>[],
+  infoContent: Record<string, unknown> | null | undefined,
+) => {
+  const userIds = infoContent?.user_ids;
+
+  if (!Array.isArray(userIds)) return users;
+
+  const order = new Map(
+    userIds
+      .filter((id): id is number => typeof id === "number")
+      .map((id, index) => [id, index]),
+  );
+
+  return [...users].sort((a, b) => {
+    const aId = typeof a.id === "number" ? a.id : null;
+    const bId = typeof b.id === "number" ? b.id : null;
+    const aOrder = aId !== null ? order.get(aId) : undefined;
+    const bOrder = bId !== null ? order.get(bId) : undefined;
+
+    return (aOrder ?? Number.MAX_SAFE_INTEGER) - (bOrder ?? Number.MAX_SAFE_INTEGER);
+  });
+};
+
 function InfluencersSection({ data }: InfluencersSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
@@ -30,19 +86,35 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
   const influencers = useMemo(() => {
     const apiUsers =
       data?.users
-        ?.map((user, index) => {
-          if (!isRecord(user)) return null;
+        ?.filter((user): user is Record<string, unknown> => isRecord(user)) ??
+      [];
+
+    const orderedApiUsers = orderUsersByContentIds(apiUsers, data?.info?.content);
+
+    const mappedApiUsers = orderedApiUsers
+        .map((user, index) => {
+          const profile = getProfile(user);
+          const fameLevel = profile?.fame_level;
+          const fameLevelName = isRecord(fameLevel)
+            ? readString(fameLevel, "name")
+            : null;
+          const platformsLabel = getPlatformsLabel(user);
+          const email = readString(user, "email");
           const name =
             typeof user.name === "string"
               ? user.name
               : t(`Influencers.items.${(index % 3) + 1}.name`);
-          const image = [inf1, inf2, inf3][index % 3];
+          const image = isUsableImage(user.avatar)
+            ? user.avatar
+            : fallbackImages[index % fallbackImages.length];
           const followers =
             typeof user.followers === "string"
               ? user.followers
               : typeof user.followers_count === "number"
                 ? `${user.followers_count}`
-                : t(`Influencers.items.${(index % 3) + 1}.followers`);
+                : fameLevelName ||
+                  readString(profile ?? {}, "country") ||
+                  t(`Influencers.items.${(index % 3) + 1}.followers`);
 
           return {
             id: typeof user.id === "number" ? user.id : index + 1,
@@ -53,86 +125,89 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                 ? `@${user.username}`
                 : typeof user.handle === "string"
                   ? user.handle
-                  : t(`Influencers.items.${(index % 3) + 1}.handle`),
+                  : email
+                    ? `@${email.split("@")[0]}`
+                    : t(`Influencers.items.${(index % 3) + 1}.handle`),
             category1:
-              typeof user.content_field === "string"
-                ? user.content_field
-                : t(`Influencers.items.${(index % 3) + 1}.category1`),
+              readString(profile ?? {}, "content_field") ||
+              readString(user, "content_field") ||
+              t(`Influencers.items.${(index % 3) + 1}.category1`),
             category2:
-              typeof user.type === "string"
+              platformsLabel ||
+              fameLevelName ||
+              (typeof user.type === "string"
                 ? user.type
-                : t(`Influencers.items.${(index % 3) + 1}.category2`),
+                : t(`Influencers.items.${(index % 3) + 1}.category2`)),
             followers,
             accent: "bg-[rgba(199,199,199,0.13)]",
           };
-        })
-        .filter((user): user is NonNullable<typeof user> => !!user) ?? [];
+        });
 
-    return apiUsers.length
-      ? apiUsers
+    return mappedApiUsers.length
+      ? mappedApiUsers
       : [
-      {
-        id: 1,
-        image: inf1,
-        name: t("Influencers.items.1.name"),
-        handle: t("Influencers.items.1.handle"),
-        category1: t("Influencers.items.1.category1"),
-        category2: t("Influencers.items.1.category2"),
-        followers: t("Influencers.items.1.followers"),
-        accent: "bg-[rgba(199,199,199,0.13)]",
-      },
-      {
-        id: 2,
-        image: inf2,
-        name: t("Influencers.items.2.name"),
-        handle: t("Influencers.items.2.handle"),
-        category1: t("Influencers.items.2.category1"),
-        category2: t("Influencers.items.2.category2"),
-        followers: t("Influencers.items.2.followers"),
-        accent: "bg-[rgba(199,199,199,0.13)]",
-      },
-      {
-        id: 3,
-        image: inf3,
-        name: t("Influencers.items.3.name"),
-        handle: t("Influencers.items.3.handle"),
-        category1: t("Influencers.items.3.category1"),
-        category2: t("Influencers.items.3.category2"),
-        followers: t("Influencers.items.3.followers"),
-        accent: "bg-[rgba(199,199,199,0.13)]",
-      },
-      {
-        id: 4,
-        image: inf2,
-        name: t("Influencers.items.1.name"),
-        handle: t("Influencers.items.1.handle"),
-        category1: t("Influencers.items.1.category1"),
-        category2: t("Influencers.items.1.category2"),
-        followers: t("Influencers.items.1.followers"),
-        accent: "bg-[rgba(199,199,199,0.13)]",
-      },
-      {
-        id: 5,
-        image: inf3,
-        name: t("Influencers.items.2.name"),
-        handle: t("Influencers.items.2.handle"),
-        category1: t("Influencers.items.2.category1"),
-        category2: t("Influencers.items.2.category2"),
-        followers: t("Influencers.items.2.followers"),
-        accent: "bg-[rgba(199,199,199,0.13)]",
-      },
-      {
-        id: 6,
-        image: inf1,
-        name: t("Influencers.items.3.name"),
-        handle: t("Influencers.items.3.handle"),
-        category1: t("Influencers.items.3.category1"),
-        category2: t("Influencers.items.3.category2"),
-        followers: t("Influencers.items.3.followers"),
-        accent: "bg-[rgba(199,199,199,0.13)]",
-      },
-    ];
-  }, [data?.users, t]);
+          {
+            id: 1,
+            image: inf1,
+            name: t("Influencers.items.1.name"),
+            handle: t("Influencers.items.1.handle"),
+            category1: t("Influencers.items.1.category1"),
+            category2: t("Influencers.items.1.category2"),
+            followers: t("Influencers.items.1.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 2,
+            image: inf2,
+            name: t("Influencers.items.2.name"),
+            handle: t("Influencers.items.2.handle"),
+            category1: t("Influencers.items.2.category1"),
+            category2: t("Influencers.items.2.category2"),
+            followers: t("Influencers.items.2.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 3,
+            image: inf3,
+            name: t("Influencers.items.3.name"),
+            handle: t("Influencers.items.3.handle"),
+            category1: t("Influencers.items.3.category1"),
+            category2: t("Influencers.items.3.category2"),
+            followers: t("Influencers.items.3.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 4,
+            image: inf2,
+            name: t("Influencers.items.1.name"),
+            handle: t("Influencers.items.1.handle"),
+            category1: t("Influencers.items.1.category1"),
+            category2: t("Influencers.items.1.category2"),
+            followers: t("Influencers.items.1.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 5,
+            image: inf3,
+            name: t("Influencers.items.2.name"),
+            handle: t("Influencers.items.2.handle"),
+            category1: t("Influencers.items.2.category1"),
+            category2: t("Influencers.items.2.category2"),
+            followers: t("Influencers.items.2.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 6,
+            image: inf1,
+            name: t("Influencers.items.3.name"),
+            handle: t("Influencers.items.3.handle"),
+            category1: t("Influencers.items.3.category1"),
+            category2: t("Influencers.items.3.category2"),
+            followers: t("Influencers.items.3.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+        ];
+  }, [data?.info?.content, data?.users, t]);
 
   const title = sectionText(data?.info, "title", t("Influencers.title"), isRTL);
   const description = sectionText(

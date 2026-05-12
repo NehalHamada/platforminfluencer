@@ -1,20 +1,16 @@
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaSnapchatGhost,
-  FaTiktok,
-  FaTwitter,
-  FaYoutube,
-} from "react-icons/fa";
-import { IoCamera } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import hero from "/assets/Hero.png";
+import bellImg from "/assets/bell.png";
+import facebookImg from "/assets/facebook.png";
+import giftImg from "/assets/popImg.png";
+import instagramImg from "/assets/instagram.png";
+import chatImg from "/assets/icon1.png";
+import twitterImg from "/assets/twitter.png";
 import us1 from "/assets/huser1.png";
 import us2 from "/assets/huser2.png";
 import us3 from "/assets/huser3.png";
@@ -23,66 +19,133 @@ import us5 from "/assets/huser5.png";
 import type { LandingSection } from "@/types/landing.types";
 import { sectionText } from "@/utils/landing";
 
-const images = [us1, us2, us3, us4, us5];
+const communityImages = [us1, us2, us3, us4, us5];
 
-const apiIconMap = {
-  "icon-ig": FaInstagram,
-  "icon-tt": FaTiktok,
-  "icon-yt": FaYoutube,
-  "icon-fb": FaFacebookF,
-  "icon-sc": FaSnapchatGhost,
+const assetByIconKey = {
+  "icon-ig": instagramImg,
+  "icon-tt": twitterImg,
+  "icon-yt": giftImg,
+  "icon-fb": facebookImg,
+  "icon-sc": chatImg,
+  instagram: instagramImg,
+  tiktok: twitterImg,
+  youtube: giftImg,
+  facebook: facebookImg,
+  snapchat: chatImg,
 } as const;
 
-const floatingIcons = [
+const defaultFloatingIconKeys = [
+  "icon-ig",
+  "bell",
+  "icon-tt",
+  "icon-fb",
+  "icon-sc",
+  "icon-yt",
+] as const;
+
+type FloatingIconKey =
+  | keyof typeof assetByIconKey
+  | (typeof defaultFloatingIconKeys)[number];
+
+const isUsableImageUrl = (value: unknown): value is string =>
+  typeof value === "string" &&
+  value.trim().length > 0 &&
+  !value.includes("example.com");
+
+const getContentImages = (content: LandingSection["content"]) => {
+  const images = content?.images;
+
+  if (!Array.isArray(images)) return [];
+
+  return images.filter(isUsableImageUrl);
+};
+
+const getContentIcons = (
+  content: LandingSection["content"],
+): FloatingIconKey[] => {
+  const icons = content?.icons;
+
+  if (!Array.isArray(icons)) return [...defaultFloatingIconKeys];
+
+  const validIcons = icons.filter(
+    (icon): icon is keyof typeof assetByIconKey =>
+      typeof icon === "string" && icon in assetByIconKey,
+  );
+
+  if (!validIcons.length) return [...defaultFloatingIconKeys];
+
+  return [
+    validIcons[0] ?? "icon-ig",
+    "bell",
+    validIcons[1] ?? "icon-tt",
+    validIcons[2] ?? "icon-fb",
+    validIcons[3] ?? "icon-sc",
+    validIcons[4] ?? "icon-yt",
+  ];
+};
+
+const floatingAssets = [
   {
-    id: "twitter",
-    icon: FaTwitter,
-    color: "text-blue-400",
-    mobileY: [0, -16, 0],
-    desktopY: [0, -16, 0],
+    id: "icon-ig",
+    y: [0, -20, 0],
     duration: 4,
-    position: "top-20 lg:top-60",
-    sideClass: {
-      rtl: "left-6 lg:left-50",
-      ltr: "right-6 lg:right-50",
-    },
-    mobileClass: {
-      rtl: "left-12 top-[27%]",
-      ltr: "right-12 top-[34%]",
+    pos: {
+      mobile: "left-[7%] top-[31%] w-12",
+      arabic: "left-[2%] top-[25%] w-24 xl:left-[3%] xl:top-[22%] xl:w-28",
+      english: "right-[2%] top-[25%] w-24 xl:right-[3%] xl:top-[22%] xl:w-28",
     },
   },
   {
-    id: "facebook",
-    icon: FaFacebookF,
-    color: "text-blue-600",
-    mobileY: [0, 16, 0],
-    desktopY: [0, 16, 0],
+    id: "bell",
+    y: [0, 15, 0],
     duration: 5,
-    position: "top-40 lg:top-75",
-    sideClass: {
-      rtl: "left-6 lg:left-40",
-      ltr: "right-6 lg:right-40",
-    },
-    mobileClass: {
-      rtl: "left-24 top-[40%]",
-      ltr: "right-24 top-[49%]",
+    pos: {
+      mobile: "left-[31%] top-[31%] w-12",
+      arabic: "left-[15%] top-[18%] w-20 xl:left-[18%] xl:top-[16%] xl:w-24",
+      english: "right-[15%] top-[18%] w-20 xl:right-[18%] xl:top-[16%] xl:w-24",
     },
   },
   {
-    id: "camera",
-    icon: IoCamera,
-    color: "text-pink-400",
-    mobileY: [0, -14, 0],
-    desktopY: [0, -14, 0],
-    duration: 6,
-    position: "top-66 lg:top-95",
-    sideClass: {
-      rtl: "left-10 lg:left-30",
-      ltr: "right-10 lg:right-30",
+    id: "icon-tt",
+    y: [0, -15, 0],
+    duration: 4.5,
+    pos: {
+      mobile: "left-[17%] top-[38%] w-12",
+      arabic: "left-[4%] top-[45%] w-22 xl:left-[6%] xl:top-[42%] xl:w-26",
+      english: "right-[4%] top-[45%] w-22 xl:right-[6%] xl:top-[42%] xl:w-26",
     },
-    mobileClass: {
-      rtl: "left-6 top-[36%]",
-      ltr: "right-6 top-[40%]",
+  },
+  {
+    id: "icon-fb",
+    y: [0, 12, 0],
+    duration: 6,
+    pos: {
+      mobile: "left-[42%] top-[40%] w-10",
+      arabic: "left-[16%] top-[55%] w-16 xl:left-[18%] xl:top-[52%] xl:w-20",
+      english: "right-[16%] top-[55%] w-16 xl:right-[18%] xl:top-[52%] xl:w-20",
+    },
+  },
+  {
+    id: "icon-sc",
+    y: [0, -10, 0],
+    duration: 5.5,
+    pos: {
+      mobile: "left-[25%] top-[49%] w-10",
+      arabic:
+        "left-[12%] bottom-[15%] w-20 xl:left-[14%] xl:bottom-[12%] xl:w-24",
+      english:
+        "right-[12%] bottom-[15%] w-20 xl:right-[14%] xl:bottom-[12%] xl:w-24",
+    },
+  },
+  {
+    id: "icon-yt",
+    y: [0, 10, 0],
+    duration: 7,
+    pos: {
+      mobile: "left-[22%] top-[54%] w-13",
+      arabic: "left-[3%] bottom-[8%] w-24 xl:left-[5%] xl:bottom-[5%] xl:w-28",
+      english:
+        "right-[3%] bottom-[8%] w-24 xl:right-[5%] xl:bottom-[5%] xl:w-28",
     },
   },
 ];
@@ -91,16 +154,71 @@ type HeroProps = {
   data: LandingSection;
 };
 
+const renderHighlightedTitle = (title: string, isArabic: boolean) => {
+  const parts = isArabic
+    ? [
+        { text: "متخصصين في ربط ", highlight: false },
+        { text: "العلامات التجارية", highlight: true },
+        { text: "\nبالمؤثرين لتنفيذ حملات تسويقية", highlight: true },
+        { text: "\nرقمية مؤثرة", highlight: false },
+      ]
+    : [
+        { text: "Specialists in ", highlight: false },
+        { text: "Connecting Brands", highlight: true },
+        { text: "\nwith Influencers", highlight: false },
+        { text: " to execute", highlight: false },
+        { text: "\nImpactful Campaigns", highlight: true },
+      ];
+
+  const canUseDesignedCopy = isArabic
+    ? title.includes("العلامات") || title.includes("المؤثر")
+    : title.toLowerCase().includes("connecting");
+
+  if (!canUseDesignedCopy) return title;
+
+  return parts.map((part, index) =>
+    part.text === "\n" || part.text.startsWith("\n") ? (
+      <span key={index}>
+        <br />
+        {part.text.replace("\n", "")}
+      </span>
+    ) : (
+      <span
+        key={index}
+        className={part.highlight ? "text-[#A7B78E]" : undefined}>
+        {part.text}
+      </span>
+    ),
+  );
+};
+
 function Hero({ data }: HeroProps) {
   const { t, i18n } = useTranslation();
   const isArabic = i18n.language.startsWith("ar");
   const navigate = useNavigate();
 
   const content = data.content;
+  const title = sectionText(data, "title", t("heroTitle"), isArabic);
+  const description = sectionText(data, "description", t("heroDesc"), isArabic);
+  const contentImages = getContentImages(content);
+  const heroImage = contentImages[0] ?? hero;
+  const iconKeys = getContentIcons(content);
+  const displayedFloatingAssets = floatingAssets.map((asset, index) => {
+    const iconKey = iconKeys[index];
+
+    return {
+      ...asset,
+      img:
+        iconKey === "bell"
+          ? bellImg
+          : (assetByIconKey[iconKey as keyof typeof assetByIconKey] ??
+            assetByIconKey[asset.id as keyof typeof assetByIconKey]),
+    };
+  });
   const visitCount =
-    typeof content?.visit_count === "string" ? content.visit_count : "95k+";
+    typeof content?.visit_count === "string" ? content.visit_count : "95K+";
   const visitText =
-    isArabic && typeof content?.visit_text === "string"
+    typeof content?.visit_text === "string"
       ? content.visit_text
       : t("JoinUsToday");
 
@@ -108,151 +226,163 @@ function Hero({ data }: HeroProps) {
     navigate(`/login?role=${role}`);
   };
 
-  const apiIconNames = Array.isArray(content?.icons)
-    ? (content.icons as string[])
-    : [];
-
-  const displayedFloatingIcons = floatingIcons.map((item, index) => {
-    const apiIconName = apiIconNames[index];
-    const ApiIcon = apiIconMap[apiIconName as keyof typeof apiIconMap];
-
-    return {
-      ...item,
-      icon: ApiIcon || item.icon,
-    };
-  });
-
   return (
     <section
       dir={isArabic ? "rtl" : "ltr"}
-      className="relative -mt-24 min-h-[560px] overflow-hidden px-4 pb-8 pt-28 sm:min-h-[620px] sm:px-6 lg:min-h-[680px] lg:px-8 lg:pt-32">
+      className="relative -mt-24 min-h-180 overflow-hidden px-4 pb-8 pt-31 sm:px-6 lg:min-h-[700px] lg:px-8 lg:pt-40 xl:min-h-[750px]">
       <img
-        src={hero}
-        alt="hero"
-        className="absolute inset-0 mx-auto h-full w-full object-cover"
+        src={heroImage}
+        alt="hero background"
+        className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/55" />
 
-      <div className="relative z-10 flex min-h-[500px] items-end pb-10 sm:min-h-[560px] sm:items-center sm:pb-0 lg:min-h-[620px]">
+      <div className="pointer-events-none absolute inset-0 lg:hidden">
+        {displayedFloatingAssets.map((asset) => (
+          <motion.img
+            key={`${asset.id}-mobile`}
+            src={asset.img}
+            alt=""
+            animate={{ y: asset.y }}
+            transition={{
+              repeat: Infinity,
+              duration: asset.duration,
+              ease: "easeInOut",
+            }}
+            className={cn(
+              "absolute z-10 h-auto select-none drop-shadow-[0_12px_14px_rgba(0,0,0,0.28)]",
+              asset.pos.mobile,
+            )}
+          />
+        ))}
+      </div>
+
+      <div className="pointer-events-none absolute inset-0 hidden lg:block">
+        {displayedFloatingAssets.map((asset) => (
+          <motion.img
+            key={asset.id}
+            src={asset.img}
+            alt=""
+            animate={{ y: asset.y }}
+            transition={{
+              repeat: Infinity,
+              duration: asset.duration,
+              ease: "easeInOut",
+            }}
+            className={cn(
+              "absolute z-10 h-auto select-none drop-shadow-[0_18px_22px_rgba(0,0,0,0.32)]",
+              isArabic ? asset.pos.arabic : asset.pos.english,
+            )}
+          />
+        ))}
+      </div>
+
+      <div
+        className={cn(
+          "relative z-20 mx-auto flex min-h-[calc(720px-7.75rem)] max-w-[90rem] items-end justify-end pb-8 lg:min-h-[calc(650px-8rem)] lg:items-center lg:justify-start lg:pb-0 xl:min-h-[calc(700px-8rem)]",
+        )}>
         <div
           className={cn(
-            "w-full max-w-92 sm:max-w-xl lg:max-w-2xl",
+            "w-full max-w-[22rem]",
             isArabic
-              ? "mx-auto text-center sm:mx-0 sm:mr-0 sm:text-right"
-              : "mx-auto text-center sm:mx-0 sm:ml-0 sm:text-left",
+              ? "text-right lg:max-w-[42rem] xl:max-w-[46rem]"
+              : "text-left lg:max-w-[44rem]",
           )}>
-          <h1 className="text-[1.9rem] leading-normal font-bold text-white sm:text-4xl md:text-5xl lg:text-6xl">
-            {sectionText(data, "title", t("heroTitle"), isArabic)}
+          <h1
+            className={cn(
+              "font-bold leading-[1.3] text-white drop-shadow-[0_8px_18px_rgba(0,0,0,0.36)]",
+              isArabic
+                ? "text-[1.35rem] lg:text-[clamp(1.5rem,3.2vw,3.5rem)]"
+                : "text-[1.05rem] lg:text-[clamp(1.15rem,2.2vw,2.25rem)]",
+            )}>
+            {renderHighlightedTitle(title, isArabic)}
           </h1>
 
-          <p className="mt-3 max-w-lg text-base leading-8 text-white/90 sm:mt-4 sm:text-base md:text-lg lg:text-xl">
-            {sectionText(data, "description", t("heroDesc"), isArabic)}
+          <p
+            className={cn(
+              "mt-5 max-w-2xl text-white/95 transition-all duration-300",
+              isArabic
+                ? "hidden text-[clamp(0.95rem,1.3vw,1.2rem)] leading-relaxed lg:block"
+                : "hidden text-[clamp(0.8rem,1vw,0.95rem)] leading-relaxed lg:block",
+            )}>
+            {description}
           </p>
 
           <div
             className={cn(
-              "mt-6 flex items-center gap-3",
+              "mt-7 flex w-fit flex-nowrap items-center gap-2 lg:mt-10 lg:flex-wrap lg:gap-4",
               isArabic
-                ? "flex-row justify-center sm:justify-start"
-                : "flex-row justify-center sm:justify-start",
+                ? "ml-auto justify-end lg:ml-0 lg:justify-start"
+                : "justify-start",
             )}>
             <Button
               onClick={() => navigateToLoginForRole("influencer")}
-              variant="brand"
-              className={cn(
-                "relative z-10 h-12 min-w-0 flex-1 rounded-full px-4 text-base shadow-[0_10px_30px_rgba(167,183,142,0.25)] sm:w-auto sm:flex-none sm:px-5",
-                isArabic ? "flex-row" : "flex-row",
-              )}>
+              className="h-9 min-w-30 cursor-pointer rounded-full bg-[#A7B78E] px-4 text-xs font-bold text-white hover:bg-[#9caf7f] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
               <span>{t("infBtn")}</span>
-              {isArabic ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
+              {isArabic ? <ArrowLeft size={17} /> : <ArrowRight size={17} />}
             </Button>
 
             <Button
               onClick={() => navigateToLoginForRole("company")}
               variant="outline"
-              className={cn(
-                "h-12 min-w-0 flex-1 rounded-full border-[rgba(255,219,195,1)] bg-black/20 px-4 text-base text-[rgba(167,183,142,1)] hover:bg-white/10 hover:text-[rgba(167,183,142,1)] sm:w-auto sm:flex-none sm:px-5",
-                isArabic ? "flex-row" : "flex-row",
-              )}>
+              className="h-9 min-w-30 cursor-pointer rounded-full border-[rgba(255,219,195,1)] bg-black/20 px-4 text-xs font-bold text-[rgba(167,183,142,1)] hover:bg-white/10 hover:text-[rgba(167,183,142,1)] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
               <span>{t("compBtn")}</span>
-              {isArabic ? <ArrowLeft size={18} /> : <ArrowRight size={18} />}
+              {isArabic ? <ArrowLeft size={17} /> : <ArrowRight size={17} />}
             </Button>
           </div>
 
           <div
             className={cn(
-              "mt-8 flex items-center justify-start gap-3 sm:mt-8 sm:justify-end",
-              isArabic ? "flex-row-reverse" : "flex-row-reverse",
+              "mt-9 flex w-fit items-center gap-2 text-white lg:mt-10 lg:gap-6",
+              isArabic ? "ml-auto justify-end lg:ml-0" : "justify-start",
             )}>
-            <span className="text-base text-white sm:text-lg">{visitText}</span>
-            <span className="text-lg font-semibold text-white sm:text-xl">
-              {visitCount}
-            </span>
-
-            <div
-              className={cn(
-                "flex items-center -space-x-3",
-                isArabic && "flex-row-reverse space-x-reverse",
-              )}>
-              {images.map((image, index) => (
-                <img
-                  key={image}
-                  src={image}
-                  className="h-10 w-10 rounded-full border-2 border-white sm:h-10 sm:w-10"
-                  alt={`community member ${index + 1}`}
-                />
-              ))}
-            </div>
+            {/* Avatars First in RTL means they appear on the Right */}
+            {isArabic ? (
+              <>
+                <div className="order-2 flex items-center -space-x-3 space-x-reverse lg:order-none lg:-space-x-4">
+                  {communityImages.map((image, index) => (
+                    <img
+                      key={`avatar-${index}`}
+                      src={image}
+                      className="h-8 w-8 rounded-full border-2 border-white object-cover shadow-2xl transition-transform hover:scale-110 lg:h-14 lg:w-14"
+                      alt={`member ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                <div className="order-1 flex flex-row-reverse items-baseline gap-1 lg:order-none lg:flex-col lg:items-end lg:gap-0">
+                  <span className="text-base font-black leading-none lg:text-6xl">
+                    {visitCount}
+                  </span>
+                  <span className="text-[11px] font-medium text-white/90 lg:mt-1 lg:text-lg">
+                    {visitText}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-1 lg:flex-col lg:items-start lg:gap-0">
+                  <span className="text-base font-black leading-none lg:text-6xl">
+                    {visitCount}
+                  </span>
+                  <span className="text-[11px] font-medium text-white/90 lg:mt-1 lg:text-lg">
+                    {visitText}
+                  </span>
+                </div>
+                <div className="flex items-center -space-x-3 lg:-space-x-4">
+                  {communityImages.map((image, index) => (
+                    <img
+                      key={`avatar-${index}`}
+                      src={image}
+                      className="h-8 w-8 rounded-full border-2 border-white object-cover shadow-2xl transition-transform hover:scale-110 lg:h-14 lg:w-14"
+                      alt={`member ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
-
-      {displayedFloatingIcons.map(
-        ({ id, icon: Icon, color, mobileY, duration, mobileClass }) => (
-          <motion.div
-            key={id}
-            animate={{ y: mobileY }}
-            transition={{ repeat: Infinity, duration }}
-            className={cn(
-              "absolute z-10 md:hidden",
-              isArabic ? mobileClass.rtl : mobileClass.ltr,
-            )}>
-            <Card className="rounded-2xl border border-white/20 bg-white/70 py-0 shadow-lg backdrop-blur-md">
-              <CardContent className="p-3">
-                <Icon className={cn("text-xl", color)} aria-hidden="true" />
-              </CardContent>
-            </Card>
-          </motion.div>
-        ),
-      )}
-
-      {displayedFloatingIcons.map(
-        ({
-          id,
-          icon: Icon,
-          color,
-          desktopY,
-          duration,
-          position,
-          sideClass,
-        }) => (
-          <motion.div
-            key={`${id}-desktop`}
-            animate={{ y: desktopY }}
-            transition={{ repeat: Infinity, duration }}
-            className={cn(
-              "absolute hidden rounded-xl md:block",
-              position,
-              isArabic ? sideClass.rtl : sideClass.ltr,
-            )}>
-            <Card className="rounded-xl border-0 bg-white py-0 shadow-lg">
-              <CardContent className="p-3">
-                <Icon className={cn("text-xl", color)} aria-hidden="true" />
-              </CardContent>
-            </Card>
-          </motion.div>
-        ),
-      )}
     </section>
   );
 }

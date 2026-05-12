@@ -2,7 +2,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowBigLeft, ArrowBigRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import im1 from "/assets/image1.png";
 import im2 from "/assets/image2.png";
@@ -12,7 +12,7 @@ import us1 from "/assets/user1.png";
 import us2 from "/assets/user2.png";
 import us3 from "/assets/user3.png";
 import type { LandingSection } from "@/types/landing.types";
-import { sectionText } from "@/utils/landing";
+import { getImageList, sectionText } from "@/utils/landing";
 
 const avatarsTop = [us1, us2, us3];
 const avatarsBottom = [us1, us2, us3];
@@ -25,7 +25,16 @@ function Photoes({ data }: PhotoesProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language.startsWith("ar");
   const title = sectionText(data, "title", t("campaignTitle"), isRTL);
-  const description = sectionText(data, "description", t("campaignDesc"), isRTL);
+  const description = sectionText(
+    data,
+    "description",
+    t("campaignDesc"),
+    isRTL,
+  );
+  const apiImages = getImageList(data?.content);
+  const image1 = apiImages[0] ?? im1;
+  const image2 = apiImages[1] ?? im2;
+  const image3 = apiImages[2] ?? im3;
 
   return (
     <section
@@ -43,96 +52,49 @@ function Photoes({ data }: PhotoesProps) {
         className="pointer-events-none absolute -bottom-8 -left-6 w-24 rotate-180 opacity-25 sm:w-28 lg:-left-8 lg:w-40"
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div dir="ltr" className="grid grid-cols-2 gap-4 lg:hidden">
-          <div className="col-span-2">
-            <div className="relative mx-auto w-full max-w-[24rem]">
-              <Card className="relative z-10 flex h-full w-full rounded-[24px] border-0 bg-[#1b1b1b] py-0 text-white shadow-none sm:rounded-[28px]">
-                <CardContent
+      <div className="mx-auto max-w-[980px] px-4 sm:px-6 lg:px-8">
+        <div
+          dir="ltr"
+          className="grid grid-cols-1 gap-2 md:grid-cols-[390px_260px_190px] md:items-start">
+          <Card className="relative min-h-[15.5rem] overflow-hidden rounded-[24px] border-0 bg-[#171717] py-0 text-white shadow-none md:h-[315px]">
+            <div className="pointer-events-none absolute bottom-0 right-0 hidden h-30 w-25 rounded-tl-[16px] bg-[#f3f3f3] md:block" />
+            <CardContent
+              dir={isRTL ? "rtl" : "ltr"}
+              className={cn(
+                "relative z-10 flex h-full flex-col px-6 py-6 sm:px-8 md:px-7 md:py-8",
+                isRTL ? "items-center text-center" : "items-center text-center",
+              )}>
+              <div className="w-full max-w-[275px]">
+                <h2
                   className={cn(
-                    "relative flex h-full flex-col px-5 py-6 pb-14 sm:px-7 sm:py-7",
-                    isRTL ? "items-end text-right" : "items-start text-left",
+                    "font-bold leading-normal text-white",
+                    isRTL
+                      ? "text-xl sm:text-2xl md:text-[1.05rem]"
+                      : "text-lg sm:text-xl md:text-[0.92rem]",
                   )}>
-                  <div className="absolute bottom-0 left-0 h-18 w-20 rounded-tr-[30px] bg-[#f3f3f3]" />
-                  <div className="absolute bottom-12 left-0 h-12 w-12 rounded-full bg-[#f3f3f3]" />
+                  {title}
+                </h2>
 
-                  <div className="relative z-10 w-full max-w-84">
-                    <h2 className="text-[1.9rem] font-bold leading-[1.6]">
-                      {title}
-                    </h2>
+                <p
+                  className={cn(
+                    "mt-4 text-white/78",
+                    isRTL
+                      ? "text-sm leading-7 sm:text-[0.95rem] md:text-[0.82rem] md:leading-6"
+                      : "text-xs leading-6 sm:text-sm md:text-[0.72rem] md:leading-5",
+                  )}>
+                  {description}
+                </p>
+              </div>
 
-                    <p className="mt-4 text-base leading-8 text-white/85">
-                      {description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          <div className="col-span-1">
-            <div className="flex h-full flex-col gap-4">
-              <Card className="overflow-hidden rounded-[24px] border-0 py-0 shadow-none">
-                <img
-                  src={im1}
-                  alt="image-1"
-                  className="block h-44 w-full rounded-2xl object-cover"
-                />
-              </Card>
-
-              <Card className="overflow-hidden rounded-[24px] border-0 py-0 shadow-none">
-                <img
-                  src={im3}
-                  alt="image-3"
-                  className="block h-36 w-full rounded-2xl object-cover"
-                />
-              </Card>
-            </div>
-          </div>
-
-          <div className="col-span-1">
-            <Card className="h-full overflow-hidden rounded-[30px] border-0 py-0 shadow-none">
-              <img
-                src={im2}
-                alt="image-2"
-                className="block h-full min-h-88 w-full rounded-2xl object-cover"
-              />
-            </Card>
-          </div>
-        </div>
-
-        <div className="hidden lg:grid lg:grid-cols-12 lg:items-stretch lg:gap-4">
-          <div
-            className={cn(
-              "lg:col-span-5",
-              isRTL ? "lg:order-3" : "lg:order-1",
-            )}>
-            <Card className="flex h-full w-full rounded-[36px] border-0 bg-[#08090c] py-0 text-white shadow-none lg:min-h-116">
-              <CardContent
-                className={cn(
-                  "flex h-full flex-col px-8 py-8",
-                  isRTL
-                    ? "items-center text-center"
-                    : "items-center text-center",
-                )}>
-                <div className="w-full max-w-[92%]">
-                  <h2 className="text-2xl font-bold leading-normal">
-                    {title}
-                  </h2>
-
-                  <p className="mt-8 text-xl leading-10 text-white/85">
-                    {description}
-                  </p>
-                </div>
-
-                <div
-                  dir="ltr"
-                  className="mt-auto mb-5 flex w-full flex-col items-center gap-4">
-                  <div className="flex -space-x-3">
+              <div
+                dir="ltr"
+                className="mt-auto mb-9 flex rounded-full backdrop-blur-sm md:absolute md:bottom-[58px] md:right-[122px] md:mb-0">
+                <div className="flex flex-col items-end gap-1.5">
+                  <div className="flex -space-x-2">
                     {avatarsTop.map((img, index) => (
                       <Avatar
-                        key={`desktop-top-${index}`}
-                        className="h-14 w-14 border-2 border-white">
+                        key={`avatar-top-${index}`}
+                        className="h-7 w-7 ring-2 ring-[#171717]">
                         <AvatarImage
                           src={img}
                           alt={`user-top-${index + 1}`}
@@ -142,11 +104,11 @@ function Photoes({ data }: PhotoesProps) {
                     ))}
                   </div>
 
-                  <div className="flex -space-x-3">
+                  <div className="flex -space-x-2">
                     {avatarsBottom.map((img, index) => (
                       <Avatar
-                        key={`desktop-bottom-${index}`}
-                        className="h-14 w-14 border-2 border-white">
+                        key={`avatar-bottom-${index}`}
+                        className="h-7 w-7 ring-2 ring-[#171717]">
                         <AvatarImage
                           src={img}
                           alt={`user-bottom-${index + 1}`}
@@ -156,58 +118,44 @@ function Photoes({ data }: PhotoesProps) {
                     ))}
                   </div>
                 </div>
-              </CardContent>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-col gap-2 md:h-[315px]">
+            <Card className="h-36 overflow-hidden rounded-[24px] border-0 py-0 shadow-none sm:h-44 md:h-[183px]">
+              <img
+                src={image1}
+                alt="image-1"
+                className="block h-full w-full rounded-[24px] object-cover"
+              />
+            </Card>
+
+            <Card className="h-36 overflow-hidden rounded-[24px] border-0 py-0 shadow-none sm:h-44 md:h-[124px]">
+              <img
+                src={image3}
+                alt="image-3"
+                className="block h-full w-full rounded-[24px] object-cover"
+              />
             </Card>
           </div>
 
-          <div className="lg:order-2 lg:col-span-3">
-            <div className="flex h-full flex-col gap-4">
-              <Card className="overflow-hidden rounded-[28px] border-0 py-0 shadow-none">
-                <img
-                  src={im1}
-                  alt="image-1"
-                  className="block h-88 w-full rounded-2xl object-cover"
-                />
-              </Card>
+          <div className="flex flex-col gap-2 md:h-[315px]">
+            <Card className="h-36 overflow-hidden rounded-[24px] border-0 py-0 shadow-none sm:h-44 md:flex-1">
+              <img
+                src={image2}
+                alt="image-2"
+                className="block h-full w-full rounded-[24px] object-cover"
+              />
+            </Card>
 
-              <Card className="overflow-hidden rounded-[28px] border-0 py-0 shadow-none">
-                <img
-                  src={im3}
-                  alt="image-3"
-                  className="block h-44 w-full rounded-2xl object-cover"
-                />
-              </Card>
-            </div>
-          </div>
-
-          <div
-            className={cn(
-              "lg:col-span-4",
-              isRTL ? "lg:order-1" : "lg:order-3",
-            )}>
-            <div className="flex h-full flex-col gap-4">
-              <Card className="overflow-hidden rounded-[28px] border-0 py-0 shadow-none">
-                <img
-                  src={im2}
-                  alt="image-2"
-                  className="block h-116 w-full rounded-2xl object-cover"
-                />
-              </Card>
-
-              <Button
-                type="button"
-                variant="default"
-                className="h-16 w-full cursor-pointer items-center justify-center rounded-full px-6 text-xl font-medium text-[#2f2f2f] transition hover:bg-[#cad9aa]">
-                <span className="text-white">{t("TryFree")}</span>
-                <span className="ms-3 inline-flex items-center text-white">
-                  {isRTL ? (
-                    <ArrowBigLeft size={22} />
-                  ) : (
-                    <ArrowBigRight size={22} />
-                  )}
-                </span>
-              </Button>
-            </div>
+            <Button
+              type="button"
+              dir={isRTL ? "rtl" : "ltr"}
+              className="h-12 w-full rounded-full border-0 bg-[#c8d9a9] px-6 text-base font-semibold text-[#2f3329] shadow-none hover:bg-[#bfd19f] md:h-12 md:text-sm">
+              <ArrowLeft size={16} aria-hidden="true" />
+              <span>{t("TryFree")}</span>
+            </Button>
           </div>
         </div>
       </div>

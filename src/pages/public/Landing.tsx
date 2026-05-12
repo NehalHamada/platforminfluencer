@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import AboutPlatformSection from "./AboutPlatformSection";
 import CampaignShowcaseSection from "./CampaignShowcaseSection";
 import FeaturesSection from "./FeaturesSection";
-import Hero from "./Hero";
+
 import InfluencersSection from "./InfluencersSection";
 import OverviewSection from "./OverviewSection";
 import Photoes from "./Photoes";
@@ -16,6 +16,7 @@ import { useLandingPageQuery } from "@/queries/landing/useLandingPageQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import Hero from "./Hero";
 
 function Landing() {
   const { t, i18n } = useTranslation();
@@ -58,7 +59,10 @@ function Landing() {
   const sections = [
     { id: "hero", component: <Hero data={data.hero} /> },
     { id: "photoes", component: <Photoes data={data.part2} /> },
-    { id: "results", component: <ResultsLanding data={data.success_results} /> },
+    {
+      id: "results",
+      component: <ResultsLanding data={data.success_results} />,
+    },
     {
       id: "about-platform",
       component: <AboutPlatformSection data={data.footer_info} />,
@@ -71,7 +75,10 @@ function Landing() {
       id: "campaign-showcase",
       component: <CampaignShowcaseSection data={data.impact_campaigns} />,
     },
-    { id: "overview", component: <OverviewSection data={data.platform_overview} /> },
+    {
+      id: "overview",
+      component: <OverviewSection data={data.platform_overview} />,
+    },
     {
       id: "top-influencers",
       component: <TopInfluencersSection data={data.latest_stars} />,

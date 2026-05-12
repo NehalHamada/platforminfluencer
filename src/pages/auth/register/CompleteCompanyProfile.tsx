@@ -269,6 +269,7 @@ function CompleteCompanyProfile() {
                         </FormLabel>
                         <Input
                           type="password"
+                          autoComplete="current-password"
                           value={parsedRegisterData?.password ?? ""}
                           readOnly
                           className={fieldClass}

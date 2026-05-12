@@ -48,6 +48,9 @@ export type InfluencerStepPayload = {
   content_type_ids: number[];
 };
 
+export type InfluencerRegisterPayload = SharedRegisterData &
+  InfluencerStepPayload;
+
 export type CompleteInfluencerProfilePayload = {
   phone: string;
   cooperation_type: string;

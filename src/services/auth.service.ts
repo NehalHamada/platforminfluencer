@@ -5,6 +5,7 @@ import type {
   CompleteCompanyProfilePayload,
   CompleteInfluencerProfilePayload,
   ForgotPasswordPayload,
+  InfluencerRegisterPayload,
   LoginPayload,
   LogoutResponse,
   ResendOtpPayload,
@@ -24,7 +25,9 @@ export const authService = {
     return response.data;
   },
 
-  register: async (data: SharedRegisterData): Promise<AuthResponse> => {
+  register: async (
+    data: SharedRegisterData | InfluencerRegisterPayload,
+  ): Promise<AuthResponse> => {
     const endpoint =
       data.type === "influencer" ? "/api/register/influencer" : "/api/register";
     const response = await authClients.post(endpoint, data);

@@ -61,7 +61,7 @@ export const authClients = axios.create({
 
 export const api = axios.create({
   baseURL: env.API_BASE_URL,
-  timeout: 10000,
+  timeout: 1000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -77,16 +72,12 @@ function ResultsLanding({ data }: ResultsLandingProps) {
   return (
     <section className="w-full overflow-x-hidden bg-[rgba(130,140,114,0.06)] px-3 py-8 sm:px-5 md:px-6">
       <div className="mx-auto max-w-[20rem] text-center sm:max-w-lg md:max-w-3xl">
-        <Card className="border-0 bg-transparent py-0 shadow-none">
-          <CardContent className="p-0">
-            <CardTitle className="mx-auto wrap-break-words text-xl font-bold text-[#899A6D] underline sm:text-2xl">
-              {title}
-            </CardTitle>
-            <CardDescription className="mx-auto mt-3 wrap-break-words text-sm leading-7 text-[#686868] sm:text-base sm:leading-8">
-              {description}
-            </CardDescription>
-          </CardContent>
-        </Card>
+        <h2 className="mx-auto wrap-break-words text-xl font-bold text-[#899A6D] underline sm:text-2xl">
+          {title}
+        </h2>
+        <p className="mx-auto mt-3 wrap-break-words text-sm leading-7 text-[#686868] sm:text-base sm:leading-8">
+          {description}
+        </p>
       </div>
 
       {isMobile ? (

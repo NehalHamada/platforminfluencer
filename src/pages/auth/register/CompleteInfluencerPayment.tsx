@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
 import RegistrationSuccessPopup from "@/components/common/RegistrationSuccessPopup";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,6 +50,28 @@ type SavedInfluencerProfileData = {
 
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((item) => typeof item === "number");
+
+const getApiErrorMessage = (data: unknown) => {
+  if (!data || typeof data !== "object") return "Failed";
+
+  const apiData = data as {
+    message?: string;
+    errors?: Record<string, string[] | string>;
+  };
+
+  if (apiData.errors) {
+    const firstError = Object.keys(apiData.errors)
+      .map((key) => apiData.errors?.[key])
+      .reduce<string[]>((messages, errorValue) => {
+        if (!errorValue) return messages;
+        return messages.concat(errorValue);
+      }, [])[0];
+
+    if (firstError) return String(firstError);
+  }
+
+  return apiData.message || "Failed";
+};
 
 const isRegisterData = (data: unknown): data is SharedRegisterData => {
   if (!data || typeof data !== "object") return false;
@@ -170,6 +193,7 @@ function CompleteInfluencerPayment() {
     influencerMutation.mutate(
       {
         registerData,
+        influencerStepData: stepOneData,
 
         completeProfileData: {
           phone: stepTwoData.phone,
@@ -206,7 +230,11 @@ function CompleteInfluencerPayment() {
           navigate("/verify-otp");
         },
         onError: (error) => {
-          console.log(error);
+          if (axios.isAxiosError(error)) {
+            toast.error(getApiErrorMessage(error.response?.data));
+            return;
+          }
+
           toast.error(t("influencer.error"));
         },
       },

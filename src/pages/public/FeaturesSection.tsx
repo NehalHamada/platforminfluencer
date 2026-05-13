@@ -1,13 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { FaCaretDown } from "react-icons/fa";
 import featImg from "/assets/featImg.jpg";
 import type { LandingSection } from "@/types/landing.types";
 import { getImage, getString, isRecord, sectionText } from "@/utils/landing";
@@ -23,19 +16,19 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
   const apiPoints = Array.isArray(data?.content?.points)
     ? data.content.points.filter(isRecord)
     : [];
+
   const featureImage = getImage(data?.content, "image") ?? featImg;
-  const title = sectionText(data, "title", t("features.title", ""), isRTL);
-  const description = sectionText(
-    data,
-    "description",
-    t("features.description", ""),
-    isRTL,
-  );
-  const features = isRTL && apiPoints.length
+
+  const features = apiPoints.length
     ? apiPoints.map((point, index) => ({
         id: String(index + 1),
-        title: getString(point, "title") || t(`features.items.${(index % 4) + 1}.title`),
-        desc: getString(point, "desc") || t(`features.items.${(index % 4) + 1}.desc`),
+        title: t(
+          getString(point, "title") ||
+            `features.items.${(index % 4) + 1}.title`,
+        ),
+        desc: t(
+          getString(point, "desc") || `features.items.${(index % 4) + 1}.desc`,
+        ),
       }))
     : [{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }].map((item) => ({
         id: item.id,
@@ -45,97 +38,170 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
 
   return (
     <section
-      className="overflow-hidden bg-[#e7e6dc] px-4 py-8"
+      className="font-ibm-plex overflow-hidden bg-[rgba(167,183,142,0.15)] px-4 py-8 md:py-12"
       dir={isRTL ? "rtl" : "ltr"}>
-      <div className="mx-auto max-w-6xl">
-        <Card className="relative overflow-hidden rounded-2xl border-0 py-0 shadow-none">
-          <img
-            src={featureImage}
-            alt={t("features.bannerAlt")}
-            className="h-24 w-full object-cover sm:h-28 md:h-35"
-          />
-          <div className="absolute inset-0 bg-[rgba(205,205,205,0.47)]" />
-          {(title || description) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
-              {title ? (
-                <h2
-                  className={cn(
-                    "font-bold drop-shadow",
-                    isRTL ? "text-lg md:text-2xl" : "text-base md:text-xl",
-                  )}>
-                  {title}
-                </h2>
-              ) : null}
-              {description ? (
-                <p
-                  className={cn(
-                    "mt-2 max-w-2xl leading-6 drop-shadow",
-                    isRTL
-                      ? "text-[13px] md:text-sm"
-                      : "text-xs md:text-[13px]",
-                  )}>
-                  {description}
-                </p>
-              ) : null}
-            </div>
-          )}
-        </Card>
+      <div className="mx-auto max-w-5xl">
+        {/* Mobile Layout */}
+        <div className="flex flex-col md:hidden">
+          {/* Title */}
+          <div className="mb-8 w-full text-center">
+            <h2 className="inline-block border-b-[1.5px] border-[#333] pb-2 text-[20px] font-bold text-[#2c2c2c]">
+              {sectionText(data, "title", "كيف نخلق القيمة", true)}
+            </h2>
+          </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2 md:gap-x-14">
-          {features.map((item) => (
-            <Card
-              key={item.id}
-              className="mx-auto w-full max-w-[20rem] border-0 bg-transparent py-0 shadow-none sm:max-w-[24rem] md:max-w-none">
-              <CardContent className="p-2">
-                <div
-                  className={cn(
-                    "mb-3 flex flex-col items-center justify-start text-center md:items-start md:justify-between md:text-start",
-                    isRTL ? "md:flex-row" : "md:flex-row",
-                  )}>
-                  <div
-                    className={cn(
-                      "flex w-full min-w-0 flex-col items-center justify-center gap-2 text-center md:justify-start",
-                      isRTL ? "md:flex-row" : "md:flex-row",
-                    )}>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#7d7d75] text-sm text-[#2f2f2f]">
+          <div className="flex flex-col gap-6">
+            {features.slice(0, 2).map((item, index) => (
+              <div
+                key={item.id}
+                className={cn(
+                  "flex w-full items-start gap-4",
+                  index % 2 === 0 ? "px-6" : "px-0"
+                )}
+                dir="ltr">
+                {isRTL ? (
+                  <>
+                    <div className="flex w-full flex-1 flex-col items-end pt-1 text-right">
+                      <div className="flex w-full items-start justify-between gap-2">
+                        <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
+                        <h3 className="text-right text-[16px] font-bold text-[#2c2c2c]">
+                          {item.title}
+                        </h3>
+                      </div>
+                      <p className="mt-1 w-full text-right text-[13px] leading-relaxed text-[#606060]">
+                        {item.desc}
+                      </p>
+                    </div>
+                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#333] text-[14px] font-medium text-[#333]">
                       {item.id}
                     </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#333] text-[14px] font-medium text-[#333]">
+                      {item.id}
+                    </div>
+                    <div className="flex w-full flex-1 flex-col items-start pt-1 text-left">
+                      <div className="flex w-full items-start justify-between gap-2">
+                        <h3 className="text-left text-[16px] font-bold text-[#2c2c2c]">
+                          {item.title}
+                        </h3>
+                        <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
+                      </div>
+                      <p className="mt-1 w-full text-left text-[13px] leading-relaxed text-[#606060]">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+            
+            {/* Image in the middle for mobile */}
+            <div className="relative mx-auto my-2 w-full overflow-hidden rounded-[10px] shadow-sm">
+              <img
+                src={featureImage}
+                alt={t("features.bannerAlt")}
+                className="h-28 w-full object-cover sm:h-36"
+              />
+              <div className="absolute inset-0 bg-[rgba(205,205,205,0.47)]" />
+            </div>
 
-                    <CardTitle
-                      className={cn(
-                        "min-w-0 max-w-[16rem] wrap-break-words text-center font-medium leading-normal text-[#2b2b2b] sm:max-w-[20rem] md:max-w-none md:text-start",
-                        isRTL
-                          ? "text-[15px] sm:text-[17px] md:text-[20px]"
-                          : "text-[13px] sm:text-[15px] md:text-[17px]",
-                      )}>
+            {features.slice(2).map((item, index) => (
+              <div
+                key={item.id}
+                className={cn(
+                  "flex w-full items-start gap-4",
+                  index % 2 === 0 ? "px-6" : "px-0" // index 0 is Item 3, index 1 is Item 4
+                )}
+                dir="ltr">
+                {isRTL ? (
+                  <>
+                    <div className="flex w-full flex-1 flex-col items-end pt-1 text-right">
+                      <div className="flex w-full items-start justify-between gap-2">
+                        <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
+                        <h3 className="text-right text-[16px] font-bold text-[#2c2c2c]">
+                          {item.title}
+                        </h3>
+                      </div>
+                      <p className="mt-1 w-full text-right text-[13px] leading-relaxed text-[#606060]">
+                        {item.desc}
+                      </p>
+                    </div>
+                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#333] text-[14px] font-medium text-[#333]">
+                      {item.id}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#333] text-[14px] font-medium text-[#333]">
+                      {item.id}
+                    </div>
+                    <div className="flex w-full flex-1 flex-col items-start pt-1 text-left">
+                      <div className="flex w-full items-start justify-between gap-2">
+                        <h3 className="text-left text-[16px] font-bold text-[#2c2c2c]">
+                          {item.title}
+                        </h3>
+                        <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
+                      </div>
+                      <p className="mt-1 w-full text-left text-[13px] leading-relaxed text-[#606060]">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop Layout (Restored Original) */}
+        <div className="hidden md:block">
+          {/* Banner Image */}
+          <div className="relative mx-auto w-full overflow-hidden rounded-[20px] shadow-sm">
+            <img
+              src={featureImage}
+              alt={t("features.bannerAlt")}
+              className="h-28 w-full object-cover sm:h-36 md:h-48 lg:h-56"
+            />
+            <div className="absolute inset-0 bg-[rgba(205,205,205,0.47)]" />
+          </div>
+
+          {/* Features Staggered Grid */}
+          <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-8 md:mt-12 md:grid-cols-2 md:gap-y-10">
+            {features.map((item, index) => (
+              <div
+                key={item.id}
+                className={cn(
+                  "flex items-start gap-4",
+                  index % 2 !== 0 && "md:mt-10", // Staggers the left column in RTL
+                )}>
+                {/* Number Circle */}
+                <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#8b8b8b] text-[15px] font-medium text-[#333]">
+                  {item.id}
+                </div>
+
+                {/* Content */}
+                <div className="flex flex-1 flex-col pt-1">
+                  {/* Title & Arrow */}
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-[16px] font-semibold text-[#2c2c2c] md:text-[18px]">
                       {item.title}
-                    </CardTitle>
-
-                    <ChevronDown
-                      className="h-4 w-4 shrink-0 text-[#2f2f2f] md:mt-1"
+                    </h3>
+                    <FaCaretDown
+                      className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]"
                       aria-hidden="true"
                     />
                   </div>
-                </div>
 
-                <div className={cn(isRTL ? "md:pr-10" : "md:pl-10")}>
-                  <CardDescription
-                    className={cn(
-                      "mx-auto max-w-[18rem] wrap-break-words text-center leading-7 text-[#55554f] sm:max-w-88 md:mx-0 md:max-w-xl md:text-start",
-                      isRTL
-                        ? "text-xs sm:text-[13px] md:text-sm"
-                        : "text-[11px] sm:text-xs md:text-[13px]",
-                    )}>
+                  {/* Description */}
+                  <p className="mt-3 text-[13px] leading-relaxed text-[#606060] md:text-[14px]">
                     {item.desc}
-                  </CardDescription>
+                  </p>
                 </div>
-
-                {item.id !== features[features.length - 1].id && (
-                  <Separator className="mt-6 bg-[#cfcdbf] md:hidden" />
-                )}
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

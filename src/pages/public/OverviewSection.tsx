@@ -142,102 +142,150 @@ function OverviewSection({ data }: OverviewSectionProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="overflow-hidden px-4 py-8 sm:px-5 sm:py-10 md:px-6 md:py-14">
+      className="overflow-hidden px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10">
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-6 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-          <h2
-            className={cn(
-              "font-bold text-[#202020]",
-              isRTL
-                ? "text-xl sm:text-2xl md:text-[30px]"
-                : "text-lg sm:text-xl md:text-[24px]",
-            )}>
-            {sectionText(data, "title", t("overview.title"), isRTL)}
-          </h2>
-          <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
-          <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
-        </div>
+        {/* Mobile Layout */}
+        <div className="flex flex-col gap-4 lg:hidden">
+          {/* Mobile Title */}
+          <div className="mb-2 flex items-center justify-start gap-2 px-1">
+            <h2 className="font-bold text-[#202020] text-[20px] sm:text-[22px]">
+              {sectionText(data, "title", t("overview.title"), isRTL)}
+            </h2>
+            <Eye className="h-5 w-5 text-[#b7bcc5]" aria-hidden="true" />
+            <Eye className="h-5 w-5 text-[#b7bcc5]" aria-hidden="true" />
+          </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,0.5fr)]">
-          <Card className="w-full rounded-[24px] border-0 bg-[#ecece9] py-0 shadow-none">
-            <CardContent className="p-4 sm:p-5 md:p-7">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {platforms.map((item) => (
-                  <Card
-                    key={item.id}
-                    className="w-full rounded-[20px] border-0 bg-white py-0 shadow-[0_6px_20px_rgba(0,0,0,0.06)]">
-                    <CardContent className="p-4 sm:p-5">
-                      <div
-                        className={cn(
-                          "mb-4 flex flex-col items-center gap-3 sm:items-start",
-                          isRTL
-                            ? "sm:flex-row-reverse sm:justify-between"
-                            : "sm:flex-row sm:justify-between",
-                        )}>
-                        <div
-                          className={cn(
-                            "min-w-0 flex-1 text-center",
-                            isRTL ? "sm:text-right" : "sm:text-left",
-                          )}>
-                          <CardTitle
-                            className={cn(
-                              "font-bold text-[#222]",
-                              isRTL
-                                ? "text-base sm:text-lg"
-                                : "text-sm sm:text-base",
-                            )}>
-                            {item.followers}
-                          </CardTitle>
-                          <CardDescription
-                            className={cn(
-                              "mt-1 text-[#8b8b8b]",
-                              isRTL
-                                ? "text-[13px] sm:text-sm"
-                                : "text-xs sm:text-[13px]",
-                            )}>
-                            {item.label}
-                          </CardDescription>
-                        </div>
-
-                        <div
-                          className={cn(
-                            "flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px]",
-                            item.bg,
-                          )}>
-                          {item.icon}
-                        </div>
-                      </div>
-
-                      <p
-                        className={cn(
-                          "break-all text-[#6f6f6f]",
-                          isRTL
-                            ? "text-[13px] sm:text-sm"
-                            : "text-xs sm:text-[13px]",
-                        )}>
-                        {item.link}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="flex w-full rounded-[24px] border-0 bg-[linear-gradient(135deg,#9ba287,#b2b89c,#9ba287)] py-0 text-white shadow-none">
-            <CardContent className="flex w-full flex-col justify-center p-5 text-center sm:p-6 md:p-8">
-              <p
-                className={cn(
-                  "mx-auto max-w-[20rem] font-semibold leading-[1.7] lg:mx-0 lg:max-w-none",
-                  isRTL
-                    ? "text-lg sm:text-xl md:text-[23px] lg:text-[26px]"
-                    : "text-base sm:text-lg md:text-[19px] lg:text-[22px]",
-                  isRTL ? "lg:text-right" : "lg:text-left",
-                )}>
+          {/* Text Card (TOP on mobile) */}
+          <Card className="flex w-full rounded-[20px] border-0 ring-0 bg-[rgba(167,183,142,1)] py-0 text-white shadow-none">
+            <CardContent className="flex w-full flex-col justify-center p-6 text-center">
+              <p className="mx-auto font-semibold leading-[1.6] text-[18px] sm:text-[20px]">
                 {sideText}
               </p>
             </CardContent>
           </Card>
+
+          {/* Social Media Cards (BOTTOM on mobile) */}
+          <Card className="w-full rounded-[20px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none">
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                {platforms.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex w-[30%] min-w-[105px] max-w-[130px] shrink-0 flex-col items-center justify-start rounded-[12px] bg-transparent p-1">
+                    <div className="mb-2 flex w-full flex-row items-center justify-between gap-1 sm:gap-2">
+                      <div
+                        className={cn(
+                          "flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-[8px] sm:rounded-[10px]",
+                          item.bg,
+                        )}>
+                        <div className="scale-[0.6] sm:scale-75">{item.icon}</div>
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col items-end justify-center text-right">
+                        <span className="w-full truncate text-[11px] sm:text-[13px] font-bold text-[#222]">
+                          {item.followers}
+                        </span>
+                        <span className="w-full truncate text-[9px] sm:text-[11px] text-[#8b8b8b]">
+                          {item.label}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="w-full truncate text-center text-[9px] sm:text-[11px] text-[#6f6f6f]" dir="ltr">
+                      {item.link}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Desktop Layout (Restored Original) */}
+        <div className="hidden lg:block">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            <h2
+              className={cn(
+                "font-bold text-[#202020]",
+                isRTL
+                  ? "text-xl sm:text-2xl md:text-[30px]"
+                  : "text-lg sm:text-xl md:text-[24px]",
+              )}>
+              {sectionText(data, "title", t("overview.title"), isRTL)}
+            </h2>
+            <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
+            <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
+          </div>
+
+          <div className="flex flex-col items-stretch gap-4 lg:flex-row">
+            <Card className="w-full rounded-[24px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none lg:w-fit lg:max-w-[75%]">
+              <CardContent className="h-full p-4 sm:p-5 md:p-6">
+                <div className="flex h-full flex-wrap content-start gap-4">
+                  {platforms.map((item) => (
+                    <Card
+                      key={item.id}
+                      className="w-full shrink-0 grow rounded-[20px] border-0 ring-0 bg-transparent py-0 shadow-none sm:w-[calc(50%-0.5rem)] lg:w-[220px] lg:flex-initial">
+                      <CardContent className="p-4 sm:p-5">
+                        <div className="mb-4 flex flex-row items-center justify-between gap-3">
+                          <div
+                            className={cn(
+                              "flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px]",
+                              item.bg,
+                            )}>
+                            {item.icon}
+                          </div>
+
+                          <div className="min-w-0 flex-1 text-center">
+                            <CardTitle
+                              className={cn(
+                                "font-bold text-[#222]",
+                                isRTL
+                                  ? "text-base sm:text-lg"
+                                  : "text-sm sm:text-base",
+                              )}>
+                              {item.followers}
+                            </CardTitle>
+                            <CardDescription
+                              className={cn(
+                                "mt-1 text-[#8b8b8b]",
+                                isRTL
+                                  ? "text-[13px] sm:text-sm"
+                                  : "text-xs sm:text-[13px]",
+                              )}>
+                              {item.label}
+                            </CardDescription>
+                          </div>
+                        </div>
+
+                        <p
+                          className={cn(
+                            "break-all text-center text-[#6f6f6f]",
+                            isRTL
+                              ? "text-[12px] sm:text-[13px]"
+                              : "text-[11px] sm:text-[12px]",
+                          )}>
+                          {item.link}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="flex w-full flex-1 rounded-[24px] border-0 ring-0 bg-[rgba(167,183,142,1)] py-0 text-white shadow-none">
+              <CardContent className="flex w-full flex-col justify-center p-5 text-center sm:p-6 md:p-8">
+                <p
+                  className={cn(
+                    "mx-auto max-w-[20rem] font-semibold leading-[1.7] lg:mx-0 lg:max-w-none",
+                    isRTL
+                      ? "text-lg sm:text-xl md:text-[23px] lg:text-[26px]"
+                      : "text-base sm:text-lg md:text-[19px] lg:text-[22px]",
+                    isRTL ? "lg:text-right" : "lg:text-left",
+                  )}>
+                  {sideText}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </section>

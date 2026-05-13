@@ -110,7 +110,8 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
       getString(company, "description") ||
       t(`trustedCompanies.items.${(index % 8) + 1}.sub`),
   }));
-  const firstRow = isRTL && apiRows.length ? apiRows.slice(0, 5) : fallbackFirstRow;
+  const firstRow =
+    isRTL && apiRows.length ? apiRows.slice(0, 5) : fallbackFirstRow;
   const secondRow =
     isRTL && apiRows.length ? apiRows.slice(5, 10) : fallbackSecondRow;
   const title = sectionText(data, "title", "", isRTL);
@@ -124,7 +125,7 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="overflow-hidden bg-[#f4f4f2] py-12 md:py-16">
+      className="mb-10 overflow-hidden bg-[#f4f4f2] py-12 md:py-16">
       <div className="mx-auto max-w-6xl px-4">
         <Card className="border-0 bg-transparent py-0 shadow-none">
           <CardContent className="p-0">

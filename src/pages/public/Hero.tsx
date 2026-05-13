@@ -235,7 +235,7 @@ function Hero({ data }: HeroProps) {
         alt="hero background"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      <div className="absolute inset-0 bg-black/55" />
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.52)]" />
 
       <div className="pointer-events-none absolute inset-0 lg:hidden">
         {displayedFloatingAssets.map((asset) => (
@@ -319,7 +319,7 @@ function Hero({ data }: HeroProps) {
               onClick={() => navigateToLoginForRole("influencer")}
               className="h-9 min-w-30 cursor-pointer rounded-full bg-[#A7B78E] px-4 text-xs font-bold text-white hover:bg-[#9caf7f] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
               <span>{t("infBtn")}</span>
-              {isArabic ? <ArrowLeft size={17} /> : <ArrowRight size={17} />}
+              {isArabic ? <ArrowLeft size={17} /> : <ArrowLeft size={17} />}
             </Button>
 
             <Button
@@ -327,7 +327,7 @@ function Hero({ data }: HeroProps) {
               variant="outline"
               className="h-9 min-w-30 cursor-pointer rounded-full border-[rgba(255,219,195,1)] bg-black/20 px-4 text-xs font-bold text-[rgba(167,183,142,1)] hover:bg-white/10 hover:text-[rgba(167,183,142,1)] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
               <span>{t("compBtn")}</span>
-              {isArabic ? <ArrowLeft size={17} /> : <ArrowRight size={17} />}
+              {isArabic ? <ArrowRight size={17} /> : <ArrowRight size={17} />}
             </Button>
           </div>
 

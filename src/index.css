@@ -2,10 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import url('https://fonts.googleapis.com/css2?family=Lemonada:wght@300..700&family=IBM+Plex+Sans+Arabic:wght@100..700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-lemonada: "Lemonada", serif;
+  --font-ibm-plex: "IBM Plex Sans Arabic", sans-serif;
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);

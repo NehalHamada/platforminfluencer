@@ -1209,5 +1209,11 @@
     "postsCount": "Posts count",
     "deliveryDate": "Delivery date",
     "notes": "Notes"
-  }
+  },
+  "سجل حسابك": "Register your account",
+  "اختر نوع الحساب (شركة أو مؤثر) واملأ بياناتك.": "Choose the account type (company or influencer) and fill in your details.",
+  "أطلق حملتك": "Launch your campaign",
+  "حدد ميزانيتك والجمهور المستهدف وشروط الحملة.": "Set your budget, target audience, and campaign conditions.",
+  "اختر المؤثرين": "Choose influencers",
+  "استخدم نظام البحث المتقدم للوصول للمؤثرين المناسبين.": "Use the advanced search system to reach the right influencers."
 }

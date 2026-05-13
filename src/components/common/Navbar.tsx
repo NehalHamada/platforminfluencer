@@ -562,7 +562,7 @@ function Navbar() {
         <header
           dir={isArabic ? "rtl" : "ltr"}
           className="fixed top-4 left-1/2 z-50 w-[95%] -translate-x-1/2">
-          <div className="flex items-center justify-between rounded-full border border-white/10 bg-[rgba(104,139,52,0.45)] px-4 py-3 backdrop-blur-md md:px-5 md:py-4">
+          <div className="flex items-center justify-between rounded-full border border-white/10 bg-[rgba(167,183,142,0.3)] px-4 py-3 backdrop-blur-md md:px-5 md:py-4">
             {mobileMenuButton}
 
             <div className="hidden md:block">{brandButton("/")}</div>
@@ -658,7 +658,7 @@ function Navbar() {
         <header
           dir={isArabic ? "rtl" : "ltr"}
           className="absolute top-4 left-1/2 z-50 w-[97%] -translate-x-1/2">
-          <div className="flex items-center justify-between rounded-[32px] border border-white/10 bg-[rgba(104,139,52,0.45)] px-4 py-3 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-6 md:py-4">
+          <div className="flex items-center justify-between rounded-[32px] border border-white/10 bg-[rgba(167,183,142,0.3)] px-4 py-3 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-6 md:py-4">
             {brandButton("/dashboard/influencer")}
             {renderDesktopLinks(influencerNavLinks)}
             <div className="flex items-center gap-3 text-white">
@@ -679,7 +679,7 @@ function Navbar() {
         <header
           dir={isArabic ? "rtl" : "ltr"}
           className="absolute top-4 left-1/2 z-50 w-[97%] -translate-x-1/2">
-          <div className="flex items-center justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(104,139,52,0.45)] px-2 py-1 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-5 md:py-4">
+          <div className="flex items-center justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(167,183,142,0.3)] px-2 py-1 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-5 md:py-4">
             {brandButton("/dashboard/company")}
             {renderDesktopLinks(companyNavLinks, true)}
             <div className="flex shrink-0 items-center gap-3 text-white">
@@ -696,7 +696,7 @@ function Navbar() {
 
   return (
     <header className="absolute top-4 left-1/2 z-50 w-[90%] -translate-x-1/2">
-      <div className="flex items-center justify-between rounded-full bg-[rgba(104,139,52,0.45)]">
+      <div className="flex items-center justify-between rounded-full bg-[rgba(167,183,142,0.3)]">
         <Button
           type="button"
           variant="ghost"

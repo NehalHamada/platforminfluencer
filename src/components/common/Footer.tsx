@@ -1,11 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowBigLeft, ArrowBigRight } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
+import { useForm as useReactHookForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -22,7 +21,7 @@ function Footer() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
 
-  const form = useForm<FooterSchemaType>({
+  const form = useReactHookForm<FooterSchemaType>({
     resolver: zodResolver(footerSchema),
     defaultValues: {
       email: "",
@@ -36,61 +35,67 @@ function Footer() {
 
   return (
     <footer className="bg-[#F9F9F9]" dir={isRTL ? "rtl" : "ltr"}>
-      <Card className="w-full rounded-none rounded-t-[24px] border-0 bg-transparent py-0 shadow-none ring-0">
-        <CardContent className="rounded-t-[24px] bg-linear-to-r from-black/70 to-black/30 p-8 text-center text-white backdrop-blur-md">
-          <img src={logo} alt="Logo" className="mx-auto mb-4 h-auto" />
+      <div className="w-full rounded-t-[30px] bg-[rgba(30,30,30,1)] px-4 py-12 font-ibm-plex md:py-16">
+        <div className="mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
+          {/* Logo */}
+          <img
+            src={logo}
+            alt="Growth Logo"
+            className="mb-6 h-12 w-auto object-contain md:h-14"
+          />
 
-          <p className="mb-6 text-sm leading-6 text-white/90">
-            {t("footer.description")}
+          {/* Description */}
+          <p className="mx-auto mb-10 max-w-[480px] text-[15px] leading-8 text-[#e8e8e8] md:text-[17px]">
+            {t("completeCompanyProfile.footerText")}
           </p>
 
+          {/* Form */}
           <Form {...form}>
             <form
-              className="mx-auto max-w-xl"
+              className="w-full max-w-[500px]"
               onSubmit={form.handleSubmit(onSubmit)}
-              aria-label={t("footer.emailPlaceholder")}>
+              aria-label={t("registrationSuccess.emailPlaceholder")}>
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <div
-                      className={cn(
-                        "flex flex-wrap items-center justify-center gap-3",
-                        isRTL ? "sm:flex-row" : "sm:flex-row-reverse",
-                      )}>
-                      <label htmlFor="footer-email" className="sr-only">
-                        {t("footer.emailPlaceholder")}
-                      </label>
-
+                    <div className="flex w-full flex-row items-center justify-center gap-3 md:gap-4">
                       <FormControl>
                         <Input
                           {...field}
                           id="footer-email"
                           type="email"
-                          placeholder={t("footer.emailPlaceholder")}
-                          className={cn(
-                            "h-11 w-full max-w-md rounded-full border-white/40 bg-transparent px-6 text-sm text-white placeholder:text-white/70 focus-visible:border-white/60 focus-visible:ring-white/20",
-                            isRTL ? "text-right" : "text-left",
+                          placeholder={t(
+                            "registrationSuccess.emailPlaceholder",
                           )}
+                          className="h-[48px] w-full flex-1 rounded-full border border-[#888] bg-transparent px-4 text-start text-[13px] text-white placeholder-[#b0b0b0] shadow-sm outline-none transition-all focus-visible:border-[#aaa] focus-visible:ring-0 md:w-[320px] md:px-6 md:text-center md:text-[15px]"
                         />
                       </FormControl>
 
                       <Button
                         type="submit"
                         variant="default"
-                        size="icon-lg"
-                        aria-label={t("footer.emailPlaceholder")}
-                        className="rounded-full bg-[#AFC19E] text-white hover:bg-[#a2b590]">
-                        {i18n.language === "en" ? (
-                          <ArrowBigRight />
-                        ) : (
-                          <ArrowBigLeft />
-                        )}
+                        aria-label={t("registrationSuccess.emailPlaceholder")}
+                        className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-[#a7b78e] px-0 text-white transition-colors hover:bg-[#96a57e] md:w-[110px]">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className={isRTL ? "-scale-x-100" : ""}>
+                          <line x1="22" y1="2" x2="11" y2="13" />
+                          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
                       </Button>
                     </div>
 
-                    <FormMessage className="mt-2 text-center text-sm text-[#ffd7d7]">
+                    <FormMessage className="mt-3 text-center text-sm text-[#ffb4b4]">
                       {form.formState.errors.email?.message
                         ? t(form.formState.errors.email.message)
                         : null}
@@ -100,8 +105,8 @@ function Footer() {
               />
             </form>
           </Form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </footer>
   );
 }

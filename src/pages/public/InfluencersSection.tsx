@@ -72,7 +72,9 @@ const orderUsersByContentIds = (
     const aOrder = aId !== null ? order.get(aId) : undefined;
     const bOrder = bId !== null ? order.get(bId) : undefined;
 
-    return (aOrder ?? Number.MAX_SAFE_INTEGER) - (bOrder ?? Number.MAX_SAFE_INTEGER);
+    return (
+      (aOrder ?? Number.MAX_SAFE_INTEGER) - (bOrder ?? Number.MAX_SAFE_INTEGER)
+    );
   });
 };
 
@@ -85,63 +87,65 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
 
   const influencers = useMemo(() => {
     const apiUsers =
-      data?.users
-        ?.filter((user): user is Record<string, unknown> => isRecord(user)) ??
-      [];
+      data?.users?.filter((user): user is Record<string, unknown> =>
+        isRecord(user),
+      ) ?? [];
 
-    const orderedApiUsers = orderUsersByContentIds(apiUsers, data?.info?.content);
+    const orderedApiUsers = orderUsersByContentIds(
+      apiUsers,
+      data?.info?.content,
+    );
 
-    const mappedApiUsers = orderedApiUsers
-        .map((user, index) => {
-          const profile = getProfile(user);
-          const fameLevel = profile?.fame_level;
-          const fameLevelName = isRecord(fameLevel)
-            ? readString(fameLevel, "name")
-            : null;
-          const platformsLabel = getPlatformsLabel(user);
-          const email = readString(user, "email");
-          const name =
-            typeof user.name === "string"
-              ? user.name
-              : t(`Influencers.items.${(index % 3) + 1}.name`);
-          const image = isUsableImage(user.avatar)
-            ? user.avatar
-            : fallbackImages[index % fallbackImages.length];
-          const followers =
-            typeof user.followers === "string"
-              ? user.followers
-              : typeof user.followers_count === "number"
-                ? `${user.followers_count}`
-                : fameLevelName ||
-                  readString(profile ?? {}, "country") ||
-                  t(`Influencers.items.${(index % 3) + 1}.followers`);
+    const mappedApiUsers = orderedApiUsers.map((user, index) => {
+      const profile = getProfile(user);
+      const fameLevel = profile?.fame_level;
+      const fameLevelName = isRecord(fameLevel)
+        ? readString(fameLevel, "name")
+        : null;
+      const platformsLabel = getPlatformsLabel(user);
+      const email = readString(user, "email");
+      const name =
+        typeof user.name === "string"
+          ? user.name
+          : t(`Influencers.items.${(index % 3) + 1}.name`);
+      const image = isUsableImage(user.avatar)
+        ? user.avatar
+        : fallbackImages[index % fallbackImages.length];
+      const followers =
+        typeof user.followers === "string"
+          ? user.followers
+          : typeof user.followers_count === "number"
+            ? `${user.followers_count}`
+            : fameLevelName ||
+              readString(profile ?? {}, "country") ||
+              t(`Influencers.items.${(index % 3) + 1}.followers`);
 
-          return {
-            id: typeof user.id === "number" ? user.id : index + 1,
-            image,
-            name,
-            handle:
-              typeof user.username === "string"
-                ? `@${user.username}`
-                : typeof user.handle === "string"
-                  ? user.handle
-                  : email
-                    ? `@${email.split("@")[0]}`
-                    : t(`Influencers.items.${(index % 3) + 1}.handle`),
-            category1:
-              readString(profile ?? {}, "content_field") ||
-              readString(user, "content_field") ||
-              t(`Influencers.items.${(index % 3) + 1}.category1`),
-            category2:
-              platformsLabel ||
-              fameLevelName ||
-              (typeof user.type === "string"
-                ? user.type
-                : t(`Influencers.items.${(index % 3) + 1}.category2`)),
-            followers,
-            accent: "bg-[rgba(199,199,199,0.13)]",
-          };
-        });
+      return {
+        id: typeof user.id === "number" ? user.id : index + 1,
+        image,
+        name,
+        handle:
+          typeof user.username === "string"
+            ? `@${user.username}`
+            : typeof user.handle === "string"
+              ? user.handle
+              : email
+                ? `@${email.split("@")[0]}`
+                : t(`Influencers.items.${(index % 3) + 1}.handle`),
+        category1:
+          readString(profile ?? {}, "content_field") ||
+          readString(user, "content_field") ||
+          t(`Influencers.items.${(index % 3) + 1}.category1`),
+        category2:
+          platformsLabel ||
+          fameLevelName ||
+          (typeof user.type === "string"
+            ? user.type
+            : t(`Influencers.items.${(index % 3) + 1}.category2`)),
+        followers,
+        accent: "bg-[rgba(199,199,199,0.13)]",
+      };
+    });
 
     return mappedApiUsers.length
       ? mappedApiUsers
@@ -206,6 +210,36 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
             followers: t("Influencers.items.3.followers"),
             accent: "bg-[rgba(199,199,199,0.13)]",
           },
+          {
+            id: 7,
+            image: inf3,
+            name: t("Influencers.items.1.name"),
+            handle: t("Influencers.items.1.handle"),
+            category1: t("Influencers.items.1.category1"),
+            category2: t("Influencers.items.1.category2"),
+            followers: t("Influencers.items.1.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 8,
+            image: inf1,
+            name: t("Influencers.items.2.name"),
+            handle: t("Influencers.items.2.handle"),
+            category1: t("Influencers.items.2.category1"),
+            category2: t("Influencers.items.2.category2"),
+            followers: t("Influencers.items.2.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
+          {
+            id: 9,
+            image: inf2,
+            name: t("Influencers.items.3.name"),
+            handle: t("Influencers.items.3.handle"),
+            category1: t("Influencers.items.3.category1"),
+            category2: t("Influencers.items.3.category2"),
+            followers: t("Influencers.items.3.followers"),
+            accent: "bg-[rgba(199,199,199,0.13)]",
+          },
         ];
   }, [data?.info?.content, data?.users, t]);
 
@@ -224,7 +258,6 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
   }, []);
 
   const cardsPerPage = isMobile ? 1 : 3;
-  const totalPages = Math.ceil(influencers.length / cardsPerPage);
   const [currentPage, setCurrentPage] = useState(0);
 
   const visibleInfluencers = useMemo(() => {
@@ -234,17 +267,13 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
   }, [cardsPerPage, currentPage, influencers]);
 
   const goNext = () => {
-    setCurrentPage((prev) => {
-      if (prev >= totalPages - 1) return 0;
-      return prev + 1;
-    });
+    const pages = Math.ceil(influencers.length / cardsPerPage);
+    setCurrentPage((prev) => (prev >= pages - 1 ? 0 : prev + 1));
   };
 
   const goPrev = () => {
-    setCurrentPage((prev) => {
-      if (prev <= 0) return totalPages - 1;
-      return prev - 1;
-    });
+    const pages = Math.ceil(influencers.length / cardsPerPage);
+    setCurrentPage((prev) => (prev <= 0 ? pages - 1 : prev - 1));
   };
 
   const activeMobile = visibleInfluencers[0];
@@ -256,7 +285,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="overflow-hidden bg-[#f3f3f3] px-4 py-12 md:py-16">
+      className="overflow-hidden bg-[#f3f3f3] px-4 py-4 md:py-15 mt-4">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-3xl text-center sm:p-7">
           <h2
@@ -278,35 +307,135 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
           </p>
         </div>
 
-        <div className="mt-10">
-          <div className="relative md:hidden">
-            {activeMobile ? (
-              <div className="relative mx-auto flex max-w-88 items-center justify-center overflow-hidden">
-                <Card className="absolute -left-21 top-1/2 aspect-[1/2] w-34 -translate-y-1/2 overflow-hidden rounded-[20px] border-0 bg-[rgba(143,134,172,0.04)] py-0 opacity-90 shadow-none">
-                  <img
-                    src={isRTL ? nextMobile.image : previousMobile.image}
-                    alt={isRTL ? nextMobile.name : previousMobile.name}
-                    className="h-full w-full object-cover"
-                  />
-                </Card>
+        <div className="relative mt-10">
+          {/* Left arrow (Desktop only) */}
+          <Button
+            type="button"
+            onClick={isRTL ? goNext : goPrev}
+            variant="outline"
+            size="icon"
+            className="hidden absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full border-gray-300 bg-white text-gray-500 shadow-sm hover:bg-gray-50 hover:text-gray-700 md:flex md:h-11 md:w-11"
+            aria-label={isRTL ? t("Influencers.next") : t("Influencers.prev")}>
+            <ChevronLeft size={18} />
+          </Button>
 
-                <Card className="relative z-10 w-full max-w-[16rem] overflow-hidden rounded-[18px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+          {/* Right arrow (Desktop only) */}
+          <Button
+            type="button"
+            onClick={isRTL ? goPrev : goNext}
+            variant="outline"
+            size="icon"
+            className="hidden absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full border-gray-300 bg-white text-gray-500 shadow-sm hover:bg-gray-50 hover:text-gray-700 md:flex md:h-11 md:w-11"
+            aria-label={isRTL ? t("Influencers.prev") : t("Influencers.next")}>
+            <ChevronRight size={18} />
+          </Button>
+
+          <div className="px-10 md:px-14">
+            <div className="relative md:hidden">
+              {activeMobile ? (
+                <>
+                  <div className="relative mx-auto flex items-center justify-center overflow-hidden py-2">
+                    <Card className="relative w-full max-w-[18rem] overflow-hidden rounded-[18px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+                      <CardContent className="px-3 pt-3 pb-0">
+                        <CardTitle className="text-[14px] font-semibold text-[rgba(167,183,142,1)]">
+                          {activeMobile.name}
+                        </CardTitle>
+
+                        <CardDescription className="mt-1 text-[12px] text-[rgba(98,98,98,1)]">
+                          {activeMobile.handle}
+                        </CardDescription>
+
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          <span className="rounded bg-[rgba(216,216,216,0.2)] px-2 py-1 text-[10px] text-[rgba(98,98,98,1)]">
+                            {activeMobile.category1}
+                          </span>
+
+                          <span className="rounded bg-[rgba(216,216,216,0.2)] px-2 py-1 text-[10px] text-[rgba(98,98,98,1)]">
+                            {activeMobile.category2}
+                          </span>
+                        </div>
+                      </CardContent>
+
+                      <div
+                        className={cn(
+                          "absolute top-21 z-10 flex flex-col gap-2",
+                          isRTL ? "left-2" : "right-2",
+                        )}>
+                        <div className="flex h-5 w-5 items-center justify-center rounded bg-white/80 text-[#c2c2c2]">
+                          <FaInstagram size={12} aria-hidden="true" />
+                        </div>
+
+                        <div className="flex h-5 w-5 items-center justify-center rounded bg-white/80 text-[#c2c2c2]">
+                          <FaFacebook size={12} aria-hidden="true" />
+                        </div>
+
+                        <div className="flex h-5 w-5 items-center justify-center rounded bg-white/80 text-[#c2c2c2]">
+                          <Music2 size={12} aria-hidden="true" />
+                        </div>
+                      </div>
+
+                      <div className="mt-2">
+                        <img
+                          src={activeMobile.image}
+                          alt={activeMobile.name}
+                          className="mx-auto aspect-[3/4] w-full object-cover max-h-56"
+                        />
+                      </div>
+
+                      <div
+                        className={cn(
+                          "absolute bottom-0 left-0 right-0 px-3 py-2 text-center text-[12px] text-[rgba(222,212,255,1)]",
+                          activeMobile.accent,
+                        )}>
+                        {activeMobile.followers}
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Mobile Arrows Centered Below Cards */}
+                  <div className="mt-6 flex items-center justify-center gap-4" dir="ltr">
+                    <Button
+                      type="button"
+                      onClick={isRTL ? goNext : goPrev}
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 rounded-full border border-gray-400 bg-transparent text-gray-500 hover:bg-gray-100 shadow-sm">
+                      <ChevronLeft size={16} />
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={isRTL ? goPrev : goNext}
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 rounded-full border border-gray-400 bg-transparent text-gray-500 hover:bg-gray-100 shadow-sm">
+                      <ChevronRight size={16} />
+                    </Button>
+                  </div>
+                </>
+              ) : null}
+            </div>
+
+            <div className="hidden md:grid md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+              {visibleInfluencers.map((item) => (
+                <Card
+                  key={item.id}
+                  className="relative mx-auto w-full max-w-[16rem] overflow-hidden rounded-[16px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:max-w-none">
                   <CardContent className="px-3 pt-3 pb-0">
                     <CardTitle className="text-[14px] font-semibold text-[rgba(167,183,142,1)]">
-                      {activeMobile.name}
+                      {item.name}
                     </CardTitle>
 
                     <CardDescription className="mt-1 text-[12px] text-[rgba(98,98,98,1)]">
-                      {activeMobile.handle}
+                      {item.handle}
                     </CardDescription>
 
                     <div className="mt-2 flex flex-wrap gap-1">
                       <span className="rounded bg-[rgba(216,216,216,0.2)] px-2 py-1 text-[10px] text-[rgba(98,98,98,1)]">
-                        {activeMobile.category1}
+                        {item.category1}
                       </span>
 
                       <span className="rounded bg-[rgba(216,216,216,0.2)] px-2 py-1 text-[10px] text-[rgba(98,98,98,1)]">
-                        {activeMobile.category2}
+                        {item.category2}
                       </span>
                     </div>
                   </CardContent>
@@ -331,118 +460,22 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
 
                   <div className="mt-2">
                     <img
-                      src={activeMobile.image}
-                      alt={activeMobile.name}
-                      className="mx-auto aspect-[4/5] w-full object-cover"
+                      src={item.image}
+                      alt={item.name}
+                      className="mx-auto aspect-[3/4] w-full object-cover max-h-48"
                     />
                   </div>
 
                   <div
                     className={cn(
                       "absolute bottom-0 left-0 right-0 px-3 py-2 text-center text-[12px] text-[rgba(222,212,255,1)]",
-                      activeMobile.accent,
+                      item.accent,
                     )}>
-                    {activeMobile.followers}
+                    {item.followers}
                   </div>
                 </Card>
-
-                <Card className="absolute -right-21 top-1/2 aspect-[1/2] w-34 -translate-y-1/2 overflow-hidden rounded-[20px] border-0 bg-[rgba(143,134,172,0.04)] py-0 opacity-90 shadow-none">
-                  <img
-                    src={isRTL ? previousMobile.image : nextMobile.image}
-                    alt={isRTL ? previousMobile.name : nextMobile.name}
-                    className="h-full w-full object-cover"
-                  />
-                </Card>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="hidden md:grid md:grid-cols-2 md:gap-5 lg:grid-cols-3">
-            {visibleInfluencers.map((item) => (
-              <Card
-                key={item.id}
-                className="relative mx-auto w-full max-w-[16rem] overflow-hidden rounded-[16px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:max-w-none">
-                <CardContent className="px-3 pt-3 pb-0">
-                  <CardTitle className="text-[14px] font-semibold text-[rgba(167,183,142,1)]">
-                    {item.name}
-                  </CardTitle>
-
-                  <CardDescription className="mt-1 text-[12px] text-[rgba(98,98,98,1)]">
-                    {item.handle}
-                  </CardDescription>
-
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className="rounded bg-[rgba(216,216,216,0.2)] px-2 py-1 text-[10px] text-[rgba(98,98,98,1)]">
-                      {item.category1}
-                    </span>
-
-                    <span className="rounded bg-[rgba(216,216,216,0.2)] px-2 py-1 text-[10px] text-[rgba(98,98,98,1)]">
-                      {item.category2}
-                    </span>
-                  </div>
-                </CardContent>
-
-                <div
-                  className={cn(
-                    "absolute top-21 z-10 flex flex-col gap-2",
-                    isRTL ? "left-2" : "right-2",
-                  )}>
-                  <div className="flex h-5 w-5 items-center justify-center rounded bg-white/80 text-[#c2c2c2]">
-                    <FaInstagram size={12} aria-hidden="true" />
-                  </div>
-
-                  <div className="flex h-5 w-5 items-center justify-center rounded bg-white/80 text-[#c2c2c2]">
-                    <FaFacebook size={12} aria-hidden="true" />
-                  </div>
-
-                  <div className="flex h-5 w-5 items-center justify-center rounded bg-white/80 text-[#c2c2c2]">
-                    <Music2 size={12} aria-hidden="true" />
-                  </div>
-                </div>
-
-                <div className="mt-2">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="mx-auto aspect-[4/5] w-full object-cover md:px-8"
-                  />
-                </div>
-
-                <div
-                  className={cn(
-                    "absolute bottom-0 left-0 right-0 px-3 py-2 text-center text-[12px] text-[rgba(222,212,255,1)]",
-                    item.accent,
-                  )}>
-                  {item.followers}
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-8 flex items-center justify-center gap-3 md:justify-between">
-            <Button
-              type="button"
-              onClick={isRTL ? goNext : goPrev}
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 shrink-0 rounded-full border-[#98a77e] text-[#7d8b65] hover:bg-white md:h-10 md:w-10 md:border-[#a7a3c9] md:text-[#7d79a8]"
-              aria-label={
-                isRTL ? t("Influencers.next") : t("Influencers.prev")
-              }>
-              {isRTL ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-            </Button>
-
-            <Button
-              type="button"
-              onClick={isRTL ? goPrev : goNext}
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 shrink-0 rounded-full border-[#98a77e] text-[#7d8b65] hover:bg-white md:h-10 md:w-10 md:border-[#a7a3c9] md:text-[#7d79a8]"
-              aria-label={
-                isRTL ? t("Influencers.prev") : t("Influencers.next")
-              }>
-              {isRTL ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-            </Button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

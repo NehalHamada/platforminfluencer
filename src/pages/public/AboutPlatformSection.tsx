@@ -1,16 +1,19 @@
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import bgImg from "/assets/platImg2.png";
 import centerImg from "/assets/platImg.png";
 import profileImg from "/assets/platImg1.png";
 import logoImg from "/assets/platLogo.png";
+import bgImage from "/assets/login-register.png";
 import type { LandingSection } from "@/types/landing.types";
 import { getImageList, getString, sectionText } from "@/utils/landing";
+
+// RATIONALE: Using the mask-image technique from Photoes.tsx to create perfect geometric interlocks.
+const FONT_IMPORT = `
+@import url('https://fonts.googleapis.com/css2?family=Underdog&display=swap');
+.font-underdog { font-family: 'Underdog', cursive; }
+`;
 
 type AboutPlatformSectionProps = {
   data?: LandingSection | null;
@@ -20,15 +23,18 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const content = data?.content;
+
   const cardTitle =
-    (isRTL && getString(content, "about_title")) || t("aboutPlatform.cardTitle");
+    getString(content, isRTL ? "about_title" : "about_title_en") || 
+    t("aboutPlatform.cardTitle", "Know us");
+    
   const cardDesc =
-    (isRTL && getString(content, "about_desc")) ||
+    getString(content, isRTL ? "about_desc" : "about_desc_en") ||
     sectionText(data, "description", t("aboutPlatform.cardDesc"), isRTL);
+
   const apiImages = getImageList(content);
   const mainImage = apiImages[0] ?? centerImg;
-  const firstProfileImage = apiImages[1] ?? profileImg;
-  const secondProfileImage = apiImages[2] ?? bgImg;
+  const profileImage = apiImages[1] ?? profileImg;
 
   const stats = [
     {
@@ -38,296 +44,175 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
     },
     {
       id: 2,
-      value:
-        getString(content, "campaigns_count") ||
-        t("aboutPlatform.stats.2.value"),
+      value: getString(content, "campaigns_count") || t("aboutPlatform.stats.2.value"),
       label: t("aboutPlatform.stats.2.label"),
     },
     {
       id: 3,
-      value:
-        getString(content, "happy_clients") || t("aboutPlatform.stats.3.value"),
+      value: getString(content, "happy_clients") || t("aboutPlatform.stats.3.value"),
       label: t("aboutPlatform.stats.3.label"),
     },
   ];
 
+  // RATIONALE: Radius for the "bite" cutouts.
+  // Matches the rounded corners of the overlapping elements.
+  const CUTOUT_RADIUS = 60;
+
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative overflow-hidden bg-[#f5f5f2] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="relative mx-auto max-w-6xl">
-        <div className="md:hidden">
-          <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,246,241,0.9))] px-5 py-6 shadow-[0_12px_34px_rgba(0,0,0,0.06)]">
-            <img
-              src={mainImage}
-              alt=""
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-8"
-            />
+      className={cn(
+        "relative overflow-hidden bg-[#f5f5f2] font-['IBM_Plex_Sans_Arabic'] py-16 px-4 sm:px-6 lg:px-8",
+      )}
+    >
+      <style>{FONT_IMPORT}</style>
 
-            <div className="relative z-10">
-              <div
-                className={cn(
-                  "mb-5 flex items-center gap-4",
-                  isRTL ? "flex-row" : "flex-row-reverse",
-                )}>
-                <h3
-                  className={cn(
-                    "shrink-0 font-bold text-[#24245a]",
-                    isRTL ? "text-[1.6rem]" : "text-[1.35rem]",
-                  )}>
-                  {cardTitle}
-                </h3>
-                <Separator className="h-0.5 flex-1 bg-[#24245a]" />
-              </div>
+      {/* ── Background Image ── */}
+      <img
+        src={bgImage}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.1]"
+      />
 
-              <div
-                className={cn("space-y-5", isRTL ? "text-right" : "text-left")}>
-                <p
-                  className={cn(
-                    "leading-[1.8] text-[#5b5b76]",
-                    isRTL ? "text-[1.05rem]" : "text-[0.9rem]",
-                  )}>
-                  {cardDesc}
-                </p>
-
-                <div className="relative overflow-hidden rounded-[26px] bg-[#1c1c1c]">
-                  <img
-                    src={mainImage}
-                    alt={t("aboutPlatform.centerAlt")}
-                    className="h-48 w-full object-cover opacity-80"
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.48)_100%)]" />
-                  <div className="absolute left-0 bottom-0 h-30 w-14 rounded-tr-[24px] bg-[#f5f5f2]" />
-                  <div className="absolute right-0 bottom-0 h-13 w-35 rounded-tl-[24px] bg-[#f5f5f2]" />
-
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-start px-4">
-                    <div className="shrink-0">
-                      <Button
-                        type="button"
-                        className={cn(
-                          "h-11 rounded-full border-0 bg-[#a9bb88] px-2 text-white shadow-sm hover:bg-[#98ac76]",
-                          isRTL ? "text-sm" : "text-xs",
-                          isRTL ? "flex-row" : "flex-row",
-                        )}
-                        aria-label={t("aboutPlatform.readMore")}>
-                        <span>{t("aboutPlatform.readMore")}</span>
-                        {isRTL ? (
-                          <ChevronLeft size={18} />
-                        ) : (
-                          <ChevronRight size={18} />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-2 text-center">
-                  <h4
-                    className={cn(
-                      "font-bold leading-[1.7] text-[#2b2b2b]",
-                      isRTL ? "text-[1.45rem]" : "text-[1.2rem]",
-                    )}>
-                    {t("aboutPlatform.title1")} {t("aboutPlatform.title2")}
-                    <br />
-                    {t("aboutPlatform.title3")}
-                  </h4>
-                </div>
-
-                <div
-                  className={cn(
-                    "space-y-5 pt-3",
-                    isRTL ? "text-right" : "text-left",
-                  )}>
-                  {stats.map((item) => (
-                    <div key={item.id}>
-                      <div
-                        className={cn(
-                          "font-semibold text-[#2c2c2c]",
-                          isRTL ? "text-[1.65rem]" : "text-[1.4rem]",
-                        )}>
-                        {item.value}
-                      </div>
-                      <div
-                        className={cn(
-                          "mt-1 text-[#55557a]",
-                          isRTL ? "text-[1.05rem]" : "text-[0.9rem]",
-                        )}>
-                        {item.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+      <div className="relative mx-auto max-w-7xl">
+        {/* ── Header: Title with Logo ── */}
+        <header className="mb-4 text-center">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <span className={cn("font-bold text-[#1a1a1a] leading-tight", isRTL ? "text-3xl md:text-[45px]" : "text-2xl md:text-[38px]")}>
+              {t("aboutPlatform.title1")}
+            </span>
+            <img src={logoImg} alt="" className="h-14 w-14 object-contain md:h-18 md:w-18" />
+            <span className={cn("font-bold text-[#1a1a1a] leading-tight", isRTL ? "text-3xl md:text-[45px]" : "text-2xl md:text-[38px]")}>
+              {t("aboutPlatform.title2")}
+            </span>
           </div>
-        </div>
+          <h2 className={cn("mt-2 font-bold text-[#1a1a1a] leading-tight", isRTL ? "text-3xl md:text-[45px]" : "text-2xl md:text-[38px]")}>
+            {t("aboutPlatform.title3")}
+          </h2>
+        </header>
 
-        <div className="hidden md:block">
-          <header className="mx-auto max-w-4xl text-center">
-            <div className="flex flex-col items-center justify-center gap-3 md:flex-row md:gap-3">
-              <h2
-                className={cn(
-                  "max-w-[16rem] wrap-break-words text-center font-bold text-[#1f1f1f] sm:max-w-[20rem] md:max-w-none",
-                  isRTL ? "text-2xl md:text-[42px]" : "text-xl md:text-[34px]",
+        <div className={cn(
+          "flex flex-col gap-12 lg:flex-row lg:items-center"
+        )}>
+
+          <div className={cn(
+            "flex flex-row flex-wrap justify-center gap-x-12 gap-y-6 lg:flex-col lg:justify-center lg:gap-4 lg:w-[18%]",
+            isRTL ? "text-right lg:items-end" : "text-left lg:items-start"
+          )}>
+            {stats.map((item) => (
+              <div key={item.id} className="flex flex-col">
+                <span className={cn(
+                  "font-underdog leading-none text-[#1a1a1a] font-bold",
+                  isRTL ? "text-[42px] md:text-[54px]" : "text-[36px] md:text-[46px]"
                 )}>
-                {t("aboutPlatform.title1")}
-              </h2>
-
-              <img
-                src={logoImg}
-                alt={t("aboutPlatform.logoAlt")}
-                className="h-12 w-12 object-contain md:h-20 md:w-20"
-              />
-
-              <h2
-                className={cn(
-                  "max-w-[16rem] wrap-break-words text-center font-bold text-[#1f1f1f] sm:max-w-[20rem] md:max-w-none",
-                  isRTL ? "text-2xl md:text-[42px]" : "text-xl md:text-[34px]",
+                  {item.value}
+                </span>
+                <span className={cn(
+                  "mt-2 text-[#555] font-medium",
+                  isRTL ? "text-lg md:text-xl" : "text-base md:text-lg"
                 )}>
-                {t("aboutPlatform.title2")}
-              </h2>
-            </div>
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
 
-            <h3
-              className={cn(
-                "mx-auto mt-3 max-w-[16rem] wrap-break-words text-center font-bold text-[#1f1f1f] sm:max-w-88 md:max-w-none",
-                isRTL ? "text-2xl md:text-[42px]" : "text-xl md:text-[34px]",
-              )}>
-              {t("aboutPlatform.title3")}
-            </h3>
-          </header>
+          {/* ── Main Area: Interlocking Image and Cards ── */}
+          <div className="relative flex-1">
+            <div className="relative w-full lg:max-w-2xl">
 
-          <div className="mt-8 flex flex-col items-center gap-8">
-            <div className="relative flex w-full flex-col items-center justify-center gap-8 lg:h-105">
-              <div className="order-1 w-full lg:absolute lg:left-1/2 lg:top-1/2 lg:z-10 lg:w-117.5 lg:-translate-x-1/2 lg:-translate-y-1/2">
-                <div className="relative mx-auto w-full max-w-[20rem] sm:max-w-md lg:max-w-117.5">
-                  <Card className="relative overflow-hidden rounded-[28px] border-0 bg-[#1c1c1c] py-0 shadow-[0_12px_30px_rgba(0,0,0,0.14)]">
-                    <img
-                    src={mainImage}
-                      alt={t("aboutPlatform.centerAlt")}
-                      className="aspect-[16/10] w-full object-cover opacity-85"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.12)_0%,rgba(0,0,0,0.42)_100%)]" />
-                    <div className="absolute left-0 bottom-0 h-55 w-18 rounded-tr-[28px] bg-[#f5f5f2]" />
-                    <div className="absolute right-0 bottom-0 h-17 w-40 rounded-tl-[28px] bg-[#f5f5f2]" />
+              {/* ── IMAGE CONTAINER WITH MASK CUTOUTS ── */}
+              <div
+                className="relative overflow-hidden rounded-[20px] bg-[#1a1a1a] shadow-2xl"
+                style={{
+                  // Create circular "bites" at bottom-left and bottom-right
+                  // Using multiple radial gradients to mask out the corners
+                  WebkitMaskImage: `
+                    radial-gradient(circle at bottom left, transparent ${CUTOUT_RADIUS - 1}px, black ${CUTOUT_RADIUS}px),
+                    radial-gradient(circle at bottom right, transparent ${CUTOUT_RADIUS - 1}px, black ${CUTOUT_RADIUS}px)
+                  `,
+                  maskImage: `
+                    radial-gradient(circle at bottom left, transparent ${CUTOUT_RADIUS - 1}px, black ${CUTOUT_RADIUS}px),
+                    radial-gradient(circle at bottom right, transparent ${CUTOUT_RADIUS - 1}px, black ${CUTOUT_RADIUS}px)
+                  `,
+                  WebkitMaskComposite: 'source-over', // default, but explicit for clarity
+                  maskComposite: 'intersect', // Essential for combining multiple transparent cutouts
+                }}
+              >
+                <img
+                  src={mainImage}
+                  alt=""
+                  className="aspect-[16/9] lg:aspect-[21/9] w-full object-cover opacity-90 transition-transform duration-700 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+              </div>
 
-                    <div className="absolute inset-x-0 bottom-0 -right-2 flex justify-start px-5">
-                      <Button
-                        type="button"
-                        className={cn(
-                          "absolute bottom-1 h-12 rounded-full border-0 bg-[#a9bb88] px-3 text-white shadow-sm hover:bg-[#98ac76]",
-                          isRTL ? "text-sm" : "text-xs",
-                          isRTL ? "flex-row" : "flex-row",
-                        )}
-                        aria-label={t("aboutPlatform.readMore")}>
-                        <span>{t("aboutPlatform.readMore")}</span>
-                        {isRTL ? (
-                          <ChevronLeft size={18} />
-                        ) : (
-                          <ChevronRight size={18} />
-                        )}
-                      </Button>
-                    </div>
-                  </Card>
+              {/* ── "اعرف المزيد" Area (Bottom Right in RTL, Bottom Left in LTR) ── */}
+              <div className="lg:absolute lg:bottom-0 ltr:lg:left-0 rtl:lg:right-0 z-30 mt-6 lg:mt-0">
+                <div className="flex h-[75px] lg:h-[85px] w-full lg:w-[220px] items-center justify-center rounded-[15px] lg:rounded-none ltr:lg:rounded-tr-[15px] rtl:lg:rounded-tl-[15px] bg-[#e1e9e9f4] backdrop-blur-sm">
+                  <Button
+                    type="button"
+                    className="h-12 rounded-[15px] bg-[#adc28b] px-10 text-white hover:bg-[#9db27b] font-bold text-lg shadow-sm"
+                  >
+                      <span>{t("aboutPlatform.readMore")}</span>
+                      <ChevronRight className={cn("ms-2", !isRTL && "rotate-0", isRTL && "rotate-180")} size={20} />
+                    </Button>
                 </div>
               </div>
 
-              <div className="order-2 w-full lg:absolute lg:left-10 lg:top-1/2 lg:z-20 lg:w-71.25 lg:-translate-y-1/2">
-                <div className="relative mx-auto w-full max-w-[20rem] sm:max-w-[24rem] lg:max-w-71.25 lg:pt-10">
-                  <div className="pointer-events-none absolute -top-7 left-4 z-10 lg:top-0">
-                    <Avatar className="h-16 w-16 border-4 border-white shadow-md sm:h-19.5 sm:w-19.5">
-                      <AvatarImage
-                        src={firstProfileImage}
-                        alt={t("aboutPlatform.profileAlt")}
-                      />
-                    </Avatar>
-                  </div>
-                  <div className="pointer-events-none absolute -top-7 left-18 z-10 sm:left-25 lg:top-0">
-                    <Avatar className="h-16 w-16 border-4 border-white shadow-md sm:h-19.5 sm:w-19.5">
-                      <AvatarImage
-                        src={secondProfileImage}
-                        alt={t("aboutPlatform.profileAlt")}
-                      />
-                    </Avatar>
-                  </div>
+              {/* ── "تعرف علينا" Card (Bottom Left in RTL, Bottom Right in LTR) ── */}
+              <div className="lg:absolute lg:bottom-[-2px] ltr:lg:right-[-180px] rtl:lg:left-[-180px] z-20 w-full lg:w-[350px] mt-8 lg:mt-0">
+                <div className="rounded-[20px] lg:rounded-none ltr:lg:rounded-tl-[20px] rtl:lg:rounded-tr-[20px] bg-[#e1e9e9ef]/95 p-5 lg:p-3 backdrop-blur-md shadow-lg lg:shadow-none">
+                  <div className={cn("space-y-4", isRTL ? "text-right" : "text-left")}>
+                    {/* Header with long separator */}
+                    <div className={cn("flex items-center gap-3", isRTL ? "flex-row-reverse" : "flex-row")}>
+                      <h3 className="text-3xl font-bold text-[#1a1a3a]">{cardTitle}</h3>
+                      <div className="h-[2px] flex-1 bg-[#1a1a3a]/30" />
+                    </div>
 
-                  <Card className="absolute -top-20 lg:relative lg:top-auto rounded-[20px] border-0 bg-white/88 py-0 shadow-[0_10px_30px_rgba(0,0,0,0.10)] backdrop-blur-sm">
-                    <CardContent className="p-5 pt-14">
-                      <div className="mb-4 flex items-center justify-center gap-3 lg:justify-start">
-                        <h4
-                          className={cn(
-                            "font-bold text-[#233a8b]",
-                            isRTL
-                              ? "text-[18px] md:text-[22px]"
-                              : "text-[16px] md:text-[18px]",
-                          )}>
-                          {cardTitle}
-                        </h4>
-                        <Separator className="h-0.5 flex-1 bg-[#6d6de3]" />
-                      </div>
+                    {/* Main description text */}
+                    <p className="text-[14px] leading-relaxed text-[#1a1a3a] font-bold">
+                      {cardDesc}
+                    </p>
 
-                      <p
-                        className={cn(
-                          "text-center leading-7 text-[#505050]",
-                          isRTL
-                            ? "text-xs md:text-[13px]"
-                            : "text-[11px] md:text-xs",
-                          isRTL ? "lg:text-right" : "lg:text-left",
-                        )}>
+                    {/* Secondary smaller description text */}
+                    <div className={cn("flex items-end justify-between gap-4", !isRTL && "flex-row-reverse")}>
+                      <p className="text-[11px] leading-relaxed text-[#1a1a3a]/80 max-w-[180px]">
                         {cardDesc}
                       </p>
-
-                      <div className="mt-4 flex justify-center lg:justify-start">
-                        <Button
-                          type="button"
-                          size="icon"
-                          className="h-10 w-10 rounded-xl border-0 bg-[#adc28b] text-white shadow-sm hover:bg-[#9fb87a]"
-                          aria-label={t("aboutPlatform.readMore")}>
-                          {isRTL ? (
-                            <ChevronLeft size={18} />
-                          ) : (
-                            <ChevronRight size={18} />
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      <Button
+                        size="icon"
+                        className="h-12 w-12 rounded-sm bg-[#adc28b] text-white hover:bg-[#9db27b] shadow-md border-0 shrink-0"
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="7" y1="7" x2="17" y2="17"></line>
+                          <polyline points="17 7 17 17 7 17"></polyline>
+                        </svg>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="order-3 grid w-full grid-cols-1 gap-6 text-center sm:grid-cols-3 lg:absolute lg:right-13.75 lg:top-1/2 lg:z-20 lg:w-41.25 lg:-translate-y-1/2 lg:grid-cols-1">
-                {stats.map((item) => (
-                  <Card
-                    key={item.id}
-                    className={cn(
-                      "rounded-[18px] border-0 bg-transparent py-0 shadow-none",
-                      isRTL ? "lg:text-right" : "lg:text-left",
-                    )}>
-                    <CardContent className="p-0 text-center">
-                      <div
-                        className={cn(
-                          "font-semibold leading-none text-[#1b1b1b]",
-                          isRTL
-                            ? "text-[32px] md:text-[48px]"
-                            : "text-[28px] md:text-[40px]",
-                        )}>
-                        {item.value}
-                      </div>
-                      <div
-                        className={cn(
-                          "mt-2 text-[#444]",
-                          isRTL
-                            ? "text-[13px] md:text-[18px]"
-                            : "text-xs md:text-[15px]",
-                        )}>
-                        {item.label}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              {/* ── Floating Avatar (Top Left in RTL, Top Right in LTR) ── */}
+              <div className="hidden lg:block absolute top-3 ltr:-right-40 rtl:-left-40 z-30">
+                <div className="relative h-28 w-28">
+                   <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full animate-[spin_25s_linear_infinite]">
+                    <path id="circle" fill="transparent" d="M 50, 50 m -38, 0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
+                    <text className="fill-[#555] text-[7.5px] uppercase tracking-[0.25em] font-bold">
+                      <textPath href="#circle">PRASHANT KUMAR SINGH • PRASHANT KUMAR SINGH •</textPath>
+                    </text>
+                  </svg>
+                  <div className="absolute inset-4 overflow-hidden rounded-full shadow-xl">
+                    <img src={profileImage} alt="" className="h-full w-full object-cover" />
+                  </div>
+                </div>
               </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </section>

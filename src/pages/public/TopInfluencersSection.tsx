@@ -152,11 +152,19 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
     <section dir={isRTL ? "rtl" : "ltr"} className="px-4 py-10 md:py-14">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="mx-auto max-w-[18rem] wrap-break-words text-center text-[28px] font-bold text-[#202020] sm:max-w-md md:max-w-none md:text-[36px]">
+          <h2
+            className={cn(
+              "mx-auto max-w-[18rem] wrap-break-words text-center font-bold text-[#202020] sm:max-w-md md:max-w-none",
+              isRTL ? "text-2xl md:text-[32px]" : "text-xl md:text-[26px]",
+            )}>
             {title}
           </h2>
 
-          <p className="mx-auto mt-4 max-w-[20rem] wrap-break-words text-center text-xl font-semibold leading-[1.8] text-[#383838] sm:max-w-136 md:max-w-none md:text-[34px]">
+          <p
+            className={cn(
+              "mx-auto mt-4 max-w-[20rem] wrap-break-words text-center font-semibold leading-[1.75] text-[#383838] sm:max-w-136 md:max-w-none",
+              isRTL ? "text-lg md:text-[28px]" : "text-base md:text-[22px]",
+            )}>
             {description}
           </p>
         </div>
@@ -167,7 +175,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
               <img
                 src={activeInfluencer.image}
                 alt={activeInfluencer.name}
-                className="mx-auto h-80 w-full object-cover"
+                className="mx-auto aspect-[4/5] w-full object-cover"
               />
             </div>
 
@@ -258,7 +266,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="mx-auto h-80 object-cover sm:h-70 md:h-65 md:w-full md:pl-30 md:pr-30"
+                  className="mx-auto aspect-[4/5] w-full object-cover md:px-8"
                 />
               </div>
 

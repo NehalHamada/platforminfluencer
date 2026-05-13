@@ -19,6 +19,8 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import hero from "/assets/Hero.png";
+import { useNavigate } from "react-router-dom";
+import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDiscoveryQuery";
 
 type WorkFilter = "all" | "reels" | "photos";
 
@@ -52,9 +54,20 @@ const profileImage =
 function InfluencerProfile() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
+  const profileQuery = useInfluencerDiscoveryQuery({ search: "nehal" });
   const [activeFilter, setActiveFilter] = useState<WorkFilter>("all");
   const [brandIndex, setBrandIndex] = useState(0);
   const [mobileWorkIndex, setMobileWorkIndex] = useState(0);
+  const navigate = useNavigate();
+  const influencer = profileQuery.data?.data?.[0];
+  const influencerName = influencer?.name || "Sara Hamed";
+  const influencerAvatar = influencer?.image || profileImage;
+  const influencerInitials = influencerName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const brandCards: BrandCard[] = [
     {
@@ -183,7 +196,7 @@ function InfluencerProfile() {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative -mt-24 overflow-x-hidden bg-[#f3f3ef]">
+      className="relative -mt-24 overflow-x-hidden ">
       <div className="relative h-70 w-full overflow-hidden sm:h-56 lg:h-64">
         <img
           src={hero}
@@ -193,7 +206,7 @@ function InfluencerProfile() {
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
       </div>
 
-      <div className="relative z-10 -mt-4 rounded-t-[24px] bg-[#f7f6f2] px-2.5 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[36px] sm:px-5 lg:rounded-t-[42px] lg:px-8 lg:pt-7">
+      <div className="relative z-10 -mt-4 rounded-t-[24px] bg-white px-2.5 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[36px] sm:px-5 lg:rounded-t-[42px] lg:px-8 lg:pt-7">
         <div className="mx-auto max-w-6xl space-y-4 sm:space-y-5">
           <Card className="rounded-[26px] border-0 bg-white py-0 shadow-[0_16px_48px_rgba(28,30,24,0.06)]">
             <CardContent className="p-3 sm:p-5 lg:p-6">
@@ -208,13 +221,15 @@ function InfluencerProfile() {
                     isRTL ? "flex-row-reverse" : "flex-row",
                   )}>
                   <Avatar className="h-11 w-11 border-2 border-[#ece7dd]">
-                    <AvatarImage src={profileImage} alt="Sara Hamed" />
-                    <AvatarFallback>SH</AvatarFallback>
+                    <AvatarImage src={influencerAvatar} alt={influencerName} />
+                    <AvatarFallback>{influencerInitials}</AvatarFallback>
                   </Avatar>
 
                   <div className={isRTL ? "text-right" : "text-left"}>
                     <h1 className="text-base font-semibold text-[#23231f] sm:text-lg">
-                      Sara Hamed
+                      {profileQuery.isLoading
+                        ? t("campaigns.loading", "Loading...")
+                        : influencerName}
                     </h1>
                     <div
                       className={cn(
@@ -237,21 +252,20 @@ function InfluencerProfile() {
                   <Button
                     type="button"
                     variant="outline"
+                    onClick={() =>
+                      navigate("/dashboard/company/contact", {
+                        state: {
+                          influencerId: influencer?.id,
+                          influencerName,
+                        },
+                      })
+                    }
                     className={cn(
                       "h-9 rounded-full border-[#ddd8cd] bg-white px-3 text-xs text-[#53524b] hover:bg-[#faf8f2] sm:h-10 sm:px-4 sm:text-sm",
                       isRTL && "flex-row-reverse",
                     )}>
                     <MessageCircleMore className="h-4 w-4" />
                     <span>{t("influencerProfile.startChat")}</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={cn(
-                      "h-9 rounded-full border-[#ddd8cd] bg-white px-3 text-xs text-[#53524b] hover:bg-[#faf8f2] sm:h-10 sm:px-4 sm:text-sm",
-                      isRTL && "flex-row-reverse",
-                    )}>
-                    <span>{t("influencerProfile.viewProfile")}</span>
                   </Button>
                 </div>
               </div>
@@ -427,7 +441,7 @@ function InfluencerProfile() {
                   )
                 }
                 className="rounded-full border-[#e6e2d8] bg-white">
-                {isRTL ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                {isRTL ? <ChevronLeft size={14} /> : <ChevronLeft size={14} />}
               </Button>
               <Button
                 type="button"
@@ -443,7 +457,11 @@ function InfluencerProfile() {
                   )
                 }
                 className="rounded-full border-[#e6e2d8] bg-white">
-                {isRTL ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+                {isRTL ? (
+                  <ChevronRight size={14} />
+                ) : (
+                  <ChevronRight size={14} />
+                )}
               </Button>
             </div>
           </section>
@@ -748,40 +766,6 @@ function InfluencerProfile() {
               ))}
             </div>
           </section>
-
-          <Card className="overflow-hidden rounded-[24px] border-0 bg-[linear-gradient(180deg,#262824_0%,#191a17_100%)] py-0 text-white shadow-[0_14px_36px_rgba(20,20,18,0.14)]">
-            <CardContent className="px-4 py-5 text-center sm:px-8 sm:py-8">
-              <img
-                src="/assets/logo.svg"
-                alt="Growth"
-                className="mx-auto mb-3 h-8 w-auto object-contain sm:mb-4 sm:h-10"
-              />
-              <p className="mx-auto max-w-2xl text-xs leading-6 text-white/85 sm:text-sm sm:leading-7">
-                {t("influencerProfile.bio")}
-              </p>
-              <div
-                className={cn(
-                  "mt-4 flex flex-col items-center justify-center gap-2 sm:mt-5 sm:gap-3 sm:flex-row",
-                  isRTL && "sm:flex-row-reverse",
-                )}>
-                <Button
-                  type="button"
-                  className="h-9 rounded-full bg-[#aab48f] px-4 text-xs text-white hover:bg-[#97a47b] sm:h-10 sm:px-5 sm:text-sm">
-                  {isRTL ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-9 rounded-full border-white/25 bg-transparent px-4 text-xs text-white hover:bg-white/10 sm:h-10 sm:px-5 sm:text-sm">
-                  {t("influencerProfile.startChat")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </section>

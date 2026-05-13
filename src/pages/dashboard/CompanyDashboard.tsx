@@ -9,7 +9,7 @@ import {
   Star,
 } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -21,11 +21,13 @@ import type { InfluencerDiscoveryItem } from "@/types/dashboard.types";
 import { getInfluencerReviewSummary } from "@/utils/influencerReviews";
 
 import hero from "/assets/Hero.png";
-import latestCampaign1 from "/assets/iphone1.png";
-import latestCampaign2 from "/assets/iphone2.png";
-import latestCampaign3 from "/assets/iphone3.png";
+import latestCampaign1 from "/assets/res1.jpg";
+import latestCampaign2 from "/assets/res3.jpg";
+import latestCampaign3 from "/assets/res2.jpg";
 import latestCampaign4 from "/assets/tImg1.png";
 import latestCampaign5 from "/assets/tImg2.png";
+import matchingPhotoPrimary from "/assets/tImg1.png";
+import matchingPhotoSecondary from "/assets/res1.jpg";
 
 type DashboardInfluencer = {
   id: number;
@@ -45,33 +47,6 @@ const staticLatestCampaignPosts = [
   { id: 4, image: latestCampaign4 },
   { id: 5, image: latestCampaign5 },
 ];
-
-function SectionHeader({
-  title,
-  subtitle,
-  isRTL,
-}: {
-  title: string;
-  subtitle?: string;
-  isRTL: boolean;
-}) {
-  return (
-    <header
-      className={cn(
-        "space-y-1.5 sm:space-y-2",
-        isRTL ? "text-right" : "text-left",
-      )}>
-      <h2 className="text-lg font-semibold text-[#1d1d1a] sm:text-2xl">
-        {title}
-      </h2>
-      {subtitle ? (
-        <p className="text-xs leading-6 text-[#6f6f68] sm:text-sm sm:leading-7">
-          {subtitle}
-        </p>
-      ) : null}
-    </header>
-  );
-}
 
 function PlatformIcons() {
   return (
@@ -134,9 +109,7 @@ function SuggestedInfluencerCard({
         <div className="mt-3 grid grid-cols-2 text-[#161616]">
           <div className="space-y-0.5 text-right">
             <p className="text-[11px] font-medium leading-none">
-              {item.followers != null
-                ? String(item.followers)
-                : "—"}
+              {item.followers != null ? String(item.followers) : "—"}
             </p>
             <p className="text-[10px] text-[#4f4f4b]">
               {t("companyDashboard.followers")}
@@ -144,9 +117,7 @@ function SuggestedInfluencerCard({
           </div>
           <div className="space-y-0.5 border-s border-[#eeeef0] text-right">
             <p className="text-[11px] font-medium leading-none">
-              {item.engagement != null
-                ? String(item.engagement)
-                : "—"}
+              {item.engagement != null ? String(item.engagement) : "—"}
             </p>
             <p className="text-[10px] text-[#4f4f4b]">
               {t("companyDashboard.engagementRate")}
@@ -302,24 +273,29 @@ function CompanyDashboard() {
     [discoveryData?.data],
   );
 
-  useEffect(() => {
-    if (featuredIndex >= dashboardInfluencers.length) {
-      setFeaturedIndex(0);
-    }
-  }, [dashboardInfluencers.length, featuredIndex]);
-
   if (location.pathname !== "/dashboard/company") {
     return <Outlet />;
   }
 
-  const activeFeatured = dashboardInfluencers[featuredIndex];
+  const activeFeaturedIndex =
+    dashboardInfluencers.length === 0
+      ? 0
+      : Math.min(featuredIndex, dashboardInfluencers.length - 1);
+  const activeFeatured = dashboardInfluencers[activeFeaturedIndex];
   const goFeaturedPrev = () => {
-    setFeaturedIndex((prev) =>
-      prev <= 0 ? dashboardInfluencers.length - 1 : prev - 1,
-    );
+    setFeaturedIndex((prev) => {
+      const total = dashboardInfluencers.length;
+      if (total === 0) return 0;
+      const safePrev = Math.min(prev, total - 1);
+      return safePrev <= 0 ? total - 1 : safePrev - 1;
+    });
   };
   const goFeaturedNext = () => {
-    setFeaturedIndex((prev) => (prev + 1) % dashboardInfluencers.length);
+    setFeaturedIndex((prev) => {
+      const total = dashboardInfluencers.length;
+      if (total === 0) return 0;
+      return (Math.min(prev, total - 1) + 1) % total;
+    });
   };
 
   const monitorItems = [
@@ -434,10 +410,10 @@ function CompanyDashboard() {
                       type="button"
                       onClick={() => setFeaturedIndex(index)}
                       aria-label={`${t("companyDashboard.showInfluencer")} ${index + 1}`}
-                      aria-pressed={featuredIndex === index}
+                      aria-pressed={activeFeaturedIndex === index}
                       className={cn(
                         "h-1.5 rounded-full transition-all",
-                        featuredIndex === index
+                        activeFeaturedIndex === index
                           ? "w-9 bg-[#d8ddca]"
                           : "w-1.5 bg-[#d8ddca]",
                       )}
@@ -577,12 +553,12 @@ function CompanyDashboard() {
           <section>
             <Card className="overflow-hidden rounded-[22px] border-0 bg-[linear-gradient(95deg,#23261f_0%,#5d684f_100%)] py-0 text-white shadow-[0_12px_28px_rgba(26,26,20,0.08)] sm:rounded-[28px]">
               <CardContent className="px-4 py-5 text-center sm:px-8 sm:py-8">
-                <div className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 sm:mb-4 sm:h-11 sm:w-11">
-                  <Sparkles className="h-4 w-4 text-white sm:h-5 sm:w-5" />
-                </div>
                 <p className="mx-auto max-w-2xl text-xs leading-6 text-white/90 sm:text-base sm:leading-7">
                   {t("companyDashboard.ctaText")}
                 </p>
+                <div className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 sm:mb-4 sm:h-11 sm:w-11">
+                  <Sparkles className="h-4 w-4 text-white sm:h-5 sm:w-5" />
+                </div>
 
                 <Button
                   type="button"
@@ -600,116 +576,79 @@ function CompanyDashboard() {
           </section>
 
           <section>
-            <SectionHeader
-              title={t("companyDashboard.monitorTitle")}
-              subtitle={t("companyDashboard.monitorSubtitle")}
-              isRTL={isRTL}
-            />
+            <Card className="overflow-hidden rounded-[28px] border-0 bg-[rgba(167,183,142,0.09)] py-0 shadow-none sm:rounded-[34px]">
+              <CardContent className="relative px-5 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+                <div className="absolute inset-0 opacity-60">
+                  <div className="absolute inset-y-0 left-0 w-[72%] bg-[radial-gradient(circle_at_20%_50%,rgba(167,183,142,0.12),transparent_58%)]" />
+                  <div className="absolute bottom-[-8%] left-[6%] h-[78%] w-[78%] rounded-full border border-[rgba(167,183,142,0.09)]" />
+                  <div className="absolute bottom-[-14%] left-[10%] h-[66%] w-[66%] rounded-full border border-[rgba(167,183,142,0.08)]" />
+                  <div className="absolute bottom-[-19%] left-[14%] h-[54%] w-[54%] rounded-full border border-[rgba(167,183,142,0.07)]" />
+                </div>
 
-            <div className="mt-3 md:hidden">
-              <Card className="overflow-hidden rounded-[24px] border-0 bg-white py-0 shadow-[0_10px_24px_rgba(26,26,20,0.06)]">
-                <CardContent className="p-4">
-                  <div className="relative mx-auto h-64 w-full max-w-60">
-                    <div className="absolute left-6 top-6 h-40 w-20 overflow-hidden rounded-full shadow-lg">
+                <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14">
+                  <div className="mx-auto flex w-full max-w-[320px] items-start justify-center gap-5 lg:mx-0 lg:w-[320px] lg:justify-end">
+                    <div className="relative mt-14 h-[245px] w-[102px] overflow-hidden rounded-[999px] border-[4px] border-white bg-[#d9d9d9] shadow-[0_10px_30px_rgba(31,31,28,0.14)] sm:h-[300px] sm:w-[118px]">
                       <img
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80"
+                        src={matchingPhotoPrimary}
                         alt={t("companyDashboard.influencerAvatarAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
-
-                    <div className="absolute right-6 top-0 h-44 w-22 overflow-hidden rounded-full shadow-lg">
+                    <div className="relative h-[285px] w-[126px] overflow-hidden rounded-[999px] border-[4px] border-[#b97f85] bg-[#e7d0d2] shadow-[0_14px_34px_rgba(31,31,28,0.16)] sm:h-[348px] sm:w-[150px]">
                       <img
-                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=500&q=80"
+                        src={matchingPhotoSecondary}
                         alt={t("companyDashboard.influencerAvatarAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
                   </div>
 
-                  <div
-                    className={cn("mt-3 text-center", isRTL && "text-right")}>
-                    <h3 className="text-[1.45rem] font-semibold leading-normal text-[#aab48f]">
+                  <div className="relative mx-auto w-full max-w-3xl text-center lg:mx-0 lg:flex-1 lg:text-right">
+                    <h2 className="mx-auto text-[2rem] font-extrabold leading-[1.3] text-[#a7b78e] underline decoration-[2px] underline-offset-6 sm:text-[2.35rem] lg:mx-0 lg:max-w-[600px] lg:text-[3rem]">
                       {t("companyDashboard.matchingTitle")}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-[#4f4f4b]">
+                    </h2>
+
+                    <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-8 text-[#272724] lg:mx-0 lg:max-w-[760px] lg:text-[1.05rem]">
                       {t("companyDashboard.matchingDesc")}
                     </p>
-                  </div>
 
-                  <div className="mt-5 space-y-4">
-                    {whyItems.map((item) => (
-                      <div
-                        key={`mobile-monitor-${item.id}`}
-                        className={cn(
-                          "flex items-start gap-3",
-                          isRTL ? "flex-row-reverse text-right" : "text-left",
-                        )}>
-                        <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#e7ecd9] text-[#91a06f]">
-                          <ShieldCheck className="h-3.5 w-3.5" />
-                        </div>
-                        <p className="text-sm leading-7 text-[#4f4f4b]">
-                          {item.text}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                    <div className="mt-8 space-y-8 lg:mt-12 lg:max-w-[760px]">
+                      {monitorItems.map((item, index) => {
+                        const isOddIndex = index % 2 === 0;
+                        const alignRight = isRTL ? isOddIndex : !isOddIndex;
 
-            <div className="mt-3 hidden md:grid md:grid-cols-1 md:gap-3 lg:grid-cols-[1.15fr_340px] lg:gap-5">
-              <div className="space-y-3 sm:space-y-4">
-                {monitorItems.map((item) => (
-                  <Card
-                    key={`monitor-${item.id}`}
-                    className="rounded-[18px] border-0 bg-[#edf1e5] py-0 shadow-none sm:rounded-[22px]">
-                    <CardContent className="px-4 py-4 sm:px-5 sm:py-5">
-                      <div
-                        className={cn(
-                          "space-y-1.5 sm:space-y-2",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        <p className="text-sm font-semibold text-[#5b7249] sm:text-base">
-                          {item.title}
-                        </p>
-                        <p className="text-xs leading-6 text-[#65655f] sm:text-sm sm:leading-7">
-                          {item.desc}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              <Card className="overflow-hidden rounded-[22px] border-0 bg-white/75 py-0 shadow-[0_10px_24px_rgba(26,26,20,0.06)] sm:rounded-[28px]">
-                <CardContent className="relative mx-auto h-52 w-full max-w-56 p-4 sm:h-72 sm:max-w-76">
-                  <div
-                    className={cn(
-                      "absolute bottom-4 z-10 h-28 w-14 overflow-hidden rounded-full border-[3px] border-white shadow-md sm:h-40 sm:w-20",
-                      isRTL ? "right-4" : "left-4",
-                    )}>
-                    <img
-                      src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=500&q=80"
-                      alt={t("companyDashboard.influencerAvatarAlt")}
-                      className="h-full w-full object-cover"
-                    />
+                        return (
+                          <div
+                            key={`monitor-${item.id}`}
+                            className={cn(
+                              "flex w-full",
+                              alignRight ? "justify-start" : "justify-end",
+                            )}>
+                            <div className="flex flex-col items-center gap-2 lg:flex-row lg:items-start lg:gap-4">
+                              <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#a7b78e] text-white">
+                                <ShieldCheck className="h-3.5 w-3.5" />
+                              </div>
+                              <div
+                                className={cn(
+                                  "w-full max-w-[620px] space-y-1 lg:max-w-[540px]",
+                                  isRTL ? "text-right" : "text-left",
+                                )}>
+                                <p className="text-[1.08rem] font-semibold leading-8 text-[#45453f] lg:text-[1.22rem]">
+                                  {item.title}
+                                </p>
+                                <p className="text-[15px] leading-8 text-[#54544e]">
+                                  {item.desc}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-
-                  <div
-                    className={cn(
-                      "absolute top-4 h-36 w-20 overflow-hidden rounded-full border-[3px] border-white shadow-lg sm:h-56 sm:w-32",
-                      isRTL ? "left-8" : "right-8",
-                    )}>
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80"
-                      alt={t("companyDashboard.influencerAvatarAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </section>
 
           <section>

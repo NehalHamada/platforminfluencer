@@ -1,8 +1,6 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import im1 from "/assets/image1.png";
 import im2 from "/assets/image2.png";
@@ -16,6 +14,8 @@ import { getImageList, sectionText } from "@/utils/landing";
 
 const avatarsTop = [us1, us2, us3];
 const avatarsBottom = [us1, us2, us3];
+
+import { Button } from "@/components/ui/Button";
 
 type PhotoesProps = {
   data?: LandingSection | null;
@@ -37,125 +37,129 @@ function Photoes({ data }: PhotoesProps) {
   const image3 = apiImages[2] ?? im3;
 
   return (
-    <section
-      dir={isRTL ? "rtl" : "ltr"}
-      className="relative overflow-hidden bg-[#f3f3f3] py-7 sm:py-9 lg:py-12">
+    <section className="relative w-full overflow-hidden bg-white mt-12 py-4 lg:py-6 font-['IBM_Plex_Sans_Arabic']">
+      {/* Background Decorative Spirals - Fixed positions */}
       <img
         src={style}
         alt=""
-        className="pointer-events-none absolute -right-6 -top-4 w-24 opacity-25 sm:w-28 lg:-right-8 lg:top-0 lg:w-40"
+        className={cn(
+          "pointer-events-none absolute w-64 opacity-15 lg:w-96",
+          "-left-24 top-0",
+        )}
       />
-
       <img
         src={style}
         alt=""
-        className="pointer-events-none absolute -bottom-8 -left-6 w-24 rotate-180 opacity-25 sm:w-28 lg:-left-8 lg:w-40"
+        className={cn(
+          "pointer-events-none absolute w-64 opacity-15 lg:w-96",
+          "-right-24 bottom-0 rotate-180",
+        )}
       />
 
-      <div className="mx-auto max-w-[980px] px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 ">
         <div
-          dir="ltr"
-          className="grid grid-cols-1 gap-2 md:grid-cols-[390px_260px_190px] md:items-start">
-          <Card className="relative min-h-[15.5rem] overflow-hidden rounded-[24px] border-0 bg-[#171717] py-0 text-white shadow-none md:h-[315px]">
-            <div className="pointer-events-none absolute bottom-0 right-0 hidden h-30 w-25 rounded-tl-[16px] bg-[#f3f3f3] md:block" />
+          className="flex flex-col gap-2 lg:flex-row lg:items-stretch"
+          style={{ direction: "ltr" }}>
+          {/* Dark Card - Fixed to Left side */}
+          <Card
+            className={cn(
+              "relative flex flex-col justify-start rounded-[40px] border-0 bg-[#171717] p-3 text-white shadow-none lg:w-[35%] lg:p-6",
+              // Inverted corner cutout always at bottom-right (inner corner when card is on left)
+              "[mask-image:radial-gradient(circle_at_bottom_right,transparent_45px,black_46px)] lg:[mask-image:radial-gradient(circle_at_bottom_right,transparent_65px,black_66px)]",
+            )}>
             <CardContent
               dir={isRTL ? "rtl" : "ltr"}
               className={cn(
-                "relative z-10 flex h-full flex-col px-6 py-6 sm:px-8 md:px-7 md:py-8",
-                isRTL ? "items-center text-center" : "items-center text-center",
+                "flex h-full flex-col justify-start p-0 mt-15",
+                isRTL ? "text-right" : "text-left",
               )}>
-              <div className="w-full max-w-[275px]">
+              <div className="space-y-2">
                 <h2
                   className={cn(
-                    "font-bold leading-normal text-white",
-                    isRTL
-                      ? "text-xl sm:text-2xl md:text-[1.05rem]"
-                      : "text-lg sm:text-xl md:text-[0.92rem]",
+                    "font-bold leading-tight text-white",
+                    isRTL ? "text-2xl lg:text-3xl" : "text-xl lg:text-2xl",
                   )}>
                   {title}
                 </h2>
-
                 <p
                   className={cn(
-                    "mt-4 text-white/78",
-                    isRTL
-                      ? "text-sm leading-7 sm:text-[0.95rem] md:text-[0.82rem] md:leading-6"
-                      : "text-xs leading-6 sm:text-sm md:text-[0.72rem] md:leading-5",
+                    "max-w-md text-white/80 leading-relaxed",
+                    isRTL ? "text-lg lg:text-xl" : "text-base lg:text-lg",
                   )}>
                   {description}
                 </p>
               </div>
 
               <div
-                dir="ltr"
-                className="mt-auto mb-9 flex rounded-full backdrop-blur-sm md:absolute md:bottom-[58px] md:right-[122px] md:mb-0">
-                <div className="flex flex-col items-end gap-1.5">
-                  <div className="flex -space-x-2">
-                    {avatarsTop.map((img, index) => (
-                      <Avatar
-                        key={`avatar-top-${index}`}
-                        className="h-7 w-7 ring-2 ring-[#171717]">
-                        <AvatarImage
-                          src={img}
-                          alt={`user-top-${index + 1}`}
-                          className="object-cover"
-                        />
-                      </Avatar>
-                    ))}
-                  </div>
-
-                  <div className="flex -space-x-2">
-                    {avatarsBottom.map((img, index) => (
-                      <Avatar
-                        key={`avatar-bottom-${index}`}
-                        className="h-7 w-7 ring-2 ring-[#171717]">
-                        <AvatarImage
-                          src={img}
-                          alt={`user-bottom-${index + 1}`}
-                          className="object-cover"
-                        />
-                      </Avatar>
-                    ))}
-                  </div>
+                className={cn(
+                  "mt-35  flex flex-col gap-2",
+                  isRTL ? "items-start ms-15" : "items-start ms-60",
+                )}>
+                <div className="flex -space-x-4 ">
+                  {avatarsTop.map((img, index) => (
+                    <Avatar
+                      key={`avatar-top-${index}`}
+                      className="h-10 w-10 border-2 border-[#171717] ring-0">
+                      <AvatarImage
+                        src={img}
+                        alt={`user-top-${index + 1}`}
+                        className="object-cover"
+                      />
+                    </Avatar>
+                  ))}
+                </div>
+                <div className="flex -space-x-4">
+                  {avatarsBottom.map((img, index) => (
+                    <Avatar
+                      key={`avatar-bottom-${index}`}
+                      className="h-10 w-10 border-2 border-[#171717] ring-0">
+                      <AvatarImage
+                        src={img}
+                        alt={`user-bottom-${index + 1}`}
+                        className="object-cover"
+                      />
+                    </Avatar>
+                  ))}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <div className="flex flex-col gap-2 md:h-[315px]">
-            <Card className="h-36 overflow-hidden rounded-[24px] border-0 py-0 shadow-none sm:h-44 md:h-[183px]">
-              <img
-                src={image1}
-                alt="image-1"
-                className="block h-full w-full rounded-[24px] object-cover"
-              />
-            </Card>
+          {/* Image Grid - Fixed to Right side */}
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex-1 lg:grid-cols-2 lg:grid-rows-2 lg:max-h-[480px]">
+            {/* Column 1 (Two stacked images) */}
+            <div className="flex flex-col gap-2 lg:row-span-2">
+              <div className="overflow-hidden rounded-[40px] bg-[#E0E0E0] lg:h-[45%]">
+                <img
+                  src={image1}
+                  alt="Campaign 1"
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <div className="overflow-hidden rounded-[40px] bg-[#E0E0E0] lg:flex-1">
+                <img
+                  src={image3}
+                  alt="Campaign 3"
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+            </div>
 
-            <Card className="h-36 overflow-hidden rounded-[24px] border-0 py-0 shadow-none sm:h-44 md:h-[124px]">
-              <img
-                src={image3}
-                alt="image-3"
-                className="block h-full w-full rounded-[24px] object-cover"
-              />
-            </Card>
-          </div>
-
-          <div className="flex flex-col gap-2 md:h-[315px]">
-            <Card className="h-36 overflow-hidden rounded-[24px] border-0 py-0 shadow-none sm:h-44 md:flex-1">
-              <img
-                src={image2}
-                alt="image-2"
-                className="block h-full w-full rounded-[24px] object-cover"
-              />
-            </Card>
-
-            <Button
-              type="button"
-              dir={isRTL ? "rtl" : "ltr"}
-              className="h-12 w-full rounded-full border-0 bg-[#c8d9a9] px-6 text-base font-semibold text-[#2f3329] shadow-none hover:bg-[#bfd19f] md:h-12 md:text-sm">
-              <ArrowLeft size={16} aria-hidden="true" />
-              <span>{t("TryFree")}</span>
-            </Button>
+            {/* Column 2 (One tall image + try free button) */}
+            <div className="flex flex-col gap-2 lg:row-span-2">
+              <div className="overflow-hidden rounded-[40px] bg-[#E0E0E0] lg:h-[82%]">
+                <img
+                  src={image2}
+                  alt="Campaign 2"
+                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <Button
+                variant="ghost"
+                className="w-full h-full rounded-[40px] bg-[#C8D9A9] text-[#171717] hover:bg-[#B5C898] transition-colors font-bold text-lg lg:flex-1">
+                {t("TryFree")}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

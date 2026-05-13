@@ -44,22 +44,22 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
             <CardContent className="grid grid-cols-3 grid-rows-2 gap-3 p-0 sm:gap-4">
               <img
                 src={images[0]}
-                className="row-span-2 h-64 w-full rounded-3xl object-cover sm:h-80 md:h-105"
+                className="row-span-2 h-full min-h-64 w-full rounded-3xl object-cover sm:min-h-80 md:min-h-105"
                 alt=""
               />
               <img
                 src={images[1]}
-                className="h-30 w-full rounded-3xl object-cover sm:h-40 md:h-50.5"
+                className="h-full min-h-30 w-full rounded-3xl object-cover sm:min-h-40 md:min-h-50.5"
                 alt=""
               />
               <img
                 src={images[2]}
-                className="row-span-2 h-64 w-full rounded-3xl object-cover sm:h-80 md:h-105"
+                className="row-span-2 h-full min-h-64 w-full rounded-3xl object-cover sm:min-h-80 md:min-h-105"
                 alt=""
               />
               <img
                 src={images[3]}
-                className="h-30 w-full rounded-3xl object-cover sm:h-40 md:h-50.5"
+                className="h-full min-h-30 w-full rounded-3xl object-cover sm:min-h-40 md:min-h-50.5"
                 alt=""
               />
             </CardContent>
@@ -73,7 +73,11 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 "p-0 text-center",
                 isRTL ? "md:text-right" : "md:text-left",
               )}>
-              <CardTitle className="mb-6 text-3xl font-bold text-white underline">
+              <CardTitle
+                className={cn(
+                  "mb-6 font-bold text-white underline",
+                  isRTL ? "text-2xl" : "text-xl",
+                )}>
                 {title}
               </CardTitle>
 
@@ -91,7 +95,13 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md">
                       <Check size={16} aria-hidden="true" />
                     </div>
-                    <span className="text-sm opacity-90 md:text-base">
+                    <span
+                      className={cn(
+                        "opacity-90",
+                        isRTL
+                          ? "text-[13px] md:text-sm"
+                          : "text-xs md:text-[13px]",
+                      )}>
                       {item}
                     </span>
                   </li>

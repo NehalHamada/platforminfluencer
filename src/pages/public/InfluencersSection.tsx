@@ -259,11 +259,21 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
       className="overflow-hidden bg-[#f3f3f3] px-4 py-12 md:py-16">
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-3xl text-center sm:p-7">
-          <h2 className="mx-auto max-w-[18rem] wrap-break-words text-center text-3xl font-bold leading-tight text-[#2f2f2f] sm:max-w-md md:max-w-none md:text-5xl">
+          <h2
+            className={cn(
+              "mx-auto max-w-[18rem] wrap-break-words text-center font-bold leading-tight text-[#2f2f2f] sm:max-w-md md:max-w-none",
+              isRTL ? "text-2xl md:text-4xl" : "text-xl md:text-3xl",
+            )}>
             {title}
           </h2>
 
-          <p className="mx-auto mt-4 max-w-[20rem] wrap-break-words text-center text-base leading-8 text-[#555] sm:max-w-lg sm:text-lg md:max-w-none md:text-[22px]">
+          <p
+            className={cn(
+              "mx-auto mt-4 max-w-[20rem] wrap-break-words text-center leading-7 text-[#555] sm:max-w-lg md:max-w-none",
+              isRTL
+                ? "text-sm sm:text-base md:text-[19px]"
+                : "text-xs sm:text-sm md:text-[16px]",
+            )}>
             {description}
           </p>
         </div>
@@ -272,7 +282,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
           <div className="relative md:hidden">
             {activeMobile ? (
               <div className="relative mx-auto flex max-w-88 items-center justify-center overflow-hidden">
-                <Card className="absolute -left-21 top-1/2 h-68 w-34 -translate-y-1/2 overflow-hidden rounded-[20px] border-0 bg-[rgba(143,134,172,0.04)] py-0 opacity-90 shadow-none">
+                <Card className="absolute -left-21 top-1/2 aspect-[1/2] w-34 -translate-y-1/2 overflow-hidden rounded-[20px] border-0 bg-[rgba(143,134,172,0.04)] py-0 opacity-90 shadow-none">
                   <img
                     src={isRTL ? nextMobile.image : previousMobile.image}
                     alt={isRTL ? nextMobile.name : previousMobile.name}
@@ -323,7 +333,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                     <img
                       src={activeMobile.image}
                       alt={activeMobile.name}
-                      className="mx-auto h-80 w-full object-cover"
+                      className="mx-auto aspect-[4/5] w-full object-cover"
                     />
                   </div>
 
@@ -336,7 +346,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                   </div>
                 </Card>
 
-                <Card className="absolute -right-21 top-1/2 h-68 w-34 -translate-y-1/2 overflow-hidden rounded-[20px] border-0 bg-[rgba(143,134,172,0.04)] py-0 opacity-90 shadow-none">
+                <Card className="absolute -right-21 top-1/2 aspect-[1/2] w-34 -translate-y-1/2 overflow-hidden rounded-[20px] border-0 bg-[rgba(143,134,172,0.04)] py-0 opacity-90 shadow-none">
                   <img
                     src={isRTL ? previousMobile.image : nextMobile.image}
                     alt={isRTL ? previousMobile.name : nextMobile.name}
@@ -394,7 +404,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="mx-auto h-80 object-cover sm:h-70 md:h-65 md:w-full md:pl-30 md:pr-30"
+                    className="mx-auto aspect-[4/5] w-full object-cover md:px-8"
                   />
                 </div>
 

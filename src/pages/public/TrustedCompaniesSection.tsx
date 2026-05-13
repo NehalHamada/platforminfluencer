@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import "../../index.css";
 import type { LandingSection } from "@/types/landing.types";
@@ -128,7 +129,13 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
         <Card className="border-0 bg-transparent py-0 shadow-none">
           <CardContent className="p-0">
             <div className="mx-auto text-center">
-              <CardTitle className="text-[28px] font-bold leading-tight text-[#2f3133] sm:text-[34px] md:text-[58px]">
+              <CardTitle
+                className={cn(
+                  "font-bold leading-tight text-[#2f3133]",
+                  isRTL
+                    ? "text-2xl sm:text-[30px] md:text-[50px]"
+                    : "text-xl sm:text-2xl md:text-[38px]",
+                )}>
                 {title || (
                   <>
                     {t("trustedCompanies.title1")}{" "}
@@ -140,11 +147,23 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
                 )}
               </CardTitle>
 
-              <CardTitle className="mt-2 text-[28px] font-bold leading-[1.2] text-[#2f3133] sm:text-[34px] md:text-[58px]">
+              <CardTitle
+                className={cn(
+                  "mt-2 font-bold leading-[1.2] text-[#2f3133]",
+                  isRTL
+                    ? "text-2xl sm:text-[30px] md:text-[50px]"
+                    : "text-xl sm:text-2xl md:text-[38px]",
+                )}>
                 {t("trustedCompanies.title3")}
               </CardTitle>
 
-              <CardDescription className="mx-auto mt-6 max-w-175 text-[13px] leading-6 text-[#6f7174] sm:text-[14px] md:text-[16px]">
+              <CardDescription
+                className={cn(
+                  "mx-auto mt-6 max-w-175 leading-6 text-[#6f7174]",
+                  isRTL
+                    ? "text-xs sm:text-[13px] md:text-sm"
+                    : "text-[11px] sm:text-xs md:text-[13px]",
+                )}>
                 {description}
               </CardDescription>
             </div>

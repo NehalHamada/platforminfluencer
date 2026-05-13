@@ -44,34 +44,34 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
             <span className="h-5 w-5 rounded-full bg-[#b7c58d]" />
           </div>
 
-          <CardContent className="relative z-10 grid items-center gap-8 px-2 py-6 sm:px-4 sm:py-8 md:min-h-125 md:grid-cols-2 md:gap-10 md:px-12">
+          <CardContent className="relative z-10 grid items-center gap-8 px-2 py-6 sm:px-4 sm:py-8 md:grid-cols-2 md:gap-10 md:px-12">
             <div
               className={cn(
-                "relative mx-auto h-72 w-full max-w-76 sm:h-88 sm:max-w-92 md:h-110 md:max-w-105",
+                "relative mx-auto aspect-[0.95/1.3] w-full max-w-76 sm:max-w-92 md:max-w-105",
                 isRTL ? "order-2 md:order-2" : "order-2 md:order-1",
               )}>
               <img
                 src={phone1}
                 alt={t("campaignShowcase.items.1.alt")}
-                className="absolute left-[7%] top-[2%] z-10 h-48 w-auto sm:h-60 md:left-[0%] md:top-[2%] md:h-82.5"
+                className="absolute left-[7%] top-[2%] z-10 h-[66%] w-auto md:left-[0%] md:top-[2%]"
               />
 
               <img
                 src={phone2}
                 alt={t("campaignShowcase.items.2.alt")}
-                className="absolute left-[35%] top-[20%] z-30 h-50 w-auto -translate-x-1/2 sm:h-64 md:left-[37%] md:top-[24%] md:h-85"
+                className="absolute left-[35%] top-[20%] z-30 h-[70%] w-auto -translate-x-1/2 md:left-[37%] md:top-[24%]"
               />
 
               <img
                 src={phone3}
                 alt={t("campaignShowcase.items.3.alt")}
-                className="absolute right-[31%] top-[4%] z-20 h-48 w-auto sm:h-60 md:right-[20%] md:top-[-2%] md:h-82.5"
+                className="absolute right-[31%] top-[4%] z-20 h-[66%] w-auto md:right-[20%] md:top-[-2%]"
               />
 
               <img
                 src={orbImg}
                 alt=""
-                className="absolute bottom-[30%] right-[20%] z-10 h-12 w-12 object-contain sm:h-19 sm:w-19 md:bottom-[20%] md:right-[10%] md:h-23.75 md:w-23.75"
+                className="absolute bottom-[30%] right-[20%] z-10 h-[16%] w-[16%] object-contain md:bottom-[20%] md:right-[10%]"
               />
             </div>
 
@@ -82,16 +82,34 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                   ? "order-1 text-center md:order-1 md:text-right"
                   : "order-1 text-center md:order-2 md:text-left",
               )}>
-              <h2 className="text-2xl font-bold leading-normal text-white sm:text-3xl md:text-[52px] md:leading-[1.35]">
+              <h2
+                className={cn(
+                  "font-bold leading-normal text-white md:leading-[1.35]",
+                  isRTL
+                    ? "text-xl sm:text-2xl md:text-[44px]"
+                    : "text-lg sm:text-xl md:text-[34px]",
+                )}>
                 {title}
               </h2>
 
-              <p className="mt-4 text-sm leading-7 text-[#7e7e7e] sm:mt-6 sm:text-base sm:leading-8 md:max-w-105 md:text-[26px] md:leading-[1.8] lg:text-[30px]">
+              <p
+                className={cn(
+                  "mt-4 text-[#7e7e7e] sm:mt-6 md:max-w-105 md:leading-[1.75]",
+                  isRTL
+                    ? "text-[13px] leading-6 sm:text-[15px] sm:leading-7 md:text-[22px] lg:text-[25px]"
+                    : "text-xs leading-6 sm:text-sm sm:leading-7 md:text-[18px] lg:text-[21px]",
+                )}>
                 {description}
               </p>
 
               <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:mt-8 sm:gap-4 md:justify-start">
-                <span className="text-xl font-semibold text-[#b7c58d] sm:text-2xl md:text-[34px]">
+                <span
+                  className={cn(
+                    "font-semibold text-[#b7c58d]",
+                    isRTL
+                      ? "text-lg sm:text-xl md:text-[28px]"
+                      : "text-base sm:text-lg md:text-[22px]",
+                  )}>
                   {t("campaignShowcase.button")}
                 </span>
 

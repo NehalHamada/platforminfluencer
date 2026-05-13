@@ -58,12 +58,22 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
           {(title || description) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white">
               {title ? (
-                <h2 className="text-xl font-bold drop-shadow md:text-3xl">
+                <h2
+                  className={cn(
+                    "font-bold drop-shadow",
+                    isRTL ? "text-lg md:text-2xl" : "text-base md:text-xl",
+                  )}>
                   {title}
                 </h2>
               ) : null}
               {description ? (
-                <p className="mt-2 max-w-2xl text-sm leading-6 drop-shadow md:text-base">
+                <p
+                  className={cn(
+                    "mt-2 max-w-2xl leading-6 drop-shadow",
+                    isRTL
+                      ? "text-[13px] md:text-sm"
+                      : "text-xs md:text-[13px]",
+                  )}>
                   {description}
                 </p>
               ) : null}
@@ -91,7 +101,13 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                       {item.id}
                     </div>
 
-                    <CardTitle className="min-w-0 max-w-[16rem] wrap-break-words text-center text-[16px] font-medium leading-normal text-[#2b2b2b] sm:max-w-[20rem] sm:text-[19px] md:max-w-none md:text-start md:text-[22px]">
+                    <CardTitle
+                      className={cn(
+                        "min-w-0 max-w-[16rem] wrap-break-words text-center font-medium leading-normal text-[#2b2b2b] sm:max-w-[20rem] md:max-w-none md:text-start",
+                        isRTL
+                          ? "text-[15px] sm:text-[17px] md:text-[20px]"
+                          : "text-[13px] sm:text-[15px] md:text-[17px]",
+                      )}>
                       {item.title}
                     </CardTitle>
 
@@ -103,7 +119,13 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                 </div>
 
                 <div className={cn(isRTL ? "md:pr-10" : "md:pl-10")}>
-                  <CardDescription className="mx-auto max-w-[18rem] wrap-break-words text-center text-[13px] leading-7 text-[#55554f] sm:max-w-88 sm:text-[14px] md:mx-0 md:max-w-xl md:text-start md:text-[15px]">
+                  <CardDescription
+                    className={cn(
+                      "mx-auto max-w-[18rem] wrap-break-words text-center leading-7 text-[#55554f] sm:max-w-88 md:mx-0 md:max-w-xl md:text-start",
+                      isRTL
+                        ? "text-xs sm:text-[13px] md:text-sm"
+                        : "text-[11px] sm:text-xs md:text-[13px]",
+                    )}>
                     {item.desc}
                   </CardDescription>
                 </div>

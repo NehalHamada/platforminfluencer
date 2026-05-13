@@ -229,7 +229,7 @@ function Hero({ data }: HeroProps) {
   return (
     <section
       dir={isArabic ? "rtl" : "ltr"}
-      className="relative -mt-24 min-h-180 overflow-hidden px-4 pb-8 pt-31 sm:px-6 lg:min-h-[700px] lg:px-8 lg:pt-40 xl:min-h-[750px]">
+      className="relative -mt-24 overflow-hidden px-4 pb-10 pt-52 sm:px-6 lg:px-8 lg:pt-60 lg:pb-16 xl:pb-20 font-['IBM_Plex_Sans_Arabic']">
       <img
         src={heroImage}
         alt="hero background"
@@ -279,7 +279,7 @@ function Hero({ data }: HeroProps) {
 
       <div
         className={cn(
-          "relative z-20 mx-auto flex min-h-[calc(720px-7.75rem)] max-w-[90rem] items-end justify-end pb-8 lg:min-h-[calc(650px-8rem)] lg:items-center lg:justify-start lg:pb-0 xl:min-h-[calc(700px-8rem)]",
+          "relative z-20 mx-auto flex max-w-[90rem] items-end justify-end pb-8 lg:items-center lg:justify-start lg:pb-0",
         )}>
         <div
           className={cn(

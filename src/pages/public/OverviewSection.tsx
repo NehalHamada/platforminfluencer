@@ -145,7 +145,13 @@ function OverviewSection({ data }: OverviewSectionProps) {
       className="overflow-hidden px-4 py-8 sm:px-5 sm:py-10 md:px-6 md:py-14">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-          <h2 className="text-2xl font-bold text-[#202020] sm:text-[28px] md:text-[34px]">
+          <h2
+            className={cn(
+              "font-bold text-[#202020]",
+              isRTL
+                ? "text-xl sm:text-2xl md:text-[30px]"
+                : "text-lg sm:text-xl md:text-[24px]",
+            )}>
             {sectionText(data, "title", t("overview.title"), isRTL)}
           </h2>
           <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
@@ -173,10 +179,22 @@ function OverviewSection({ data }: OverviewSectionProps) {
                             "min-w-0 flex-1 text-center",
                             isRTL ? "sm:text-right" : "sm:text-left",
                           )}>
-                          <CardTitle className="text-lg font-bold text-[#222] sm:text-xl">
+                          <CardTitle
+                            className={cn(
+                              "font-bold text-[#222]",
+                              isRTL
+                                ? "text-base sm:text-lg"
+                                : "text-sm sm:text-base",
+                            )}>
                             {item.followers}
                           </CardTitle>
-                          <CardDescription className="mt-1 text-sm text-[#8b8b8b] sm:text-[15px]">
+                          <CardDescription
+                            className={cn(
+                              "mt-1 text-[#8b8b8b]",
+                              isRTL
+                                ? "text-[13px] sm:text-sm"
+                                : "text-xs sm:text-[13px]",
+                            )}>
                             {item.label}
                           </CardDescription>
                         </div>
@@ -190,7 +208,13 @@ function OverviewSection({ data }: OverviewSectionProps) {
                         </div>
                       </div>
 
-                      <p className="break-all text-sm text-[#6f6f6f] sm:text-[15px]">
+                      <p
+                        className={cn(
+                          "break-all text-[#6f6f6f]",
+                          isRTL
+                            ? "text-[13px] sm:text-sm"
+                            : "text-xs sm:text-[13px]",
+                        )}>
                         {item.link}
                       </p>
                     </CardContent>
@@ -201,10 +225,13 @@ function OverviewSection({ data }: OverviewSectionProps) {
           </Card>
 
           <Card className="flex w-full rounded-[24px] border-0 bg-[linear-gradient(135deg,#9ba287,#b2b89c,#9ba287)] py-0 text-white shadow-none">
-            <CardContent className="flex min-h-40 w-full flex-col justify-center p-5 text-center sm:p-6 md:p-8 lg:min-h-full">
+            <CardContent className="flex w-full flex-col justify-center p-5 text-center sm:p-6 md:p-8">
               <p
                 className={cn(
-                  "mx-auto max-w-[20rem] text-xl font-semibold leading-[1.7] sm:text-[22px] md:text-[26px] lg:mx-0 lg:max-w-none lg:text-[30px]",
+                  "mx-auto max-w-[20rem] font-semibold leading-[1.7] lg:mx-0 lg:max-w-none",
+                  isRTL
+                    ? "text-lg sm:text-xl md:text-[23px] lg:text-[26px]"
+                    : "text-base sm:text-lg md:text-[19px] lg:text-[22px]",
                   isRTL ? "lg:text-right" : "lg:text-left",
                 )}>
                 {sideText}

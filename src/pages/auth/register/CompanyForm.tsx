@@ -86,7 +86,7 @@ function CompanyForm() {
 
   const onSubmit = async (data: CompanySchemaType) => {
     if (!parsedRegisterData) {
-      toast.error(t("company.error"));
+      toast.error(t("auth_errors.register_failed"));
       navigate("/register");
       return;
     }
@@ -106,7 +106,7 @@ function CompanyForm() {
 
       navigate("/register/company/complete");
     } catch {
-      toast.error(t("company.error"));
+      toast.error(t("auth_errors.register_failed"));
     }
   };
 

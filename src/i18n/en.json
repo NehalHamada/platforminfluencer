@@ -761,7 +761,7 @@
     "browseAllCount": "50,000 Saudi influencers",
     "saveInfluencer": "Save influencer",
     "follow": "Follow",
-    "sendMessage": "Follow",
+    "sendMessage": "Send Message",
     "showInfluencer": "Show influencer",
     "prev": "Previous",
     "next": "Next",
@@ -769,8 +769,9 @@
     "engagementRate": "Engagement rate",
     "latestCampaignsTitle": "See our latest campaigns",
     "campaignPreviewAlt": "Campaign preview",
-    "ctaText": "Launch your next campaign with clear goals, curated creators, and a tighter workflow.",
-    "ctaButton": "Start now",
+    "ctaTitle": "Ready to start growing your business with us?",
+    "ctaText": "Here you can discover influencers, manage collaborations, and pay securely — all from one place.",
+    "ctaButton": "Start your campaign",
     "monitorTitle": "Powerful tracking system",
     "monitorSubtitle": "to manage your campaigns",
     "matchingTitle": "Influencer campaign matching system",
@@ -1215,5 +1216,20 @@
   "أطلق حملتك": "Launch your campaign",
   "حدد ميزانيتك والجمهور المستهدف وشروط الحملة.": "Set your budget, target audience, and campaign conditions.",
   "اختر المؤثرين": "Choose influencers",
-  "استخدم نظام البحث المتقدم للوصول للمؤثرين المناسبين.": "Use the advanced search system to reach the right influencers."
+  "استخدم نظام البحث المتقدم للوصول للمؤثرين المناسبين.": "Use the advanced search system to reach the right influencers.",
+  "auth_errors": {
+    "login_failed": "Login failed. Please check your credentials and try again.",
+    "server_error": "A server error occurred. Please try again later.",
+    "network_error": "Network error. Please check your internet connection.",
+    "unauthorized": "Unauthorized access. Please login again.",
+    "user_not_found": "User not found. Please check your email.",
+    "invalid_credentials": "The email or password you entered is incorrect.",
+    "account_locked": "Your account has been locked. Please contact support.",
+    "email_not_verified": "Please verify your email address before logging in.",
+    "reset_password_failed": "Failed to reset password. The link might be expired.",
+    "forgot_password_failed": "Failed to send reset link. Please try again.",
+    "otp_failed": "Invalid or expired OTP code. Please request a new one.",
+    "register_failed": "Registration failed. The email might already be in use.",
+    "validation_error": "Please check the input fields and try again."
+  }
 }

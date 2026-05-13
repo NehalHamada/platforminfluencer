@@ -58,8 +58,23 @@ function ForgotPassword() {
       sessionStorage.setItem("otpPurpose", "forget-password");
       toast.success(t("forgetPassword.success"));
       navigate("/verify-otp");
-    } catch {
-      toast.error(t("forgetPassword.error"));
+    } catch (error: unknown) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error
+      ) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          toast.error(t("auth_errors.user_not_found"));
+        } else if (axiosError.response?.status === 422) {
+          toast.error(t("auth_errors.validation_error"));
+        } else {
+          toast.error(t("auth_errors.forgot_password_failed"));
+        }
+      } else {
+        toast.error(t("auth_errors.forgot_password_failed"));
+      }
     }
   };
   return (

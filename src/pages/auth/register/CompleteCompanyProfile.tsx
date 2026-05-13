@@ -43,27 +43,8 @@ import type {
   SharedRegisterData,
 } from "@/types/auth.types";
 
-const getApiErrorMessage = (data: unknown) => {
-  if (!data || typeof data !== "object") return "Failed";
 
-  const apiData = data as {
-    message?: string;
-    errors?: Record<string, string[] | string>;
-  };
 
-  if (apiData.errors) {
-    const firstError = Object.keys(apiData.errors)
-      .map((key) => apiData.errors?.[key])
-      .reduce<string[]>((messages, errorValue) => {
-        if (!errorValue) return messages;
-        return messages.concat(errorValue);
-      }, [])[0];
-
-    if (firstError) return String(firstError);
-  }
-
-  return apiData.message || "Failed";
-};
 
 const isValidCompanyStepPayload = (
   data: CompanyStepPayload | null,
@@ -138,7 +119,7 @@ function CompleteCompanyProfile() {
 
   const onSubmit = async (data: CompleteCompanySchemaType) => {
     if (!savedRegisterData || !savedStepOneData) {
-      toast.error("Step 1 data not found");
+      toast.error(t("auth_errors.register_failed"));
       navigate("/register/company");
       return;
     }
@@ -148,13 +129,13 @@ function CompleteCompanyProfile() {
       const stepOneData = JSON.parse(savedStepOneData) as CompanyStepPayload;
 
       if (!isValidRegisterData(registerData)) {
-        toast.error(t("company.error"));
+        toast.error(t("auth_errors.register_failed"));
         navigate("/register");
         return;
       }
 
       if (!isValidCompanyStepPayload(stepOneData)) {
-        toast.error(t("company.error"));
+        toast.error(t("auth_errors.register_failed"));
         navigate("/register/company");
         return;
       }
@@ -200,10 +181,14 @@ function CompleteCompanyProfile() {
       navigate("/verify-otp");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-
-        toast.error(getApiErrorMessage(error.response?.data));
+        const status = error.response?.status;
+        if (status === 422) {
+          toast.error(t("auth_errors.validation_error"));
+        } else {
+          toast.error(t("auth_errors.register_failed"));
+        }
       } else {
-        toast.error("Failed");
+        toast.error(t("auth_errors.register_failed"));
       }
     }
   };

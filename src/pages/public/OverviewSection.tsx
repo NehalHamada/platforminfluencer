@@ -45,9 +45,12 @@ function OverviewSection({ data }: OverviewSectionProps) {
 
   const getPlatformBg = (icon: unknown) => {
     const iconName = typeof icon === "string" ? icon.toLowerCase() : "";
-    if (iconName.includes("yt") || iconName.includes("youtube")) return "bg-[#FF0000]";
-    if (iconName.includes("fb") || iconName.includes("facebook")) return "bg-[#1877F2]";
-    if (iconName.includes("tt") || iconName.includes("tiktok")) return "bg-white";
+    if (iconName.includes("yt") || iconName.includes("youtube"))
+      return "bg-[#FF0000]";
+    if (iconName.includes("fb") || iconName.includes("facebook"))
+      return "bg-[#1877F2]";
+    if (iconName.includes("tt") || iconName.includes("tiktok"))
+      return "bg-white";
     return "bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45]";
   };
 
@@ -128,8 +131,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
           typeof platform.followers === "string"
             ? platform.followers
             : t("overview.cards.instagram.followers"),
-        label:
-          getPlatformLabel(platform),
+        label: getPlatformLabel(platform),
         link:
           typeof platform.link === "string"
             ? platform.link
@@ -137,12 +139,15 @@ function OverviewSection({ data }: OverviewSectionProps) {
       }))
     : fallbackPlatforms;
 
-  const sideText = sectionText(data, "description", t("overview.sideCard"), isRTL);
+  const sideText = sectionText(
+    data,
+    "description",
+    t("overview.sideCard"),
+    isRTL,
+  );
 
   return (
-    <section
-      dir={isRTL ? "rtl" : "ltr"}
-      className="overflow-hidden px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10">
+    <section dir={isRTL ? "rtl" : "ltr"} className="overflow-hidden ">
       <div className="mx-auto w-full max-w-6xl">
         {/* Mobile Layout */}
         <div className="flex flex-col gap-4 lg:hidden">
@@ -178,7 +183,9 @@ function OverviewSection({ data }: OverviewSectionProps) {
                           "flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-[8px] sm:rounded-[10px]",
                           item.bg,
                         )}>
-                        <div className="scale-[0.6] sm:scale-75">{item.icon}</div>
+                        <div className="scale-[0.6] sm:scale-75">
+                          {item.icon}
+                        </div>
                       </div>
                       <div className="flex min-w-0 flex-1 flex-col items-end justify-center text-right">
                         <span className="w-full truncate text-[11px] sm:text-[13px] font-bold text-[#222]">
@@ -189,7 +196,9 @@ function OverviewSection({ data }: OverviewSectionProps) {
                         </span>
                       </div>
                     </div>
-                    <p className="w-full truncate text-center text-[9px] sm:text-[11px] text-[#6f6f6f]" dir="ltr">
+                    <p
+                      className="w-full truncate text-center text-[9px] sm:text-[11px] text-[#6f6f6f]"
+                      dir="ltr">
                       {item.link}
                     </p>
                   </div>

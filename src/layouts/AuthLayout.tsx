@@ -21,11 +21,8 @@ function AuthLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-[#F9F9F9]">
       <div
-        className={cn(
-          "fixed top-4 z-[80]",
-          isArabic ? "left-4" : "right-4",
-        )}>
-        <LanguageToggle className="me-0 bg-black/20 backdrop-blur-sm hover:bg-black/30" />
+        className={cn("fixed top-4 z-[80]", isArabic ? "left-4" : "right-4")}>
+        <LanguageToggle className="me-0 bg-black/20 text-white backdrop-blur-sm hover:bg-black/30 hover:text-white lg:bg-white/80 lg:text-[#333] lg:hover:bg-white lg:hover:text-[#111]" />
       </div>
 
       <main
@@ -49,8 +46,6 @@ function AuthLayout() {
           </CardContent>
         </Card>
       </main>
-
-      <Footer />
     </div>
   );
 }

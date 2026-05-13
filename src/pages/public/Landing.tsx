@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import Hero from "./Hero";
+import LazySection from "@/components/common/LazySection";
 
 function Landing() {
   const { t, i18n } = useTranslation();
@@ -56,59 +57,91 @@ function Landing() {
     );
   }
 
-  const sections = [
-    { id: "hero", component: <Hero data={data.hero} /> },
-    { id: "photoes", component: <Photoes data={data.part2} /> },
-    {
-      id: "results",
-      component: <ResultsLanding data={data.success_results} />,
-    },
-    {
-      id: "about-platform",
-      component: <AboutPlatformSection data={data.footer_info} />,
-    },
-    {
-      id: "influencers",
-      component: <InfluencersSection data={data.famous_influencers} />,
-    },
-    {
-      id: "campaign-showcase",
-      component: <CampaignShowcaseSection data={data.impact_campaigns} />,
-    },
-    {
-      id: "overview",
-      component: <OverviewSection data={data.platform_overview} />,
-    },
-    {
-      id: "top-influencers",
-      component: <TopInfluencersSection data={data.latest_stars} />,
-    },
-    { id: "features", component: <FeaturesSection data={data.part8} /> },
-    { id: "why-choose-us", component: <WhyChooseUs data={data.our_diff} /> },
-    {
-      id: "trusted-companies",
-      component: <TrustedCompaniesSection data={data.trusted_by} />,
-    },
-  ];
-
   return (
     <main
       dir={isRTL ? "rtl" : "ltr"}
       className="min-h-screen w-full bg-background">
       <Card className="min-h-screen rounded-none border-0 bg-transparent py-0 shadow-none ring-0">
         <CardContent className="space-y-0 px-0">
-          {sections.map((section) => (
-            <div key={section.id}>
-              <section
-                aria-labelledby={`${section.id}-section`}
-                className="w-full">
-                <div id={`${section.id}-section`} className="sr-only">
-                  {section.id}
-                </div>
-                {section.component}
-              </section>
-            </div>
-          ))}
+          {/* Hero — always rendered immediately (above the fold) */}
+          <section aria-labelledby="hero-section" className="w-full">
+            <div id="hero-section" className="sr-only">hero</div>
+            <Hero data={data.hero} />
+          </section>
+
+          {/* Photoes — close to fold, render eagerly */}
+          <section aria-labelledby="photoes-section" className="w-full">
+            <div id="photoes-section" className="sr-only">photoes</div>
+            <Photoes data={data.part2} />
+          </section>
+
+          {/* Below-the-fold sections — lazy loaded */}
+          <LazySection id="results-lazy" minHeight="300px" rootMargin="300px">
+            <section aria-labelledby="results-section" className="w-full">
+              <div id="results-section" className="sr-only">results</div>
+              <ResultsLanding data={data.success_results} />
+            </section>
+          </LazySection>
+
+          <LazySection id="about-platform-lazy" minHeight="300px">
+            <section aria-labelledby="about-platform-section" className="w-full">
+              <div id="about-platform-section" className="sr-only">about-platform</div>
+              <AboutPlatformSection data={data.footer_info} />
+            </section>
+          </LazySection>
+
+          <LazySection id="influencers-lazy" minHeight="400px">
+            <section aria-labelledby="influencers-section" className="w-full">
+              <div id="influencers-section" className="sr-only">influencers</div>
+              <InfluencersSection data={data.famous_influencers} />
+            </section>
+          </LazySection>
+
+          <LazySection id="campaign-showcase-lazy" minHeight="400px">
+            <section aria-labelledby="campaign-showcase-section" className="w-full">
+              <div id="campaign-showcase-section" className="sr-only">campaign-showcase</div>
+              {/* Mobile spacing between CampaignShowcase and the next section (Overview) */}
+              <CampaignShowcaseSection data={data.impact_campaigns} />
+            </section>
+          </LazySection>
+
+          {/* Spacer between CampaignShowcase and Overview */}
+          <div className="h-10 lg:h-6" />
+
+          <LazySection id="overview-lazy" minHeight="300px">
+            <section aria-labelledby="overview-section" className="w-full">
+              <div id="overview-section" className="sr-only">overview</div>
+              <OverviewSection data={data.platform_overview} />
+            </section>
+          </LazySection>
+
+          <LazySection id="top-influencers-lazy" minHeight="400px">
+            <section aria-labelledby="top-influencers-section" className="w-full">
+              <div id="top-influencers-section" className="sr-only">top-influencers</div>
+              <TopInfluencersSection data={data.latest_stars} />
+            </section>
+          </LazySection>
+
+          <LazySection id="features-lazy" minHeight="300px">
+            <section aria-labelledby="features-section" className="w-full">
+              <div id="features-section" className="sr-only">features</div>
+              <FeaturesSection data={data.part8} />
+            </section>
+          </LazySection>
+
+          <LazySection id="why-choose-us-lazy" minHeight="400px">
+            <section aria-labelledby="why-choose-us-section" className="w-full">
+              <div id="why-choose-us-section" className="sr-only">why-choose-us</div>
+              <WhyChooseUs data={data.our_diff} />
+            </section>
+          </LazySection>
+
+          <LazySection id="trusted-companies-lazy" minHeight="300px">
+            <section aria-labelledby="trusted-companies-section" className="w-full">
+              <div id="trusted-companies-section" className="sr-only">trusted-companies</div>
+              <TrustedCompaniesSection data={data.trusted_by} />
+            </section>
+          </LazySection>
         </CardContent>
       </Card>
     </main>

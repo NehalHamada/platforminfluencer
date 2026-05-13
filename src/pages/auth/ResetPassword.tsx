@@ -58,7 +58,7 @@ function ResetPassword() {
     const otpPurpose = sessionStorage.getItem("otpPurpose");
 
     if (!resetEmail || !resetOtp || otpPurpose !== "forget-password") {
-      toast.error(t("resetPassword.invalidSession"));
+      toast.error(t("auth_errors.reset_password_failed"));
       navigate("/forget-password");
       return;
     }
@@ -88,7 +88,7 @@ function ResetPassword() {
 
       navigate("/login");
     } catch {
-      toast.error(t("resetPassword.error"));
+      toast.error(t("auth_errors.reset_password_failed"));
     }
   };
 

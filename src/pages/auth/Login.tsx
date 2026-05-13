@@ -17,6 +17,7 @@ import axios from "axios";
 import { logOtpFromResponse } from "@/utils/logOtp";
 import { setPendingAuth } from "@/utils/pendingAuth";
 import type { AuthResponse, AuthUser, UserRole } from "@/types/auth.types";
+import { toast } from "react-toastify";
 
 type LoginVerificationError = {
   message?: string;
@@ -67,7 +68,6 @@ function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t, i18n } = useTranslation();
-  const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
@@ -82,7 +82,6 @@ function Login() {
 
   const onSubmit = async (data: LoginSchemaType) => {
     try {
-      setServerError("");
       loginMutation.mutate(data, {
         onSuccess: (response) => {
           logOtpFromResponse("login otp:", response);
@@ -94,11 +93,9 @@ function Login() {
         onError: (error) => {
           if (axios.isAxiosError<LoginVerificationError>(error)) {
             const responseData = error.response?.data;
+            const status = error.response?.status;
 
-            if (
-              error.response?.status === 403 &&
-              responseData?.requires_verification
-            ) {
+            if (status === 403 && responseData?.requires_verification) {
               logOtpFromResponse("login otp:", responseData);
               storePendingAuthFromResponse(responseData ?? {});
               localStorage.setItem("otpEmail", data.email);
@@ -107,15 +104,30 @@ function Login() {
               return;
             }
 
-            setServerError(responseData?.message || t("errors.login_failed"));
+            if (status === 401) {
+              toast.error(t("auth_errors.invalid_credentials"));
+              return;
+            }
+
+            if (status === 404) {
+              toast.error(t("auth_errors.user_not_found"));
+              return;
+            }
+
+            if (status === 422) {
+              toast.error(t("auth_errors.validation_error"));
+              return;
+            }
+
+            toast.error(t("auth_errors.login_failed"));
             return;
           }
 
-          setServerError(t("errors.login_failed"));
+          toast.error(t("auth_errors.login_failed"));
         },
       });
     } catch {
-      setServerError("Login Failed");
+      toast.error(t("auth_errors.server_error"));
     }
   };
 
@@ -273,15 +285,7 @@ function Login() {
                   </Link>
                 </div>
 
-                {serverError ? (
-                  <p
-                    className={cn(
-                      "text-sm text-red-500",
-                      isArabic ? "text-right" : "text-left",
-                    )}>
-                    {serverError}
-                  </p>
-                ) : null}
+
 
                 <Button
                   type="submit"

@@ -32,7 +32,7 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="bg-white py-24 md:py-32 lg:py-40 mb-24 md:mb-32 lg:mb-40 overflow-visible">
+      className="bg-white  md:mb-10 lg:mb-4 sm:mt-40 overflow-visible">
       <div className="relative w-full bg-[rgba(29,29,29,1)] py-12 md:py-16 lg:py-20">
         {/* Decorative background gradient */}
         <div className="absolute inset-y-0 left-0 hidden w-64 bg-[radial-gradient(circle_at_left_center,rgba(182,192,131,0.1),transparent_70%)] md:block" />
@@ -161,8 +161,7 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                 </Button>
 
                 {/* Mobile Button */}
-                <div
-                  className="flex md:hidden items-center justify-start gap-3 w-full cursor-pointer">
+                <div className="flex md:hidden items-center justify-start gap-3 w-full cursor-pointer">
                   <span className="font-bold text-[#b7c58d] text-[16px]">
                     {t("campaignShowcase.button")}
                   </span>

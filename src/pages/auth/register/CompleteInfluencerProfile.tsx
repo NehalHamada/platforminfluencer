@@ -74,7 +74,7 @@ function CompleteInfluencerProfile() {
 
   const onSubmit = async (data: CompleteInfluencerSchemaType) => {
     if (!parsedRegisterData) {
-      toast.error(t("influencer.error"));
+      toast.error(t("auth_errors.register_failed"));
       navigate("/register");
       return;
     }
@@ -95,7 +95,7 @@ function CompleteInfluencerProfile() {
 
       navigate("/register/influencer/payment");
     } catch {
-      toast.error(t("influencer.error"));
+      toast.error(t("auth_errors.register_failed"));
     }
   };
 

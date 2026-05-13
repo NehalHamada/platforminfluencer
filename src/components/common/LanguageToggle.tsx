@@ -40,7 +40,7 @@ function LanguageToggle({ className }: LanguageToggleProps) {
             "me-3 cursor-pointer rounded-full text-white hover:bg-white/10 hover:text-white focus-visible:ring-white/30",
             className,
           )}>
-          <Globe className="text-white" />
+          <Globe />
         </Button>
       </DropdownMenuTrigger>
     </DropdownMenu>

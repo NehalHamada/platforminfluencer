@@ -3,9 +3,7 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
-  Plus,
   ShieldCheck,
-  Sparkles,
   Star,
 } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
@@ -75,7 +73,7 @@ function SuggestedInfluencerCard({
 
   const handleFollowClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate("/dashboard/company/messages");
+    navigate("/dashboard/company/contact");
   };
   const reviewSummary = getInfluencerReviewSummary({
     influencerId: item.id,
@@ -161,8 +159,7 @@ function SuggestedInfluencerCard({
             variant="outline"
             className="h-6.5 flex-1 gap-1 rounded-[6px] border-0 bg-[#eef1e9] px-2 text-[10px] font-normal text-[#7f8c67] hover:bg-[#e7ecdf]"
             onClick={handleFollowClick}>
-            <Plus className="h-3 w-3" />
-            {t("companyDashboard.follow")}
+            {t("companyDashboard.sendMessage")}
           </Button>
         </div>
       </CardContent>
@@ -333,12 +330,16 @@ function CompanyDashboard() {
         <div className="absolute inset-0 bg-black/65" />
       </section>
 
-      <main className="relative -mt-5 rounded-t-[26px]  px-3 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[34px] sm:px-4 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-8 lg:pt-8">
+      <main className="relative -mt-5 rounded-t-[26px] bg-[#F9F9F9] px-3 pb-8 pt-4 sm:-mt-8 sm:rounded-t-[34px] sm:px-4 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 lg:space-y-8">
           {dashboardInfluencers.length > 0 && (
-            <section className="pt-1 sm:pt-2">
+            <section
+              className="pt-1 sm:pt-2"
+              style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
               <header className="mx-auto max-w-2xl text-center">
-                <h2 className="text-[19px] font-bold leading-tight text-[#232320] sm:text-3xl">
+                <h2
+                  className="text-[19px] font-bold leading-tight text-[#232320] sm:text-3xl"
+                  style={{ fontFamily: "'Lemonada', cursive" }}>
                   {t("companyDashboard.suggestedTitle")}
                 </h2>
                 <p className="mt-4 text-[11px] leading-5 text-[#565650] sm:text-sm">
@@ -550,27 +551,228 @@ function CompanyDashboard() {
             </section>
           )}
 
-          <section>
-            <Card className="overflow-hidden rounded-[22px] border-0 bg-[linear-gradient(95deg,#23261f_0%,#5d684f_100%)] py-0 text-white shadow-[0_12px_28px_rgba(26,26,20,0.08)] sm:rounded-[28px]">
-              <CardContent className="px-4 py-5 text-center sm:px-8 sm:py-8">
-                <p className="mx-auto max-w-2xl text-xs leading-6 text-white/90 sm:text-base sm:leading-7">
-                  {t("companyDashboard.ctaText")}
-                </p>
-                <div className="mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 sm:mb-4 sm:h-11 sm:w-11">
-                  <Sparkles className="h-4 w-4 text-white sm:h-5 sm:w-5" />
+          <section className="flex justify-center">
+            <Card
+              className="w-full max-w-5xl overflow-hidden rounded-[22px] border-0 py-0 text-white shadow-[0_12px_28px_rgba(26,26,20,0.08)] sm:rounded-[28px]"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(167,183,142,1) 0%,   rgba(25,25,25,1) 100%)",
+                fontFamily: "'IBM Plex Sans Arabic', sans-serif",
+              }}>
+              <CardContent className="relative px-4 py-14 text-center sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+                {/* Wireframe globe background */}
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+                  <svg
+                    viewBox="0 0 400 400"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-[280px] w-[280px] opacity-25 sm:h-[340px] sm:w-[340px] lg:h-[400px] lg:w-[400px]"
+                    aria-hidden="true">
+                    {/* Outer circle */}
+                    <circle
+                      cx="200"
+                      cy="200"
+                      r="180"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.8"
+                    />
+                    {/* Horizontal ellipses */}
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="60"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.6"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="120"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.6"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="150"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.6"
+                    />
+                    {/* Vertical ellipses */}
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="60"
+                      ry="180"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.6"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="120"
+                      ry="180"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.6"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="150"
+                      ry="180"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.6"
+                    />
+                    {/* Tilted ellipses */}
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="80"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.5"
+                      transform="rotate(30 200 200)"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="80"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.5"
+                      transform="rotate(-30 200 200)"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="80"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.5"
+                      transform="rotate(60 200 200)"
+                    />
+                    <ellipse
+                      cx="200"
+                      cy="200"
+                      rx="180"
+                      ry="80"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.5"
+                      transform="rotate(-60 200 200)"
+                    />
+                    {/* Horizontal lines */}
+                    <line
+                      x1="20"
+                      y1="140"
+                      x2="380"
+                      y2="140"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.4"
+                    />
+                    <line
+                      x1="20"
+                      y1="260"
+                      x2="380"
+                      y2="260"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.4"
+                    />
+                    <line
+                      x1="20"
+                      y1="200"
+                      x2="380"
+                      y2="200"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.5"
+                    />
+                    {/* Vertical line */}
+                    <line
+                      x1="200"
+                      y1="20"
+                      x2="200"
+                      y2="380"
+                      stroke="url(#globe-grad)"
+                      strokeWidth="0.5"
+                    />
+                    {/* Rocket / satellite accent - small diagonal line with dot */}
+                    <line
+                      x1="260"
+                      y1="80"
+                      x2="290"
+                      y2="50"
+                      stroke="rgba(255,255,255,0.6)"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                    />
+                    <circle
+                      cx="295"
+                      cy="45"
+                      r="4"
+                      fill="rgba(255,255,255,0.7)"
+                    />
+                    <line
+                      x1="295"
+                      y1="45"
+                      x2="310"
+                      y2="35"
+                      stroke="rgba(255,255,255,0.3)"
+                      strokeWidth="0.8"
+                    />
+                    <line
+                      x1="295"
+                      y1="45"
+                      x2="305"
+                      y2="55"
+                      stroke="rgba(255,255,255,0.3)"
+                      strokeWidth="0.8"
+                    />
+                    <defs>
+                      <linearGradient
+                        id="globe-grad"
+                        x1="0"
+                        y1="0"
+                        x2="400"
+                        y2="400">
+                        <stop
+                          offset="0%"
+                          stopColor="rgba(167, 183, 142, 0.8)"
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="rgba(167, 183, 142, 0)"
+                        />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </div>
 
-                <Button
-                  type="button"
-                  onClick={() => navigate("/dashboard/company/create")}
-                  className="mt-4 h-9 rounded-full border border-[#9cac86] bg-[#7a8866]/80 px-4 text-xs text-white hover:bg-[#7a8866] sm:mt-5 sm:h-11 sm:px-6 sm:text-base">
-                  {t("companyDashboard.ctaButton")}
-                  {isRTL ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
+                {/* Content */}
+                <div className="relative z-10">
+                  <h3 className="mx-auto max-w-xl text-lg font-bold leading-relaxed text-white sm:text-2xl lg:text-[1.7rem]">
+                    {t("companyDashboard.ctaTitle")}
+                  </h3>
+
+                  <p className="mx-auto mt-4 max-w-2xl text-[13px] leading-7 text-white/80 sm:mt-5 sm:text-base sm:leading-8">
+                    {t("companyDashboard.ctaText")}
+                  </p>
+
+                  <Button
+                    type="button"
+                    onClick={() => navigate("/dashboard/company/create")}
+                    className="mt-6 h-10 gap-2 rounded-full border border-white/20 bg-white/10 px-6 text-sm font-medium text-white backdrop-blur-sm hover:bg-white/20 sm:mt-8 sm:h-11 sm:px-8 sm:text-base">
+                    {t("companyDashboard.ctaButton")}
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15">
+                      {isRTL ? (
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      )}
+                    </span>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </section>
@@ -651,12 +853,98 @@ function CompanyDashboard() {
             </Card>
           </section>
 
-          <section>
+          <section style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
+            {/* Mobile version */}
             <div className="md:hidden">
-              <Card className="overflow-hidden rounded-[24px] border-0 bg-white py-0 shadow-[0_10px_24px_rgba(26,26,20,0.06)]">
-                <CardContent className="p-4">
-                  <div className={cn("text-center", isRTL && "text-right")}>
-                    <h2 className="text-[1.7rem] font-bold text-[#1f1f1f]">
+              <div className="text-center">
+                <h2
+                  className="text-[1.5rem] font-bold text-[#1f1f1f]"
+                  style={{ fontFamily: "'Lemonada', cursive" }}>
+                  {t("companyDashboard.whyTitle")}
+                </h2>
+                <p className="mt-2 text-[12px] leading-6 text-[#666666]">
+                  {t("companyDashboard.whySubtitle")}
+                </p>
+              </div>
+
+              {/* Mobile photos grid */}
+              <div className="relative mx-auto mt-5 h-44 w-full max-w-60">
+                <div className="absolute left-1/2 top-0 h-14 w-14 -translate-x-1/2 overflow-hidden rounded-full shadow-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
+                    alt={t("companyDashboard.influencerAlt")}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="absolute right-4 top-5 h-14 w-14 overflow-hidden rounded-full shadow-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
+                    alt={t("companyDashboard.influencerAlt")}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="absolute left-4 top-5 h-14 w-14 overflow-hidden rounded-full shadow-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80"
+                    alt={t("companyDashboard.influencerAlt")}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="absolute left-7 top-24 h-12 w-12 overflow-hidden rounded-full shadow-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
+                    alt={t("companyDashboard.phonePreviewAlt")}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="absolute left-1/2 top-18 h-12 w-12 -translate-x-1/2 overflow-hidden rounded-full shadow-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
+                    alt={t("companyDashboard.phonePreviewAlt")}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="absolute right-7 top-24 h-12 w-12 overflow-hidden rounded-full shadow-md">
+                  <img
+                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80"
+                    alt={t("companyDashboard.phonePreviewAlt")}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Mobile numbered cards */}
+              <div className="mt-5 space-y-3">
+                {whyItems.map((item) => (
+                  <Card
+                    key={`mobile-why-${item.id}`}
+                    className="rounded-[18px] border-0 bg-[#f7f7fb] py-0 shadow-none">
+                    <CardContent
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-4",
+                        isRTL ? "flex-row-reverse" : "flex-row-reverse",
+                      )}>
+                      <p className="flex-1 text-sm leading-7 text-[#4f4f4f]">
+                        {item.text}
+                      </p>
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#efedf8] text-sm font-semibold text-[#8d84c7]">
+                        {item.id}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop version */}
+            <div className="hidden md:block">
+              <div className="grid items-start gap-6 lg:grid-cols-[1fr_1.1fr]">
+                {/* Left side — text + numbered cards */}
+                <div className={cn("space-y-4", isRTL ? "text-right" : "text-left")}>
+                  <div>
+                    <h2
+                      className="text-2xl font-bold text-[#1f1f1f] lg:text-[1.7rem]"
+                      style={{ fontFamily: "'Lemonada', cursive" }}>
                       {t("companyDashboard.whyTitle")}
                     </h2>
                     <p className="mt-2 text-sm leading-7 text-[#666666]">
@@ -664,136 +952,50 @@ function CompanyDashboard() {
                     </p>
                   </div>
 
-                  <div className="relative mx-auto mt-5 h-44 w-full max-w-60">
-                    <div className="absolute left-1/2 top-0 h-14 w-14 -translate-x-1/2 overflow-hidden rounded-full shadow-md">
-                      <img
-                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
-                        alt={t("companyDashboard.influencerAlt")}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute right-4 top-5 h-14 w-14 overflow-hidden rounded-full shadow-md">
-                      <img
-                        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
-                        alt={t("companyDashboard.influencerAlt")}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute left-4 top-5 h-14 w-14 overflow-hidden rounded-full shadow-md">
-                      <img
-                        src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80"
-                        alt={t("companyDashboard.influencerAlt")}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute left-7 top-24 h-12 w-12 overflow-hidden rounded-full shadow-md">
-                      <img
-                        src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
-                        alt={t("companyDashboard.phonePreviewAlt")}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute left-1/2 top-18 h-12 w-12 -translate-x-1/2 overflow-hidden rounded-full shadow-md">
-                      <img
-                        src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
-                        alt={t("companyDashboard.phonePreviewAlt")}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-
-                    <div className="absolute right-7 top-24 h-12 w-12 overflow-hidden rounded-full shadow-md">
-                      <img
-                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80"
-                        alt={t("companyDashboard.phonePreviewAlt")}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-5 space-y-3">
+                  <div className="space-y-3">
                     {whyItems.map((item) => (
                       <Card
-                        key={`mobile-why-${item.id}`}
-                        className="rounded-[18px] border-0 bg-[#f7f7fb] py-0 shadow-none">
+                        key={`why-${item.id}`}
+                        className="rounded-[18px] border-0 bg-[#f1f1f5] py-0 shadow-none sm:rounded-[20px]">
                         <CardContent
                           className={cn(
                             "flex items-center gap-3 px-4 py-4",
-                            isRTL ? "flex-row-reverse" : "flex-row-reverse",
+                            isRTL && "flex-row",
                           )}>
-                          <p className="flex-1 text-sm leading-7 text-[#4f4f4f]">
-                            {item.text}
-                          </p>
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#efedf8] text-sm font-semibold text-[#8d84c7]">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ece9fb] text-sm font-semibold text-[#8d84c7]">
                             {item.id}
                           </div>
+                          <p className="text-sm leading-7 text-[#4f4f4f]">
+                            {item.text}
+                          </p>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="hidden md:grid md:grid-cols-1 md:items-start md:gap-4 lg:grid-cols-[1fr_1.05fr] lg:gap-6">
-              <div
-                className={cn(
-                  "space-y-3 sm:space-y-4",
-                  isRTL ? "text-right" : "text-left",
-                )}>
-                <div>
-                  <h2 className="text-lg font-bold text-[#1f1f1f] sm:text-2xl">
-                    {t("companyDashboard.whyTitle")}
-                  </h2>
-                  <p className="mt-2 text-xs leading-6 text-[#666666] sm:text-sm sm:leading-7">
-                    {t("companyDashboard.whySubtitle")}
-                  </p>
                 </div>
 
-                <div className="space-y-3">
-                  {whyItems.map((item) => (
-                    <Card
-                      key={`why-${item.id}`}
-                      className="rounded-[18px] border-0 bg-[#f1f1f5] py-0 shadow-none sm:rounded-[20px]">
-                      <CardContent
-                        className={cn(
-                          "flex items-center gap-3 px-4 py-4",
-                          isRTL && "flex-row",
-                        )}>
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#ece9fb] text-xs font-semibold text-[#8d84c7] sm:h-8 sm:w-8 sm:text-sm">
-                          {item.id}
-                        </div>
-                        <p className="text-xs leading-6 text-[#4f4f4f] sm:text-sm sm:leading-7">
-                          {item.text}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-
-              <Card className="overflow-hidden rounded-[22px] border-0 bg-white/80 py-0 shadow-[0_12px_30px_rgba(26,26,20,0.06)] sm:rounded-[28px]">
-                <CardContent className="relative h-68 p-4 sm:h-108 sm:p-5">
-                  <div className="absolute right-4 top-4 h-14 w-14 overflow-hidden rounded-full shadow-md sm:right-5 sm:h-20 sm:w-20">
+                {/* Right side — circular photos with decorations */}
+                <div className="relative min-h-[340px] lg:min-h-[380px]">
+                  {/* Top row - 3 circular profile photos */}
+                  <div className="absolute right-4 top-0 h-[88px] w-[88px] overflow-hidden rounded-full shadow-md lg:right-8 lg:h-[100px] lg:w-[100px]">
                     <img
                       src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
                       alt={t("companyDashboard.influencerAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
-
-                  <div className="absolute left-6 top-6 h-14 w-14 overflow-hidden rounded-full shadow-md sm:left-10 sm:top-8 sm:h-20 sm:w-20">
+                  <div className="absolute right-[42%] top-2 h-[80px] w-[80px] overflow-hidden rounded-full shadow-md lg:h-[90px] lg:w-[90px]">
                     <img
                       src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
                       alt={t("companyDashboard.influencerAlt")}
                       className="h-full w-full object-cover"
                     />
+                    {/* Instagram badge */}
+                    <div className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)]">
+                      <FaInstagram className="text-[10px] text-white" />
+                    </div>
                   </div>
-
-                  <div className="absolute right-12 top-18 h-14 w-14 overflow-hidden rounded-full shadow-md sm:right-20 sm:top-28 sm:h-20 sm:w-20">
+                  <div className="absolute left-4 top-4 h-[72px] w-[72px] overflow-hidden rounded-full shadow-md lg:left-8 lg:h-[82px] lg:w-[82px]">
                     <img
                       src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80"
                       alt={t("companyDashboard.influencerAlt")}
@@ -801,31 +1003,53 @@ function CompanyDashboard() {
                     />
                   </div>
 
-                  <div className="absolute left-3 top-32 h-20 w-14 overflow-hidden rounded-[16px] border-[3px] border-white shadow-lg sm:left-6 sm:top-52 sm:h-32 sm:w-20 sm:rounded-[22px]">
+                  {/* Emoji decorations */}
+                  <span className="absolute right-[30%] top-[15%] text-lg" aria-hidden="true">❤️</span>
+                  <span className="absolute left-[20%] top-[10%] text-sm" aria-hidden="true">🔥</span>
+                  <span className="absolute right-[15%] top-[40%] text-sm" aria-hidden="true">🔥</span>
+                  <span className="absolute left-[35%] top-[55%] text-xs" aria-hidden="true">❤️</span>
+                  <span className="absolute right-[45%] top-[70%] text-xs" aria-hidden="true">🔥</span>
+
+                  {/* Middle row - phone mockups */}
+                  <div className="absolute left-[10%] top-[35%] h-[130px] w-[80px] overflow-hidden rounded-[20px] border-[3px] border-white shadow-lg lg:h-[150px] lg:w-[90px]">
                     <img
                       src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
                       alt={t("companyDashboard.phonePreviewAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
-
-                  <div className="absolute right-4 top-36 h-20 w-14 overflow-hidden rounded-[16px] border-[3px] border-white shadow-lg sm:right-10 sm:top-56 sm:h-32 sm:w-20 sm:rounded-[22px]">
+                  <div className="absolute right-[15%] top-[30%] h-[140px] w-[85px] overflow-hidden rounded-[20px] border-[3px] border-white shadow-lg lg:h-[160px] lg:w-[95px]">
                     <img
                       src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80"
                       alt={t("companyDashboard.phonePreviewAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
-
-                  <div className="absolute left-1/2 top-40 h-20 w-14 -translate-x-1/2 overflow-hidden rounded-[16px] border-[3px] border-white shadow-lg sm:top-64 sm:h-32 sm:w-20 sm:rounded-[22px]">
+                  <div className="absolute left-[38%] top-[40%] h-[130px] w-[80px] overflow-hidden rounded-[20px] border-[3px] border-white shadow-lg lg:h-[150px] lg:w-[90px]">
                     <img
                       src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
                       alt={t("companyDashboard.phonePreviewAlt")}
                       className="h-full w-full object-cover"
                     />
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* Bottom circular photos */}
+                  <div className="absolute bottom-0 left-[5%] h-[70px] w-[70px] overflow-hidden rounded-full shadow-md lg:h-[80px] lg:w-[80px]">
+                    <img
+                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
+                      alt={t("companyDashboard.influencerAlt")}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute bottom-2 right-[25%] h-[65px] w-[65px] overflow-hidden rounded-full shadow-md lg:h-[75px] lg:w-[75px]">
+                    <img
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
+                      alt={t("companyDashboard.influencerAlt")}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         </div>

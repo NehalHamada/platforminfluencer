@@ -86,7 +86,7 @@ function InfluencerForm() {
 
       navigate("/register/influencer/complete");
     } catch {
-      toast.error(t("influencer.error"));
+      toast.error(t("auth_errors.register_failed"));
     }
   };
 

@@ -144,7 +144,7 @@ function VerifyOtp() {
     const email = getOtpEmail();
 
     if (!email) {
-      toast.error(t("verifyOtp.error"));
+      toast.error(t("auth_errors.otp_failed"));
       return;
     }
 
@@ -175,7 +175,7 @@ function VerifyOtp() {
       toast.success(t("verifyOtp.resendSuccess"));
     } catch (error) {
       console.log(error);
-      toast.error(t("verifyOtp.resendError"));
+      toast.error(t("auth_errors.otp_failed"));
     }
   };
 
@@ -188,14 +188,14 @@ function VerifyOtp() {
     console.log("submitted otp:", otpCode);
 
     if (otpCode.length !== 6) {
-      toast.error(t("verifyOtp.errors.otp_required"));
+      toast.error(t("auth_errors.otp_failed"));
       return;
     }
 
     const email = getOtpEmail();
 
     if (!email) {
-      toast.error(t("verifyOtp.error"));
+      toast.error(t("auth_errors.otp_failed"));
       return;
     }
 
@@ -276,7 +276,7 @@ function VerifyOtp() {
       navigate("/reset-password");
     } catch (error) {
       console.log(error);
-      toast.error(t("verifyOtp.error"));
+      toast.error(t("auth_errors.otp_failed"));
     }
   };
 

@@ -51,27 +51,8 @@ type SavedInfluencerProfileData = {
 const isNumberArray = (value: unknown): value is number[] =>
   Array.isArray(value) && value.every((item) => typeof item === "number");
 
-const getApiErrorMessage = (data: unknown) => {
-  if (!data || typeof data !== "object") return "Failed";
 
-  const apiData = data as {
-    message?: string;
-    errors?: Record<string, string[] | string>;
-  };
 
-  if (apiData.errors) {
-    const firstError = Object.keys(apiData.errors)
-      .map((key) => apiData.errors?.[key])
-      .reduce<string[]>((messages, errorValue) => {
-        if (!errorValue) return messages;
-        return messages.concat(errorValue);
-      }, [])[0];
-
-    if (firstError) return String(firstError);
-  }
-
-  return apiData.message || "Failed";
-};
 
 const isRegisterData = (data: unknown): data is SharedRegisterData => {
   if (!data || typeof data !== "object") return false;
@@ -159,12 +140,12 @@ function CompleteInfluencerPayment() {
     const savedStepTwoData = sessionStorage.getItem("influencerStepTwoData");
 
     if (!savedRegisterData || !savedStepOneData || !savedStepTwoData) {
-      toast.error(t("influencer.error"));
+      toast.error(t("auth_errors.register_failed"));
       return;
     }
 
     if (data.payoutMethod === "wallet") {
-      toast.error("Wallet not available yet");
+      toast.error(t("auth_errors.validation_error"));
       return;
     }
 
@@ -177,7 +158,7 @@ function CompleteInfluencerPayment() {
       stepOneData = JSON.parse(savedStepOneData);
       stepTwoData = JSON.parse(savedStepTwoData);
     } catch {
-      toast.error(t("influencer.error"));
+      toast.error(t("auth_errors.register_failed"));
       return;
     }
 
@@ -186,7 +167,7 @@ function CompleteInfluencerPayment() {
       !isInfluencerStepData(stepOneData) ||
       !isInfluencerProfileData(stepTwoData)
     ) {
-      toast.error(t("influencer.error"));
+      toast.error(t("auth_errors.register_failed"));
       return;
     }
 
@@ -231,11 +212,16 @@ function CompleteInfluencerPayment() {
         },
         onError: (error) => {
           if (axios.isAxiosError(error)) {
-            toast.error(getApiErrorMessage(error.response?.data));
+            const status = error.response?.status;
+            if (status === 422) {
+              toast.error(t("auth_errors.validation_error"));
+            } else {
+              toast.error(t("auth_errors.register_failed"));
+            }
             return;
           }
 
-          toast.error(t("influencer.error"));
+          toast.error(t("auth_errors.register_failed"));
         },
       },
     );

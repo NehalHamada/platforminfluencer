@@ -6,7 +6,12 @@ import chI2 from "/assets/choImg2.png";
 import chI3 from "/assets/choImg3.png";
 import chI4 from "/assets/choImg4.png";
 import type { LandingSection } from "@/types/landing.types";
-import { getImageList, getString, isRecord, sectionText } from "@/utils/landing";
+import {
+  getImageList,
+  getString,
+  isRecord,
+  sectionText,
+} from "@/utils/landing";
 
 type WhyChooseUsProps = {
   data?: LandingSection | null;
@@ -15,25 +20,25 @@ type WhyChooseUsProps = {
 function WhyChooseUs({ data }: WhyChooseUsProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
-  
+
   const apiPoints = Array.isArray(data?.content?.points)
     ? data.content.points.filter(isRecord)
     : [];
-  
+
   const apiImages = getImageList(data?.content);
   const images = [chI1, chI2, chI3, chI4].map(
     (fallback, index) => apiImages[index] ?? fallback,
   );
-  
+
   const title = sectionText(data, "title", t("whyChooseUs"), true);
-  
+
   const features = apiPoints.length
     ? apiPoints.map((point, index) =>
         t(
           getString(point, "title") ||
-          getString(point, "desc") ||
-          `feature${(index % 4) + 1}`
-        )
+            getString(point, "desc") ||
+            `feature${(index % 4) + 1}`,
+        ),
       )
     : [t("feature1"), t("feature2"), t("feature3"), t("feature4")];
 
@@ -42,7 +47,6 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
       dir={isRTL ? "rtl" : "ltr"}
       className="font-ibm-plex overflow-hidden bg-[rgba(18,18,18,1)] px-4 py-16 md:py-24 mt-3">
       <div className="mx-auto flex max-w-6xl flex-col-reverse gap-12 md:grid md:grid-cols-2 md:gap-20 md:items-center">
-        
         {/* Mobile Text Section */}
         <div className="flex w-full flex-col md:hidden">
           <div className="w-full text-center">
@@ -67,7 +71,7 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 key={index}
                 className={cn(
                   "flex w-full items-center gap-4",
-                  isRTL ? "justify-end" : "justify-start"
+                  isRTL ? "justify-end" : "justify-start",
                 )}
                 style={{
                   paddingRight: isRTL ? `${index * 2.5}rem` : 0,
@@ -111,12 +115,11 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
               <li
                 key={index}
                 className="flex w-full items-center justify-start gap-4">
-                
                 {/* Icon (DOM Order 1 => Right in RTL, Left in LTR) */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#2a2a2a] text-[#c0c0c0] shadow-sm">
                   <BsHddStack size={18} aria-hidden="true" />
                 </div>
-                
+
                 {/* Text (DOM Order 2 => Left in RTL, Right in LTR) */}
                 <span className="text-[16px] leading-relaxed text-[#dcdcdc]">
                   {item}
@@ -128,7 +131,7 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
 
         {/* Photos Section (DOM Order 2 => Left in RTL, Right in LTR) */}
         <div className="flex w-full justify-center">
-          <div className="grid w-full max-w-[28rem] grid-cols-3 grid-rows-2 gap-3 sm:gap-4">
+          <div className="grid w-full max-w-md grid-cols-3 grid-rows-2 gap-3 sm:gap-4">
             <img
               src={images[0]}
               alt="Feature 1"
@@ -151,7 +154,6 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
             />
           </div>
         </div>
-
       </div>
     </section>
   );

@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
@@ -88,7 +83,9 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
       : null;
     return {
       id: typeof user.id === "number" ? user.id : index + 1,
-      image: getImageUrl(user.avatar) || fallbackImages[index % fallbackImages.length],
+      image:
+        getImageUrl(user.avatar) ||
+        fallbackImages[index % fallbackImages.length],
       name:
         typeof user.name === "string"
           ? user.name
@@ -143,8 +140,6 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
     setCurrentIndex((prev) => (prev <= 0 ? influencers.length - 1 : prev - 1));
   };
 
-
-
   const goNext = () => {
     setCurrentIndex((prev) => (prev + 1) % influencers.length);
   };
@@ -178,7 +173,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
         <div className="mt-14 md:hidden">
           <Card className="mx-auto w-full max-w-[20rem] overflow-visible rounded-[18px] border-0 bg-transparent py-0 shadow-none ring-0">
             <div className="pt-12">
-              <div className="relative aspect-[4/3] w-full rounded-[14px] bg-[#f5f4f0]">
+              <div className="relative aspect-4/3 w-full rounded-[14px] bg-[#f5f4f0]">
                 <img
                   src={activeInfluencer.image}
                   alt={activeInfluencer.name}
@@ -264,7 +259,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
               key={item.id}
               className="mx-auto w-full max-w-[18rem] overflow-visible rounded-[18px] border-0 bg-transparent py-0 shadow-none ring-0 md:max-w-none">
               <div className="pt-12 lg:pt-16">
-                <div className="relative aspect-[4/3] w-full rounded-[14px] bg-[#f5f4f0]">
+                <div className="relative aspect-4/3 w-full rounded-[14px] bg-[#f5f4f0]">
                   <img
                     src={item.image}
                     alt={item.name}

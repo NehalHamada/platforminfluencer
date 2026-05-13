@@ -279,14 +279,14 @@ function Hero({ data }: HeroProps) {
 
       <div
         className={cn(
-          "relative z-20 mx-auto flex max-w-[90rem] items-end justify-end pb-8 lg:items-center lg:justify-start lg:pb-0",
+          "relative z-20 mx-auto flex max-w-360 items-end justify-end pb-8 lg:items-center lg:justify-start lg:pb-0",
         )}>
         <div
           className={cn(
-            "w-full max-w-[22rem]",
+            "w-full max-w-88",
             isArabic
-              ? "text-right lg:max-w-[42rem] xl:max-w-[46rem]"
-              : "text-left lg:max-w-[44rem]",
+              ? "text-right lg:max-w-2xl xl:max-w-184"
+              : "text-left lg:max-w-176",
           )}>
           <h1
             className={cn(
@@ -339,7 +339,7 @@ function Hero({ data }: HeroProps) {
             {/* Avatars First in RTL means they appear on the Right */}
             {isArabic ? (
               <>
-                <div className="order-2 flex items-center -space-x-3 space-x-reverse lg:order-none lg:-space-x-4">
+                <div className="order-2 flex items-center -space-x-3 space-x-reverse lg:order-0 lg:-space-x-4">
                   {communityImages.map((image, index) => (
                     <img
                       key={`avatar-${index}`}
@@ -349,7 +349,7 @@ function Hero({ data }: HeroProps) {
                     />
                   ))}
                 </div>
-                <div className="order-1 flex flex-row-reverse items-baseline gap-1 lg:order-none lg:flex-col lg:items-end lg:gap-0">
+                <div className="order-1 flex flex-row-reverse items-baseline gap-1 lg:order-0 lg:flex-col lg:items-end lg:gap-0">
                   <span className="text-base font-black leading-none lg:text-6xl">
                     {visitCount}
                   </span>

@@ -178,7 +178,7 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                   )}
 
                   {isImage && (
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/15" />
+                    <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/35 via-transparent to-black/15" />
                   )}
 
                   {/* Play Icon for inactive cards */}

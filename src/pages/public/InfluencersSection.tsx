@@ -277,10 +277,6 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
   };
 
   const activeMobile = visibleInfluencers[0];
-  const previousMobile =
-    influencers[currentPage <= 0 ? influencers.length - 1 : currentPage - 1];
-  const nextMobile =
-    influencers[currentPage >= influencers.length - 1 ? 0 : currentPage + 1];
 
   return (
     <section
@@ -378,7 +374,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                         <img
                           src={activeMobile.image}
                           alt={activeMobile.name}
-                          className="mx-auto aspect-[3/4] w-full object-cover max-h-56"
+                          className="mx-auto aspect-3/4 w-full object-cover max-h-56"
                         />
                       </div>
 
@@ -393,7 +389,9 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                   </div>
 
                   {/* Mobile Arrows Centered Below Cards */}
-                  <div className="mt-6 flex items-center justify-center gap-4" dir="ltr">
+                  <div
+                    className="mt-6 flex items-center justify-center gap-4"
+                    dir="ltr">
                     <Button
                       type="button"
                       onClick={isRTL ? goNext : goPrev}
@@ -462,7 +460,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="mx-auto aspect-[3/4] w-full object-cover max-h-48"
+                      className="mx-auto aspect-3/4 w-full object-cover max-h-48"
                     />
                   </div>
 

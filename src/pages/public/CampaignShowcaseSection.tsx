@@ -64,14 +64,14 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                 <img
                   src={phone1}
                   alt={t("campaignShowcase.items.1.alt")}
-                  className="absolute left-[0%] top-[-15%] max-md:top-[-5%] z-10 w-[48%] -rotate-[6deg] rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
+                  className="absolute left-[0%] top-[-15%] max-md:top-[-5%] z-10 w-[48%] -rotate-6 rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
                 />
 
                 {/* Phone 3 (Back Right - Slightly Elevated) */}
                 <img
                   src={phone3}
                   alt={t("campaignShowcase.items.3.alt")}
-                  className="absolute right-[0%] top-[-10%] max-md:top-[0%] z-10 w-[48%] rotate-[6deg] rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
+                  className="absolute right-[0%] top-[-10%] max-md:top-[0%] z-10 w-[48%] rotate-6 rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
                 />
 
                 {/* Phone 2 (Front Center - Lowered) */}

@@ -1,11 +1,4 @@
 import CompanyCard from "@/components/common/CompanyCard";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import "../../index.css";
@@ -125,51 +118,45 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="mb-10 overflow-hidden bg-[#f4f4f2] py-12 md:py-16">
-      <div className="mx-auto max-w-6xl px-4">
-        <Card className="border-0 bg-transparent py-0 shadow-none">
-          <CardContent className="p-0">
-            <div className="mx-auto text-center">
-              <CardTitle
-                className={cn(
-                  "font-bold leading-tight text-[#2f3133]",
-                  isRTL
-                    ? "text-2xl sm:text-[30px] md:text-[50px]"
-                    : "text-xl sm:text-2xl md:text-[38px]",
-                )}>
-                {title || (
-                  <>
-                    {t("trustedCompanies.title1")}{" "}
-                    <span className="text-[#aeb98e]">
-                      {t("trustedCompanies.count")}
-                    </span>{" "}
-                    {t("trustedCompanies.title2")}
-                  </>
-                )}
-              </CardTitle>
+      className="mb-10 overflow-hidden bg-[#f4f4f2] py-12 md:py-16 mt-4">
+      <div className="mx-auto max-w-6xl px-4 text-center">
+        <h2
+          className={cn(
+            "font-bold leading-tight text-[#2f3133]",
+            isRTL
+              ? "text-2xl sm:text-[30px] md:text-[50px]"
+              : "text-xl sm:text-2xl md:text-[38px]",
+          )}>
+          {title || (
+            <>
+              {t("trustedCompanies.title1")}{" "}
+              <span className="text-[#aeb98e]">
+                {t("trustedCompanies.count")}
+              </span>{" "}
+              {t("trustedCompanies.title2")}
+            </>
+          )}
+        </h2>
 
-              <CardTitle
-                className={cn(
-                  "mt-2 font-bold leading-[1.2] text-[#2f3133]",
-                  isRTL
-                    ? "text-2xl sm:text-[30px] md:text-[50px]"
-                    : "text-xl sm:text-2xl md:text-[38px]",
-                )}>
-                {t("trustedCompanies.title3")}
-              </CardTitle>
+        <h2
+          className={cn(
+            "mt-2 font-bold leading-[1.2] text-[#2f3133]",
+            isRTL
+              ? "text-2xl sm:text-[30px] md:text-[50px]"
+              : "text-xl sm:text-2xl md:text-[38px]",
+          )}>
+          {t("trustedCompanies.title3")}
+        </h2>
 
-              <CardDescription
-                className={cn(
-                  "mx-auto mt-6 max-w-175 leading-6 text-[#6f7174]",
-                  isRTL
-                    ? "text-xs sm:text-[13px] md:text-sm"
-                    : "text-[11px] sm:text-xs md:text-[13px]",
-                )}>
-                {description}
-              </CardDescription>
-            </div>
-          </CardContent>
-        </Card>
+        <p
+          className={cn(
+            "mx-auto mt-6 max-w-175 leading-6 text-[#6f7174]",
+            isRTL
+              ? "text-xs sm:text-[13px] md:text-sm"
+              : "text-[11px] sm:text-xs md:text-[13px]",
+          )}>
+          {description}
+        </p>
       </div>
 
       <div className="mt-12 space-y-7 overflow-hidden">
@@ -188,8 +175,6 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
             ))}
           </div>
         </div>
-
-        <Separator className="mx-auto max-w-6xl bg-[#e4e4df]" />
 
         <div className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 bg-linear-to-r from-[#f4f4f2] to-transparent md:w-40" />

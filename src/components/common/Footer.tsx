@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { useForm as useReactHookForm } from "react-hook-form";
@@ -13,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import logo from "/assets/logo.svg";
 import { footerSchema, type FooterSchemaType } from "@/schema/essential.schema";
 

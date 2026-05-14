@@ -21,14 +21,16 @@ import {
   influencerChatSchema,
   type InfluencerChatSchema,
 } from "@/schema/dashboard.schema";
+import { toast } from "react-toastify";
 function ContactInfluencer() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.dir() === "rtl";
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as
-    | { influencerId?: string | number; influencerName?: string }
-    | null;
+  const state = location.state as {
+    influencerId?: string | number;
+    influencerName?: string;
+  } | null;
   const influencerId = state?.influencerId;
 
   const contentTypesQuery = useContentTypesQuery();
@@ -70,7 +72,8 @@ function ContactInfluencer() {
         },
         {
           onSuccess: () => {
-            navigate("/dashboard/company/campaigns");
+            toast.success(t("infChat.successMessage"));
+            navigate("/dashboard/company");
           },
         },
       );
@@ -202,7 +205,10 @@ function ContactInfluencer() {
                       label={t("infChat.budget")}
                       placeholder={
                         budgetRangesQuery.isLoading
-                          ? t("createCampaign.loadingBudgetRanges", "Loading...")
+                          ? t(
+                              "createCampaign.loadingBudgetRanges",
+                              "Loading...",
+                            )
                           : t("infChat.placeholders.budget")
                       }
                       options={
@@ -281,7 +287,9 @@ function ContactInfluencer() {
                     )}>
                     <Button
                       type="submit"
-                      disabled={isSubmitting || sendCollaborationMutation.isPending}
+                      disabled={
+                        isSubmitting || sendCollaborationMutation.isPending
+                      }
                       className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
                       <span
                         className={cn(

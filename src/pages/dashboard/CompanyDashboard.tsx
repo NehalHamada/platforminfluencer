@@ -789,14 +789,14 @@ function CompanyDashboard() {
 
                 <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14">
                   <div className="mx-auto flex w-full max-w-[320px] items-start justify-center gap-5 lg:mx-0 lg:w-[320px] lg:justify-end">
-                    <div className="relative mt-14 h-[245px] w-[102px] overflow-hidden rounded-[999px] border-[4px] border-white bg-[#d9d9d9] shadow-[0_10px_30px_rgba(31,31,28,0.14)] sm:h-[300px] sm:w-[118px]">
+                    <div className="relative mt-14 h-[245px] w-[102px] overflow-hidden rounded-[999px] border-4px border-white bg-[#d9d9d9] shadow-[0_10px_30px_rgba(31,31,28,0.14)] sm:h-[300px] sm:w-[118px]">
                       <img
                         src={matchingPhotoPrimary}
                         alt={t("companyDashboard.influencerAvatarAlt")}
                         className="h-full w-full object-cover"
                       />
                     </div>
-                    <div className="relative h-[285px] w-[126px] overflow-hidden rounded-[999px] border-[4px] border-[#b97f85] bg-[#e7d0d2] shadow-[0_14px_34px_rgba(31,31,28,0.16)] sm:h-[348px] sm:w-[150px]">
+                    <div className="relative h-[285px] w-[126px] overflow-hidden rounded-[999px] border-4px border-[#b97f85] bg-[#e7d0d2] shadow-[0_14px_34px_rgba(31,31,28,0.16)] sm:h-[348px] sm:w-[150px]">
                       <img
                         src={matchingPhotoSecondary}
                         alt={t("companyDashboard.influencerAvatarAlt")}
@@ -806,7 +806,7 @@ function CompanyDashboard() {
                   </div>
 
                   <div className="relative mx-auto w-full max-w-3xl text-center lg:mx-0 lg:flex-1 lg:text-right">
-                    <h2 className="mx-auto text-[2rem] font-extrabold leading-[1.3] text-[#a7b78e] underline decoration-[2px] underline-offset-6 sm:text-[2.35rem] lg:mx-0 lg:max-w-[600px] lg:text-[3rem]">
+                    <h2 className="mx-auto text-[2rem] font-extrabold leading-[1.3] text-[#a7b78e] underline decoration-2 underline-offset-6 sm:text-[2.35rem] lg:mx-0 lg:max-w-[600px] lg:text-[3rem]">
                       {t("companyDashboard.matchingTitle")}
                     </h2>
 

@@ -452,7 +452,9 @@ function CampaignPublish() {
   };
 
   return (
-    <section dir={isRTL ? "rtl" : "ltr"} className="relative -mt-24 overflow-x-hidden bg-white">
+    <section
+      dir={isRTL ? "rtl" : "ltr"}
+      className="relative -mt-24 overflow-x-hidden bg-white">
       <div className="relative h-56 w-full overflow-hidden sm:h-80">
         <img
           src={hero}
@@ -514,10 +516,7 @@ function CampaignPublish() {
                     </label>
 
                     <label className="block text-start text-[11px] font-bold text-[#3b3d37] sm:text-[12px]">
-                      {t(
-                        "influencerDashboard.publishForm.story",
-                        "ستوري",
-                      )}
+                      {t("influencerDashboard.publishForm.story", "ستوري")}
                       <div className="relative mt-2">
                         <Input
                           value={form.description}
@@ -644,7 +643,7 @@ function CampaignPublish() {
                       </div>
                     </div>
 
-                    <div className="order-first lg:order-none">
+                    <div className="order-first lg:order-0">
                       <div className="relative">
                         <div
                           className="absolute bottom-3 right-[7px] top-3 w-px bg-[#d9d5ea] sm:left-2 sm:right-auto"

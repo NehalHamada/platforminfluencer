@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { BsHddStack } from "react-icons/bs";
 import chI1 from "/assets/choImg1.png";
@@ -72,11 +73,13 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 className={cn(
                   "flex w-full items-center gap-4",
                   isRTL ? "justify-end" : "justify-start",
+                  [
+                    "",
+                    isRTL ? "pr-10" : "pl-10",
+                    isRTL ? "pr-20" : "pl-20",
+                    isRTL ? "pr-30" : "pl-30",
+                  ][index] ?? "",
                 )}
-                style={{
-                  paddingRight: isRTL ? `${index * 2.5}rem` : 0,
-                  paddingLeft: !isRTL ? `${index * 2.5}rem` : 0,
-                }}
                 dir="ltr">
                 {isRTL ? (
                   <>
@@ -104,16 +107,37 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
 
         {/* Desktop Text Section (Restored Original) */}
         <div className="hidden w-full flex-col items-start text-start md:flex">
-          <div className="mb-10 inline-block border-b-2 border-[#e1e1e1] pb-3">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-10 inline-block border-b-2 border-[#e1e1e1] pb-3">
             <h2 className="text-[28px] font-semibold tracking-wide text-white">
               {title}
             </h2>
-          </div>
+          </motion.div>
 
-          <ul className="flex w-full flex-col gap-6">
+          <motion.ul
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.1 } },
+            }}
+            className="flex w-full flex-col gap-6">
             {features.map((item, index) => (
-              <li
+              <motion.li
                 key={index}
+                variants={{
+                  hidden: { opacity: 0, x: -24 },
+                  visible: {
+                    opacity: 1,
+                    x: 0,
+                    transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] },
+                  },
+                }}
                 className="flex w-full items-center justify-start gap-4">
                 {/* Icon (DOM Order 1 => Right in RTL, Left in LTR) */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#2a2a2a] text-[#c0c0c0] shadow-sm">
@@ -124,9 +148,9 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 <span className="text-[16px] leading-relaxed text-[#dcdcdc]">
                   {item}
                 </span>
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         </div>
 
         {/* Photos Section (DOM Order 2 => Left in RTL, Right in LTR) */}
@@ -135,22 +159,22 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
             <img
               src={images[0]}
               alt="Feature 1"
-              className="row-span-2 h-full min-h-[200px] w-full object-cover sm:min-h-[250px] md:min-h-[350px]"
+              className="row-span-2 h-full min-h-50 w-full object-cover sm:min-h-62.5 md:min-h-87.5"
             />
             <img
               src={images[1]}
               alt="Feature 2"
-              className="h-full min-h-[95px] w-full object-cover sm:min-h-[120px] md:min-h-[170px]"
+              className="h-full min-h-23.75 w-full object-cover sm:min-h-30 md:min-h-42.5"
             />
             <img
               src={images[2]}
               alt="Feature 3"
-              className="row-span-2 h-full min-h-[200px] w-full object-cover sm:min-h-[250px] md:min-h-[350px]"
+              className="row-span-2 h-full min-h-50 w-full object-cover sm:min-h-62.5 md:min-h-87.5"
             />
             <img
               src={images[3]}
               alt="Feature 4"
-              className="h-full min-h-[95px] w-full object-cover sm:min-h-[120px] md:min-h-[170px]"
+              className="h-full min-h-23.75 w-full object-cover sm:min-h-30 md:min-h-42.5"
             />
           </div>
         </div>

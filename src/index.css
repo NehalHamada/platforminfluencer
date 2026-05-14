@@ -192,3 +192,21 @@ body,
   width: 100%;
   overflow-x: hidden;
 }
+
+/* Photoes.tsx — circular bite at bottom-right corner (OVERLAP = 52px) */
+.photo-card-mask {
+  -webkit-mask-image: radial-gradient(circle at bottom right, transparent 50px, black 52px);
+  mask-image: radial-gradient(circle at bottom right, transparent 50px, black 52px);
+}
+
+/* AboutPlatformSection.tsx — circular bites at bottom-left and bottom-right (CUTOUT_RADIUS = 60px) */
+.platform-img-mask {
+  -webkit-mask-image:
+    radial-gradient(circle at bottom left, transparent 59px, black 60px),
+    radial-gradient(circle at bottom right, transparent 59px, black 60px);
+  mask-image:
+    radial-gradient(circle at bottom left, transparent 59px, black 60px),
+    radial-gradient(circle at bottom right, transparent 59px, black 60px);
+  -webkit-mask-composite: source-over;
+  mask-composite: intersect;
+}

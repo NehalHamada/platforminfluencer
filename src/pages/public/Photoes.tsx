@@ -1,6 +1,7 @@
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import im1 from "/assets/image1.png";
 import im2 from "/assets/image2.png";
@@ -23,24 +24,33 @@ function Photoes({ data }: PhotoesProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language.startsWith("ar");
   const title = sectionText(data, "title", t("campaignTitle"), isRTL);
-  const description = sectionText(data, "description", t("campaignDesc"), isRTL);
+  const description = sectionText(
+    data,
+    "description",
+    t("campaignDesc"),
+    isRTL,
+  );
   const apiImages = getImageList(data?.content);
   const image1 = apiImages[0] ?? im1;
   const image2 = apiImages[1] ?? im2;
   const image3 = apiImages[2] ?? im3;
 
   // RATIONALE: OVERLAP = how many px image3's wrapper slides LEFT over the black card.
-  // The same value drives the mask-image circle radius on the card so the "bite"
-  // in the card's bottom-right corner matches the image wrapper's left edge exactly.
-  const OVERLAP = 52; // px
-
   return (
     <section className="relative w-full overflow-hidden bg-white mt-8 py-2 lg:py-4 font-['IBM_Plex_Sans_Arabic']">
       {/* Background decorative spirals */}
-      <img src={style} alt="" aria-hidden="true"
-        className="pointer-events-none absolute -left-24 top-0 w-64 opacity-15 lg:w-96" />
-      <img src={style} alt="" aria-hidden="true"
-        className="pointer-events-none absolute -right-24 bottom-0 w-64 rotate-180 opacity-15 lg:w-96" />
+      <img
+        src={style}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-24 top-0 w-64 opacity-15 lg:w-96"
+      />
+      <img
+        src={style}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 bottom-0 w-64 rotate-180 opacity-15 lg:w-96"
+      />
 
       <div className="mx-auto max-w-4xl px-6 lg:px-10">
         {/*
@@ -59,40 +69,38 @@ function Photoes({ data }: PhotoesProps) {
           Black card has mask-image cutout at BOTTOM-RIGHT with radius = OVERLAP.
         */}
         {/* Mobile Layout */}
-        <div className="flex flex-col gap-4 lg:hidden" style={{ direction: "ltr" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col gap-4 lg:hidden"
+          dir="ltr">
           {/* Black Card - Exact copy */}
           <div
             className={cn(
-              "relative shrink-0 rounded-[40px] bg-[#171717] text-white",
+              "relative shrink-0 rounded-[40px] bg-[#171717] text-white photo-card-mask",
               "p-5",
-            )}
-            style={{
-              WebkitMaskImage: `radial-gradient(circle at bottom right, transparent ${OVERLAP - 2}px, black ${OVERLAP}px)`,
-              maskImage: `radial-gradient(circle at bottom right, transparent ${OVERLAP - 2}px, black ${OVERLAP}px)`,
-            }}
-          >
+            )}>
             <div
               dir={isRTL ? "rtl" : "ltr"}
               className={cn(
                 "flex h-full flex-col",
                 isRTL ? "text-right" : "text-left",
-              )}
-            >
+              )}>
               <div className="space-y-3">
                 <h2
                   className={cn(
                     "font-bold leading-tight text-white",
                     isRTL ? "text-2xl" : "text-xl",
-                  )}
-                >
+                  )}>
                   {title}
                 </h2>
                 <p
                   className={cn(
                     "text-white/80 leading-relaxed",
                     isRTL ? "text-base" : "text-sm",
-                  )}
-                >
+                  )}>
                   {description}
                 </p>
               </div>
@@ -100,15 +108,27 @@ function Photoes({ data }: PhotoesProps) {
               <div className="mt-6 flex flex-col items-start gap-2">
                 <div className="flex -space-x-3">
                   {avatarsTop.map((img, i) => (
-                    <Avatar key={`m-t${i}`} className="h-9 w-9 border-2 border-[#171717]">
-                      <AvatarImage src={img} alt={`user-${i}`} className="object-cover" />
+                    <Avatar
+                      key={`m-t${i}`}
+                      className="h-9 w-9 border-2 border-[#171717]">
+                      <AvatarImage
+                        src={img}
+                        alt={`user-${i}`}
+                        className="object-cover"
+                      />
                     </Avatar>
                   ))}
                 </div>
                 <div className="flex -space-x-3 ms-4">
                   {avatarsBottom.map((img, i) => (
-                    <Avatar key={`m-b${i}`} className="h-9 w-9 border-2 border-[#171717]">
-                      <AvatarImage src={img} alt={`user-b${i}`} className="object-cover" />
+                    <Avatar
+                      key={`m-b${i}`}
+                      className="h-9 w-9 border-2 border-[#171717]">
+                      <AvatarImage
+                        src={img}
+                        alt={`user-b${i}`}
+                        className="object-cover"
+                      />
                     </Avatar>
                   ))}
                 </div>
@@ -117,7 +137,7 @@ function Photoes({ data }: PhotoesProps) {
           </div>
 
           {/* Images Grid */}
-          <div className="flex gap-3 h-[320px]">
+          <div className="flex gap-3 h-80">
             {/* Left Column (2 stacked images) */}
             <div className="flex flex-1 flex-col gap-3">
               <div className="flex-1 overflow-hidden rounded-[24px] bg-[#E0E0E0]">
@@ -135,7 +155,7 @@ function Photoes({ data }: PhotoesProps) {
                 />
               </div>
             </div>
-            
+
             {/* Right Column (1 tall image) */}
             <div className="flex-1 overflow-hidden rounded-[24px] bg-[#E0E0E0]">
               <img
@@ -149,37 +169,32 @@ function Photoes({ data }: PhotoesProps) {
           {/* Try Free Button */}
           <Button
             variant="ghost"
-            className="mt-2 w-full rounded-[40px] bg-[#C8D9A9] py-6 text-base font-bold text-[#171717] transition-colors hover:bg-[#B5C898]"
-          >
+            className="mt-2 w-full rounded-[40px] bg-[#C8D9A9] py-6 text-base font-bold text-[#171717] transition-colors hover:bg-[#B5C898]">
             {t("TryFree")}
           </Button>
-        </div>
+        </motion.div>
 
         {/* Desktop Layout (Restored Original) */}
         <div
           className="hidden flex-row items-stretch gap-2 lg:flex"
-          style={{ direction: "ltr" }}
-        >
+          dir="ltr">
           {/* ── Column 1: Black card ── */}
-          <div
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
-              "relative shrink-0 rounded-[40px] bg-[#171717] text-white",
+              "relative shrink-0 rounded-[40px] bg-[#171717] text-white photo-card-mask",
               "p-4 lg:p-6",
               "lg:w-[35%]",
-            )}
-            style={{
-              // Circular bite at bottom-right corner — radius matches OVERLAP
-              WebkitMaskImage: `radial-gradient(circle at bottom right, transparent ${OVERLAP - 2}px, black ${OVERLAP}px)`,
-              maskImage: `radial-gradient(circle at bottom right, transparent ${OVERLAP - 2}px, black ${OVERLAP}px)`,
-            }}
-          >
+            )}>
             <div
               dir={isRTL ? "rtl" : "ltr"}
               className={cn(
                 "flex h-full flex-col",
                 isRTL ? "text-right" : "text-left",
-              )}
-            >
+              )}>
               {/* RATIONALE: No spacer — content starts at top of card as per design */}
 
               <div className="space-y-3">
@@ -187,47 +202,61 @@ function Photoes({ data }: PhotoesProps) {
                   className={cn(
                     "font-bold leading-tight text-white",
                     isRTL ? "text-2xl lg:text-3xl" : "text-xl lg:text-2xl",
-                  )}
-                >
+                  )}>
                   {title}
                 </h2>
                 <p
                   className={cn(
                     "text-white/80 leading-relaxed",
                     isRTL ? "text-base lg:text-lg" : "text-sm lg:text-base",
-                  )}
-                >
+                  )}>
                   {description}
                 </p>
               </div>
 
               {/* Avatar group — staggered two rows, below the text */}
-              <div
-                className={cn(
-                  "mt-6 flex flex-col gap-2",
-                  "items-start",
-                )}
-              >
+              <div className={cn("mt-6 flex flex-col gap-2", "items-start")}>
                 <div className="flex -space-x-3">
                   {avatarsTop.map((img, i) => (
-                    <Avatar key={`t${i}`} className="h-9 w-9 border-2 border-[#171717]">
-                      <AvatarImage src={img} alt={`user-${i}`} className="object-cover" />
+                    <Avatar
+                      key={`t${i}`}
+                      className="h-9 w-9 border-2 border-[#171717]">
+                      <AvatarImage
+                        src={img}
+                        alt={`user-${i}`}
+                        className="object-cover"
+                      />
                     </Avatar>
                   ))}
                 </div>
                 <div className="flex -space-x-3 ms-4">
                   {avatarsBottom.map((img, i) => (
-                    <Avatar key={`b${i}`} className="h-9 w-9 border-2 border-[#171717]">
-                      <AvatarImage src={img} alt={`user-b${i}`} className="object-cover" />
+                    <Avatar
+                      key={`b${i}`}
+                      className="h-9 w-9 border-2 border-[#171717]">
+                      <AvatarImage
+                        src={img}
+                        alt={`user-b${i}`}
+                        className="object-cover"
+                      />
                     </Avatar>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Column 2: image1 (top) + image3 interlocking (bottom) ── */}
-          <div className="flex flex-col gap-2 lg:flex-1">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+              duration: 0.7,
+              delay: 0.12,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="flex flex-col gap-2 lg:flex-1">
             {/* image1 — balloon girl */}
             <div className="overflow-hidden rounded-[40px] bg-[#E0E0E0] h-28 lg:h-[54%]">
               <img
@@ -245,9 +274,7 @@ function Photoes({ data }: PhotoesProps) {
               - z-10 so it sits ON TOP of the card's mask area
             */}
             <div
-              className="relative z-10 flex-1 rounded-[40px] bg-white p-4"
-              style={{ marginLeft: `-${OVERLAP}px` }}
-            >
+              className="relative z-10 flex-1 rounded-[40px] bg-white p-4 -ml-13">
               <div className="overflow-hidden rounded-[28px] bg-[#E0E0E0] h-full min-h-20 max-h-28 lg:max-h-36">
                 <img
                   src={image3}
@@ -256,10 +283,19 @@ function Photoes({ data }: PhotoesProps) {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* ── Column 3: image2 (tall) + Try Free button ── */}
-          <div className="flex flex-col gap-2 lg:w-[20%]">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{
+              duration: 0.7,
+              delay: 0.24,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="flex flex-col gap-2 lg:w-[20%]">
             <div className="overflow-hidden rounded-[40px] bg-[#E0E0E0] h-28 lg:flex-1">
               <img
                 src={image2}
@@ -269,11 +305,10 @@ function Photoes({ data }: PhotoesProps) {
             </div>
             <Button
               variant="ghost"
-              className="rounded-[40px] bg-[#C8D9A9] text-[#171717] hover:bg-[#B5C898] transition-colors font-bold text-base py-6"
-            >
+              className="rounded-[40px] bg-[#C8D9A9] text-[#171717] hover:bg-[#B5C898] transition-colors font-bold text-base py-6">
               {t("TryFree")}
             </Button>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

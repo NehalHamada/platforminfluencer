@@ -1,5 +1,6 @@
 import CompanyCard from "@/components/common/CompanyCard";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import "../../index.css";
 import type { LandingSection } from "@/types/landing.types";
@@ -119,7 +120,12 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
     <section
       dir={isRTL ? "rtl" : "ltr"}
       className="mb-10 overflow-hidden bg-[#f4f4f2] py-12 md:py-16 mt-4">
-      <div className="mx-auto max-w-6xl px-4 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto max-w-6xl px-4 text-center">
         <h2
           className={cn(
             "font-bold leading-tight text-[#2f3133]",
@@ -157,7 +163,7 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
           )}>
           {description}
         </p>
-      </div>
+      </motion.div>
 
       <div className="mt-12 space-y-7 overflow-hidden">
         <div className="relative overflow-hidden">

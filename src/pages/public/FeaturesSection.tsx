@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { FaCaretDown } from "react-icons/fa";
 import featImg from "/assets/featImg.jpg";
@@ -158,20 +159,34 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
         {/* Desktop Layout (Restored Original) */}
         <div className="hidden md:block">
           {/* Banner Image */}
-          <div className="relative mx-auto w-full overflow-hidden rounded-[20px] shadow-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 1.03 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="relative mx-auto w-full overflow-hidden rounded-[20px] shadow-sm">
             <img
               src={featureImage}
               alt={t("features.bannerAlt")}
               className="h-28 w-full object-cover sm:h-36 md:h-48 lg:h-56"
             />
             <div className="absolute inset-0 bg-[rgba(205,205,205,0.47)]" />
-          </div>
+          </motion.div>
 
           {/* Features Staggered Grid */}
-          <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-8 md:mt-12 md:grid-cols-2 md:gap-y-10">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+            className="mt-8 grid grid-cols-1 gap-x-12 gap-y-8 md:mt-12 md:grid-cols-2 md:gap-y-10">
             {features.map((item, index) => (
-              <div
+              <motion.div
                 key={item.id}
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
+                }}
                 className={cn(
                   "flex items-start gap-4",
                   index % 2 !== 0 && "md:mt-10", // Staggers the left column in RTL
@@ -199,9 +214,9 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                     {item.desc}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

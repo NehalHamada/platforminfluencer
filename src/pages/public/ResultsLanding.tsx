@@ -120,20 +120,30 @@ function ResultsLanding({ data }: ResultsLandingProps) {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1400px] px-4">
-        <div className="mx-auto max-w-4xl text-center font-['IBM_Plex_Sans_Arabic']">
-          <h2
-            className="relative inline-block px-2 font-bold text-[#899A6D] text-xl md:text-3xl lg:text-4xl">
+      <div className="relative z-10 mx-auto max-w-350 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto max-w-4xl text-center font-['IBM_Plex_Sans_Arabic']">
+          <h2 className="relative inline-block px-2 font-bold text-[#899A6D] text-xl md:text-3xl lg:text-4xl">
             <span className="relative z-10">{title}</span>
-            <span className="absolute bottom-[8px] left-0 w-full h-[6px] bg-[#899A6D]/30 z-0 rounded-full" />
+            <span className="absolute bottom-2 left-0 w-full h-1.5 bg-[#899A6D]/30 z-0 rounded-full" />
           </h2>
           <p className="mx-auto mt-10 max-w-3xl font-medium leading-relaxed text-gray-500 text-sm md:text-lg">
             {description}
           </p>
-        </div>
+        </motion.div>
 
         {/* Cinematic Video Slider */}
-        <div dir="ltr" className="relative mt-16 sm:mt-24 flex items-center justify-center overflow-visible">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          dir="ltr"
+          className="relative mt-16 sm:mt-24 flex items-center justify-center overflow-visible">
           <div className="flex w-full items-center justify-center gap-6 sm:gap-4 lg:gap-8">
             {visibleCardOffsets.map((offset, position) => {
               const index = (currentPage + offset + totalVideos) % totalVideos;
@@ -147,8 +157,8 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                   className={cn(
                     "group relative overflow-hidden border-0 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
                     isActive
-                      ? "z-30 h-[340px] w-[260px] opacity-100 sm:scale-110 sm:h-[550px] sm:w-[340px] lg:h-[650px] lg:w-[420px]"
-                      : "z-20 h-[280px] w-[220px] opacity-50 sm:scale-90 sm:h-[450px] sm:w-[280px] lg:h-[550px] lg:w-[350px]",
+                      ? "z-30 h-85 w-65 opacity-100 sm:scale-110 sm:h-137.5 sm:w-85 lg:h-162.5 lg:w-105"
+                      : "z-20 h-70 w-55 opacity-50 sm:scale-90 sm:h-112.5 sm:w-70 lg:h-137.5 lg:w-87.5",
                     !isActive && "flex grayscale-[0.4]",
                     "rounded-[24px] sm:rounded-[40px] bg-black cursor-pointer transition-all duration-500 hover:scale-[0.98] hover:grayscale-0",
                   )}>
@@ -193,7 +203,9 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                   {/* Active Card Controls Overlay */}
                   {isActive &&
                     (isImage ? (
-                      <div dir="ltr" className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
+                      <div
+                        dir="ltr"
+                        className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
                         <div className="hidden sm:flex justify-end">
                           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/20 text-white backdrop-blur-md">
                             <VolumeX size={24} />
@@ -202,12 +214,17 @@ function ResultsLanding({ data }: ResultsLandingProps) {
 
                         <div className="flex justify-center">
                           <div className="flex h-10 w-10 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/90 text-black shadow-xl transition-transform group-hover:scale-110">
-                            <Play className="h-5 w-5 sm:h-7 sm:w-7" fill="currentColor" />
+                            <Play
+                              className="h-5 w-5 sm:h-7 sm:w-7"
+                              fill="currentColor"
+                            />
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div dir="ltr" className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
+                      <div
+                        dir="ltr"
+                        className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
                         <div className="hidden sm:flex justify-end">
                           <Button
                             variant="ghost"
@@ -234,9 +251,15 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                             }}
                             className="h-10 w-10 sm:h-16 sm:w-16 rounded-full bg-white/90 text-black shadow-xl hover:bg-white transition-transform hover:scale-110">
                             {isPlaying ? (
-                              <Pause className="h-5 w-5 sm:h-7 sm:w-7" fill="currentColor" />
+                              <Pause
+                                className="h-5 w-5 sm:h-7 sm:w-7"
+                                fill="currentColor"
+                              />
                             ) : (
-                              <Play className="h-5 w-5 sm:h-7 sm:w-7" fill="currentColor" />
+                              <Play
+                                className="h-5 w-5 sm:h-7 sm:w-7"
+                                fill="currentColor"
+                              />
                             )}
                           </Button>
                         </div>
@@ -246,10 +269,12 @@ function ResultsLanding({ data }: ResultsLandingProps) {
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Bottom Navigation & Progress */}
-        <div dir="ltr" className="relative z-50 mt-12 sm:mt-20 flex items-center justify-center gap-4 sm:gap-6 lg:gap-12">
+        <div
+          dir="ltr"
+          className="relative z-50 mt-12 sm:mt-20 flex items-center justify-center gap-4 sm:gap-6 lg:gap-12">
           <Button
             onClick={(e) => {
               e.preventDefault();
@@ -271,8 +296,8 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                   key={i}
                   className={cn(
                     "rounded-full overflow-hidden transition-all duration-700",
-                    isCurrent 
-                      ? "h-2 sm:h-2 w-8 sm:w-24 md:w-48 bg-gray-200 border-0" 
+                    isCurrent
+                      ? "h-2 sm:h-2 w-8 sm:w-24 md:w-48 bg-gray-200 border-0"
                       : "h-2 sm:h-2 w-2 sm:w-12 md:w-20 border border-[#899A6D] bg-transparent sm:border-0 sm:bg-gray-200",
                   )}>
                   {isCurrent && (

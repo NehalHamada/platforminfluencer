@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -151,7 +152,12 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
       dir={isRTL ? "rtl" : "ltr"}
       className="font-ibm-plex bg-[#fafafa] px-4 py-12 md:py-20">
       <div className="mx-auto max-w-5xl">
-        <div className="mx-auto max-w-3xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto max-w-3xl text-center">
           <h2
             className={cn(
               "mx-auto wrap-break-words text-center font-bold text-[#202020]",
@@ -167,7 +173,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
             )}>
             {description}
           </p>
-        </div>
+        </motion.div>
 
         {/* Mobile Carousel */}
         <div className="mt-14 md:hidden">
@@ -253,10 +259,20 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
         </div>
 
         {/* Desktop Grid */}
-        <div className="hidden mt-16 md:grid md:grid-cols-3 md:gap-5">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+          className="hidden mt-16 md:grid md:grid-cols-3 md:gap-5">
           {influencers.map((item) => (
-            <Card
+            <motion.div
               key={item.id}
+              variants={{
+                hidden: { opacity: 0, y: 30, scale: 0.96 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
+              }}>
+            <Card
               className="mx-auto w-full max-w-[18rem] overflow-visible rounded-[18px] border-0 bg-transparent py-0 shadow-none ring-0 md:max-w-none">
               <div className="pt-12 lg:pt-16">
                 <div className="relative aspect-4/3 w-full rounded-[14px] bg-[#f5f4f0]">
@@ -290,8 +306,9 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
                 </div>
               </CardContent>
             </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

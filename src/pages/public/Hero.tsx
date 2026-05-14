@@ -288,7 +288,10 @@ function Hero({ data }: HeroProps) {
               ? "text-right lg:max-w-2xl xl:max-w-184"
               : "text-left lg:max-w-176",
           )}>
-          <h1
+          <motion.h1
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "font-bold leading-[1.3] text-white drop-shadow-[0_8px_18px_rgba(0,0,0,0.36)]",
               isArabic
@@ -296,9 +299,12 @@ function Hero({ data }: HeroProps) {
                 : "text-[1.05rem] lg:text-[clamp(1.15rem,2.2vw,2.25rem)]",
             )}>
             {renderHighlightedTitle(title, isArabic)}
-          </h1>
+          </motion.h1>
 
-          <p
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "mt-5 max-w-2xl text-white/95 transition-all duration-300",
               isArabic
@@ -306,9 +312,12 @@ function Hero({ data }: HeroProps) {
                 : "hidden text-[clamp(0.8rem,1vw,0.95rem)] leading-relaxed lg:block",
             )}>
             {description}
-          </p>
+          </motion.p>
 
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "mt-7 flex w-fit flex-nowrap items-center gap-2 lg:mt-10 lg:flex-wrap lg:gap-4",
               isArabic
@@ -329,9 +338,12 @@ function Hero({ data }: HeroProps) {
               <span>{t("compBtn")}</span>
               {isArabic ? <ArrowRight size={17} /> : <ArrowRight size={17} />}
             </Button>
-          </div>
+          </motion.div>
 
-          <div
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
               "mt-9 flex w-fit items-center gap-2 text-white lg:mt-10 lg:gap-6",
               isArabic ? "ml-auto justify-end lg:ml-0" : "justify-start",
@@ -380,7 +392,7 @@ function Hero({ data }: HeroProps) {
                 </div>
               </>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

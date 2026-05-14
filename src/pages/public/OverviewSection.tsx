@@ -5,6 +5,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -147,57 +148,57 @@ function OverviewSection({ data }: OverviewSectionProps) {
   );
 
   return (
-    <section dir={isRTL ? "rtl" : "ltr"} className="overflow-hidden ">
+    <section
+      dir={isRTL ? "rtl" : "ltr"}
+      className="overflow-hidden  mt-35 md:mt-16">
       <div className="mx-auto w-full max-w-6xl">
         {/* Mobile Layout */}
-        <div className="flex flex-col gap-4 lg:hidden">
+        <div className="flex flex-col gap-2 px-3 lg:hidden">
           {/* Mobile Title */}
-          <div className="mb-2 flex items-center justify-start gap-2 px-1">
-            <h2 className="font-bold text-[#202020] text-[20px] sm:text-[22px]">
+          <div className="mb-1 flex items-center justify-start gap-2 px-1">
+            <h2 className="font-bold text-[#202020] text-[16px] sm:text-[18px]">
               {sectionText(data, "title", t("overview.title"), isRTL)}
             </h2>
-            <Eye className="h-5 w-5 text-[#b7bcc5]" aria-hidden="true" />
-            <Eye className="h-5 w-5 text-[#b7bcc5]" aria-hidden="true" />
+            <Eye className="h-4 w-4 text-[#b7bcc5]" aria-hidden="true" />
+            <Eye className="h-4 w-4 text-[#b7bcc5]" aria-hidden="true" />
           </div>
 
           {/* Text Card (TOP on mobile) */}
-          <Card className="flex w-full rounded-[20px] border-0 ring-0 bg-[rgba(167,183,142,1)] py-0 text-white shadow-none">
-            <CardContent className="flex w-full flex-col justify-center p-6 text-center">
-              <p className="mx-auto font-semibold leading-[1.6] text-[18px] sm:text-[20px]">
+          <Card className="flex w-full rounded-[16px] border-0 ring-0 bg-[rgba(167,183,142,1)] py-0 text-white shadow-none">
+            <CardContent className="flex w-full flex-col justify-center px-4 py-4 text-center">
+              <p className="mx-auto font-semibold leading-normal text-[13px] sm:text-[15px]">
                 {sideText}
               </p>
             </CardContent>
           </Card>
 
           {/* Social Media Cards (BOTTOM on mobile) */}
-          <Card className="w-full rounded-[20px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+          <Card className="w-full rounded-[16px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none">
+            <CardContent className="p-2 sm:p-3">
+              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
                 {platforms.map((item) => (
                   <div
                     key={item.id}
-                    className="flex w-[30%] min-w-[105px] max-w-[130px] shrink-0 flex-col items-center justify-start rounded-[12px] bg-transparent p-1">
-                    <div className="mb-2 flex w-full flex-row items-center justify-between gap-1 sm:gap-2">
+                    className="flex w-[30%] min-w-23.75 max-w-28.75 shrink-0 flex-col items-center justify-start rounded-[10px] bg-transparent p-1">
+                    <div className="mb-1 flex w-full flex-row items-center justify-between gap-1">
                       <div
                         className={cn(
-                          "flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-[8px] sm:rounded-[10px]",
+                          "flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px]",
                           item.bg,
                         )}>
-                        <div className="scale-[0.6] sm:scale-75">
-                          {item.icon}
-                        </div>
+                        <div className="scale-50">{item.icon}</div>
                       </div>
                       <div className="flex min-w-0 flex-1 flex-col items-end justify-center text-right">
-                        <span className="w-full truncate text-[11px] sm:text-[13px] font-bold text-[#222]">
+                        <span className="w-full truncate text-[10px] font-bold text-[#222]">
                           {item.followers}
                         </span>
-                        <span className="w-full truncate text-[9px] sm:text-[11px] text-[#8b8b8b]">
+                        <span className="w-full truncate text-[8px] text-[#8b8b8b]">
                           {item.label}
                         </span>
                       </div>
                     </div>
                     <p
-                      className="w-full truncate text-center text-[9px] sm:text-[11px] text-[#6f6f6f]"
+                      className="w-full truncate text-center text-[8px] text-[#6f6f6f]"
                       dir="ltr">
                       {item.link}
                     </p>
@@ -210,7 +211,12 @@ function OverviewSection({ data }: OverviewSectionProps) {
 
         {/* Desktop Layout (Restored Original) */}
         <div className="hidden lg:block">
-          <div className="mb-6 mt-10 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-6 mt-10 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
             <h2
               className={cn(
                 "font-bold text-[#202020]",
@@ -222,7 +228,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
             </h2>
             <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
             <Eye className="h-6 w-6 text-[#b7bcc5]" aria-hidden="true" />
-          </div>
+          </motion.div>
 
           <div className="flex flex-col items-stretch gap-4 lg:flex-row">
             <Card className="w-full rounded-[24px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none lg:w-fit lg:max-w-[75%]">
@@ -231,7 +237,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
                   {platforms.map((item) => (
                     <Card
                       key={item.id}
-                      className="w-full shrink-0 grow rounded-[20px] border-0 ring-0 bg-transparent py-0 shadow-none sm:w-[calc(50%-0.5rem)] lg:w-[220px] lg:flex-initial">
+                      className="w-full shrink-0 grow rounded-[20px] border-0 ring-0 bg-transparent py-0 shadow-none sm:w-[calc(50%-0.5rem)] lg:w-55 lg:flex-initial">
                       <CardContent className="p-4 sm:p-5">
                         <div className="mb-4 flex flex-row items-center justify-between gap-3">
                           <div

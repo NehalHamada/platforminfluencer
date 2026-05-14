@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Music2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -283,7 +284,12 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
       dir={isRTL ? "rtl" : "ltr"}
       className="overflow-hidden bg-[#f3f3f3] px-4 py-4 md:py-15 mt-4">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-3xl text-center sm:p-7">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto max-w-3xl text-center sm:p-7">
           <h2
             className={cn(
               "mx-auto max-w-[18rem] wrap-break-words text-center font-bold leading-tight text-[#2f2f2f] sm:max-w-md md:max-w-none",
@@ -301,7 +307,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
             )}>
             {description}
           </p>
-        </div>
+        </motion.div>
 
         <div className="relative mt-10">
           {/* Left arrow (Desktop only) */}
@@ -413,10 +419,20 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
               ) : null}
             </div>
 
-            <div className="hidden md:grid md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+              className="hidden md:grid md:grid-cols-2 md:gap-8 lg:grid-cols-3">
               {visibleInfluencers.map((item) => (
-                <Card
+                <motion.div
                   key={item.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 24, scale: 0.97 },
+                    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
+                  }}>
+                <Card
                   className="relative mx-auto w-full max-w-[16rem] overflow-hidden rounded-[16px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:max-w-none">
                   <CardContent className="px-3 pt-3 pb-0">
                     <CardTitle className="text-[14px] font-semibold text-[rgba(167,183,142,1)]">
@@ -472,8 +488,9 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                     {item.followers}
                   </div>
                 </Card>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

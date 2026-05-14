@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import orbImg from "/assets/cc2.png";
@@ -47,19 +48,23 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
 
           <div className="relative z-10 grid items-center gap-16 lg:grid-cols-12 lg:gap-20">
             {/* Phone Mockups Column - Overflowing */}
-            <div
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className={cn(
-                "relative mx-auto w-full lg:col-span-6 h-[180px] sm:h-[250px] lg:h-[300px] max-md:mt-10",
+                "relative mx-auto w-full lg:col-span-6 h-45 sm:h-62.5 lg:h-75 max-md:mt-10",
                 isRTL ? "order-2" : "order-2 lg:order-1",
               )}>
               {/* Mobile pagination dots */}
               <div className="absolute right-4 top-[20%] -translate-y-1/2 flex flex-col gap-3 md:hidden z-20">
-                <span className="size-[14px] rounded-full border-[1.5px] border-neutral-500 bg-transparent" />
-                <span className="size-[14px] rounded-full border-[1.5px] border-neutral-500 bg-transparent" />
-                <span className="size-[14px] rounded-full bg-[#b7c58d]" />
+                <span className="size-3.5 rounded-full border-[1.5px] border-neutral-500 bg-transparent" />
+                <span className="size-3.5 rounded-full border-[1.5px] border-neutral-500 bg-transparent" />
+                <span className="size-3.5 rounded-full bg-[#b7c58d]" />
               </div>
 
-              <div className="absolute top-[80%] md:top-1/2 left-[42%] md:left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[320px] md:w-full md:max-w-[340px] lg:max-w-[380px] md:h-[420px] lg:h-[460px]">
+              <div className="absolute top-[80%] md:top-1/2 left-[42%] md:left-1/2 -translate-x-1/2 -translate-y-1/2 w-65 h-80 md:w-full md:max-w-85 lg:max-w-95 md:h-105 lg:h-115">
                 {/* Phone 1 (Back Left - Elevated) */}
                 <img
                   src={phone1}
@@ -88,10 +93,18 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                   className="absolute left-[105%] top-[30%] z-5 size-12 object-contain drop-shadow-2xl transition-all duration-700 hover:scale-110 lg:size-20 max-md:hidden"
                 />
               </div>
-            </div>
+            </motion.div>
 
             {/* Text Content Column */}
-            <div
+            <motion.div
+              initial={{ opacity: 0, x: isRTL ? -30 : 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{
+                duration: 0.7,
+                delay: 0.1,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className={cn(
                 "lg:col-span-6",
                 isRTL
@@ -111,7 +124,7 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                     <div className="hidden md:block">
                       <span className="relative inline-block pb-1.5">
                         {t("campaignShowcase.title1")}
-                        <div className="absolute bottom-0 left-0 h-[4px] w-full rounded-full bg-[#b7c58d]" />
+                        <div className="absolute bottom-0 left-0 h-1 w-full rounded-full bg-[#b7c58d]" />
                       </span>
                       <span className="mt-3 block">
                         {t("campaignShowcase.title2")}
@@ -170,7 +183,7 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -7,10 +7,8 @@ import hero from "/assets/Hero.png";
 
 import { Button } from "@/components/ui/Button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
 import { useRespondToCollaborationRequestMutation } from "@/queries/campaigns/useRespondToCollaborationRequestMutation";
 import { useCampaignStore } from "@/store/campaign.store";
@@ -128,21 +126,7 @@ const getStoredUser = (): AuthUser | null => {
   );
 };
 
-const getRequestCompanyName = (request: {
-  company?: { company_name?: string; name?: string } | null;
-  campaign?: {
-    company_name?: string;
-    user?: { company_name?: string; name?: string } | null;
-  };
-  user?: { name?: string } | null;
-}) =>
-  request.company?.company_name ??
-  request.company?.name ??
-  request.campaign?.user?.company_name ??
-  request.campaign?.company_name ??
-  request.campaign?.user?.name ??
-  request.user?.name ??
-  "-";
+
 
 function SectionTitle({
   title,
@@ -175,11 +159,7 @@ function InfluencerDashboard() {
   const [showAllUpcomingMobile, setShowAllUpcomingMobile] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const authUser = useAuthStore((state) => state.user);
-  const {
-    data: dashboardData,
-    isLoading,
-    isError,
-  } = useInfluencerDashboardQuery();
+  const { data: dashboardData } = useInfluencerDashboardQuery();
 
   const isRTL = i18n.dir() === "rtl";
   const storedUser = getStoredUser();
@@ -684,8 +664,8 @@ function InfluencerDashboard() {
                     item.featured ? "z-30 shadow-[0_12px_40px_rgba(0,0,0,0.18)] sm:scale-110" : "z-10 sm:-mx-4",
                   )}>
                   <img
-                    src={item.src || item.image}
-                    alt={item.alt || item.title}
+                    src={item.src}
+                    alt={item.alt}
                     className={cn(
                       "h-full w-full object-cover",
                       item.featured && "brightness-90",

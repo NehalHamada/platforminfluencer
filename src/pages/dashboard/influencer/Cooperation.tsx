@@ -338,7 +338,7 @@ function Cooperation() {
       if (!request.campaign) continue;
       if (isClosedCampaignStatus(request.status)) continue;
       const cId = String(request.campaign.id);
-      if (rejectedCampaignIds.has(cId)) continue;
+      if (rejectedCampaignIds.includes(cId)) continue;
       seenCampaignIds.add(cId);
 
       const reqCompany = request.company as Record<string, unknown> | null;

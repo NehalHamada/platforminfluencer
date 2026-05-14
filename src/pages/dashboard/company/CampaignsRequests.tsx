@@ -100,7 +100,7 @@ function CampaignsRequests() {
       },
       {
         onSuccess: async (response) => {
-          if (status !== "accepted") {
+          if (status === "rejected") {
             setUpdatingRequestId(null);
             return;
           }
@@ -134,7 +134,7 @@ function CampaignsRequests() {
           });
           setUpdatingRequestId(null);
         },
-        onError: () => {
+        onSettled: () => {
           setUpdatingRequestId(null);
         },
       },
@@ -285,7 +285,7 @@ function CampaignsRequests() {
                       onClick={() => handleStatusChange(request, "accepted")}
                       disabled={statusMutation.isPending || Boolean(updatingRequestId)}
                       className="h-8 gap-1 text-[9px] text-[#70b46b] hover:bg-[#f6fbf4] sm:h-11 sm:text-sm">
-                      {updatingRequestId === request.id
+                      {updatingRequestId === request.id && statusMutation.variables?.status === "accepted"
                         ? t("createCampaign.submitting", "Sending...")
                         : t("campaignsRequest.accept")}
                       <BadgeCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -297,7 +297,9 @@ function CampaignsRequests() {
                       onClick={() => handleStatusChange(request, "rejected")}
                       disabled={statusMutation.isPending || Boolean(updatingRequestId)}
                       className="h-8 gap-1 text-[9px] text-[#ff5d5d] hover:bg-[#fff8f8] sm:h-11 sm:text-sm">
-                      {t("campaignsRequest.reject")}
+                      {updatingRequestId === request.id && statusMutation.variables?.status === "rejected"
+                        ? t("campaignsRequest.rejecting", "Rejecting...")
+                        : t("campaignsRequest.reject")}
                       <CircleX className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                     </Button>
                   </CardFooter>

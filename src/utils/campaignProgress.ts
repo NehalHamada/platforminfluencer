@@ -21,8 +21,11 @@ export const isContentApprovedStatus = (status?: string | null) =>
     "paid",
   ].indexOf(normalizeCampaignStatus(status)) !== -1;
 
+export const isRejectedStatus = (status?: string | null) =>
+  ["rejected", "reject"].indexOf(normalizeCampaignStatus(status)) !== -1;
+
 export const isClosedCampaignStatus = (status?: string | null) =>
-  isContentApprovedStatus(status);
+  isContentApprovedStatus(status) || isRejectedStatus(status);
 
 export const getCampaignProgressStepCount = (status?: string | null) => {
   if (isContentApprovedStatus(status)) return 3;

@@ -938,115 +938,88 @@ function CompanyDashboard() {
 
             {/* Desktop version */}
             <div className="hidden md:block">
-              <div className="grid items-start gap-6 lg:grid-cols-[1fr_1.1fr]">
+              <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
+                {/* Right side — circular photos cluster */}
+                <div className="relative h-[520px] w-full">
+                  {/* Photo 1 - Top Center */}
+                  <div className="absolute left-[38%] top-0 z-20 h-[150px] w-[150px] overflow-hidden rounded-full border-4 border-white shadow-2xl transition-transform hover:scale-105">
+                    <img
+                      src={matchingPhotoPrimary}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  {/* Photo 2 - Left Middle */}
+                  <div className="absolute left-4 top-[22%] z-10 h-[130px] w-[130px] overflow-hidden rounded-full border-4 border-white shadow-xl">
+                    <img
+                      src={matchingPhotoSecondary}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-[linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)]">
+                      <FaInstagram className="text-[12px] text-white" />
+                    </div>
+                  </div>
+
+                  {/* Photo 3 - Right Middle */}
+                  <div className="absolute right-4 top-[28%] z-10 h-[140px] w-[140px] overflow-hidden rounded-full border-4 border-white shadow-xl">
+                    <img
+                      src={latestCampaign1}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  {/* Photo 4 - Bottom Left */}
+                  <div className="absolute bottom-[12%] left-[18%] z-20 h-[135px] w-[135px] overflow-hidden rounded-full border-4 border-white shadow-xl">
+                    <img
+                      src={latestCampaign2}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  {/* Photo 5 - Bottom Right */}
+                  <div className="absolute bottom-4 right-[25%] z-10 h-[125px] w-[125px] overflow-hidden rounded-full border-4 border-white shadow-xl">
+                    <img
+                      src={latestCampaign3}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  {/* Decorations — removed emojis as requested */}
+                </div>
+
                 {/* Left side — text + numbered cards */}
-                <div className={cn("space-y-4", isRTL ? "text-right" : "text-left")}>
-                  <div>
-                    <h2
-                      className="text-2xl font-bold text-[#1f1f1f] lg:text-[1.7rem]"
-                      style={{ fontFamily: "'Lemonada', cursive" }}>
+                <div
+                  className={cn("space-y-8", isRTL ? "text-right" : "text-left")}
+                  style={{ fontFamily: "'IBM Plex Sans Arabic', sans-serif" }}>
+                  <div className="space-y-4">
+                    <h2 className="text-[2.25rem] font-bold leading-tight text-[#111111] lg:text-[2.6rem]">
                       {t("companyDashboard.whyTitle")}
                     </h2>
-                    <p className="mt-2 text-sm leading-7 text-[#666666]">
+                    <p className="max-w-lg text-[16px] leading-8 text-[#555555] lg:text-[1.15rem]">
                       {t("companyDashboard.whySubtitle")}
                     </p>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="mt-10 space-y-5">
                     {whyItems.map((item) => (
                       <Card
                         key={`why-${item.id}`}
-                        className="rounded-[18px] border-0 bg-[#f1f1f5] py-0 shadow-none sm:rounded-[20px]">
-                        <CardContent
-                          className={cn(
-                            "flex items-center gap-3 px-4 py-4",
-                            isRTL && "flex-row",
-                          )}>
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ece9fb] text-sm font-semibold text-[#8d84c7]">
+                        className="max-w-[500px] rounded-[24px] border border-[#f0f0f0] bg-white py-0 shadow-[0_2px_15px_rgba(0,0,0,0.02)] transition-all hover:shadow-[0_8px_25px_rgba(0,0,0,0.05)]">
+                        <CardContent className="flex items-center gap-6 px-7 py-6">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f6f5ff] text-xl font-bold text-[#8d84c7]">
                             {item.id}
                           </div>
-                          <p className="text-sm leading-7 text-[#4f4f4f]">
+                          <p className="flex-1 text-[1.1rem] font-medium leading-relaxed text-[#2d2d2d]">
                             {item.text}
                           </p>
                         </CardContent>
                       </Card>
                     ))}
-                  </div>
-                </div>
-
-                {/* Right side — circular photos with decorations */}
-                <div className="relative min-h-[340px] lg:min-h-[380px]">
-                  {/* Top row - 3 circular profile photos */}
-                  <div className="absolute right-4 top-0 h-[88px] w-[88px] overflow-hidden rounded-full shadow-md lg:right-8 lg:h-[100px] lg:w-[100px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.influencerAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute right-[42%] top-2 h-[80px] w-[80px] overflow-hidden rounded-full shadow-md lg:h-[90px] lg:w-[90px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.influencerAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                    {/* Instagram badge */}
-                    <div className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)]">
-                      <FaInstagram className="text-[10px] text-white" />
-                    </div>
-                  </div>
-                  <div className="absolute left-4 top-4 h-[72px] w-[72px] overflow-hidden rounded-full shadow-md lg:left-8 lg:h-[82px] lg:w-[82px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.influencerAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  {/* Emoji decorations */}
-                  <span className="absolute right-[30%] top-[15%] text-lg" aria-hidden="true">❤️</span>
-                  <span className="absolute left-[20%] top-[10%] text-sm" aria-hidden="true">🔥</span>
-                  <span className="absolute right-[15%] top-[40%] text-sm" aria-hidden="true">🔥</span>
-                  <span className="absolute left-[35%] top-[55%] text-xs" aria-hidden="true">❤️</span>
-                  <span className="absolute right-[45%] top-[70%] text-xs" aria-hidden="true">🔥</span>
-
-                  {/* Middle row - phone mockups */}
-                  <div className="absolute left-[10%] top-[35%] h-[130px] w-[80px] overflow-hidden rounded-[20px] border-[3px] border-white shadow-lg lg:h-[150px] lg:w-[90px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.phonePreviewAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute right-[15%] top-[30%] h-[140px] w-[85px] overflow-hidden rounded-[20px] border-[3px] border-white shadow-lg lg:h-[160px] lg:w-[95px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.phonePreviewAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute left-[38%] top-[40%] h-[130px] w-[80px] overflow-hidden rounded-[20px] border-[3px] border-white shadow-lg lg:h-[150px] lg:w-[90px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.phonePreviewAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  {/* Bottom circular photos */}
-                  <div className="absolute bottom-0 left-[5%] h-[70px] w-[70px] overflow-hidden rounded-full shadow-md lg:h-[80px] lg:w-[80px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.influencerAlt")}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute bottom-2 right-[25%] h-[65px] w-[65px] overflow-hidden rounded-full shadow-md lg:h-[75px] lg:w-[75px]">
-                    <img
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80"
-                      alt={t("companyDashboard.influencerAlt")}
-                      className="h-full w-full object-cover"
-                    />
                   </div>
                 </div>
               </div>

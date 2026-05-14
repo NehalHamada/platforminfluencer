@@ -36,6 +36,8 @@ export type CurrentInfoItem = {
 export type UpcomingCampaignItem = {
   id: number;
   brand: string;
+  campaignId?: number | string;
+  campaignName?: string;
   type: string;
   typeId?: number;
   date: string;
@@ -71,10 +73,14 @@ export type CompanyDashboardResponse = {
 export type ActivityItem = {
   id: number;
   image: string;
+  src?: string;
   title: string;
   platform: string;
   followers: string;
   budget: string;
+  className?: string;
+  alt?: string;
+  featured?: boolean;
 };
 
 export type InfluencerDashboardResponse = {

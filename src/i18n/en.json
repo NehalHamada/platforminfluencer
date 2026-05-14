@@ -352,7 +352,8 @@
   "verifyOtp": {
     "title": "Verification",
     "description": "verify your identity. We have sent a 6-digit verification code to your email. Enter the code to complete the process",
-    "success": "The code is correct. You will now be redirected to the password reset page",
+    "success_reset": "The code is correct. You will now be redirected to the password reset page",
+    "success_login": "The code is correct. You will now be redirected to the dashboard",
     "error": "Please enter the code as it was sent to your email.",
     "loading": "Loading",
     "send": "Send",
@@ -595,8 +596,10 @@
     "reviewStatus": "Completed successfully"
   },
   "influencerDashboard": {
-    "verify": "Verify",
+    "verified": "Verified",
+    "currentTasks": "Current Tasks",
     "currentInfo": "Your Current Information",
+    "publishContent": "Publish Content",
     "upcomingCampaigns": "Your Upcoming Campaigns",
     "latestActivities": "Your Latest Activities",
     "latestActivitiesSubtitle": "Track your performance, content, and campaigns across all platforms",
@@ -620,10 +623,23 @@
     "loading": "Loading...",
     "error": "Something went wrong while loading data",
     "empty": "No data available right now",
+    "newCooperationRequests": "New Cooperation Requests",
+    "viewDetails": "View Details",
+    "campaignDescription": "Campaign Details",
+    "noActiveTasks": "No active tasks",
+    "noActiveTasksSubtitle": "No campaigns have been accepted yet. Once a campaign is accepted and agreed upon, it will appear here for you to start publishing content",
     "status": {
       "pending": "Under Review",
       "rejected": "Rejected",
       "accepted": "Accepted"
+    },
+    "publishForm": {
+      "title": "Publish Campaign Content",
+      "link": "Published Content Link",
+      "story": "Story",
+      "publishDate": "Date and Time of Publish",
+      "submit": "Confirm Publish",
+      "submitting": "Publishing..."
     }
   },
   "earn": {
@@ -948,19 +964,25 @@
       "submitting": "Sending...",
       "required": "Please complete the modification reason, date, and details.",
       "submitFailed": "Could not send the modification request. Please try again.",
-      "cardTitle": "Modification request",
+      "cardTitle": "Modification request from company",
       "reason": "Reason",
       "newDeliveryDate": "New delivery date",
-      "description": "Details",
-      "systemNotice": "The company requested content modifications.",
+      "description": "Requested Details",
+      "systemNotice": "The company requested a content modification",
       "defaultReason": "Content needs changes",
       "reasonQuality": "Quality improvement",
       "reasonBrand": "Brand guidelines",
-      "accept": "Accept changes",
-      "reject": "Reject changes",
-      "accepted": "Accepted",
-      "rejected": "Rejected",
-      "rejectionReasonFallback": "The influencer rejected the modification request."
+      "accept": "Approve Modification",
+      "reject": "Reject Modification",
+      "accepted": "Modification accepted",
+      "rejected": "Modification rejected",
+      "rejectionReasonFallback": "The influencer rejected the modification request.",
+      "type": "Modification type",
+      "typeSimple": "Simple",
+      "statusAccepted": "Modification approved",
+      "statusRejected": "Modification rejected",
+      "statusPending": "Waiting for modified version",
+      "rejectReasonPrompt": "Please enter the reason for objection to guarantee your rights"
     },
     "status": {
       "active": "Active",

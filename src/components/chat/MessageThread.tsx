@@ -62,6 +62,7 @@ type MessageThreadProps = {
   onModificationAction?: (
     messageId: string,
     status: "accepted" | "rejected",
+    reason?: string,
   ) => boolean | Promise<boolean>;
   isSending?: boolean;
   isLoadingMessages?: boolean;
@@ -227,6 +228,7 @@ function MessageBubble({
   onModificationAction: (
     messageId: string,
     status: "accepted" | "rejected",
+    reason?: string,
   ) => void;
 }) {
   const isOutgoing = message.sender === "me";
@@ -274,7 +276,7 @@ function MessageBubble({
           isRTL={isRTL}
           role={role}
           status={modificationStatus}
-          onAction={(status) => onModificationAction(message.id, status)}
+          onAction={(status, reason) => onModificationAction(message.id, status, reason)}
         />
       ) : (
         <div
@@ -528,7 +530,7 @@ function ModificationRequestBubble({
   isRTL: boolean;
   role: "company" | "influencer";
   status: ModificationStatus;
-  onAction: (status: "accepted" | "rejected") => void;
+  onAction: (status: "accepted" | "rejected", reason?: string) => void;
 }) {
   const { t } = useTranslation();
   const reason =
@@ -538,89 +540,135 @@ function ModificationRequestBubble({
   const description = message.description || message.text || "-";
   const isResolved = status !== "pending";
 
+  const [showRejectInput, setShowRejectInput] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+
+  const handleRejectClick = () => {
+    if (showRejectInput) {
+      if (rejectReason.trim()) {
+        onAction("rejected", rejectReason.trim());
+      }
+    } else {
+      setShowRejectInput(true);
+    }
+  };
+
   return (
     <div className="max-w-[88%] sm:max-w-[320px]">
       {role === "influencer" ? (
-        <div className="mb-2 rounded-lg bg-[#fffbe8] px-3 py-2 text-center text-[9px] font-medium text-[#746f58] sm:text-[11px]">
+        <div className="mb-2 rounded-[6px] bg-[#fffdef] py-2 text-center text-[10px] font-medium text-[#2f342d] sm:text-[11px]">
           {t(
             "chat.modificationRequest.systemNotice",
-            "The company requested content modifications.",
+            "قامت الشركة بطلب تعديل المحتوى",
           )}
         </div>
       ) : null}
 
-      <Card className="rounded-[6px] border border-[#e4e2dc] bg-[#eeeeed] py-0 shadow-none ring-0">
-        <CardContent className={cn("p-3", isRTL ? "text-right" : "text-left")}>
-          <div
-            className={cn(
-              "mb-2 flex items-center gap-2",
-              isRTL
-                ? "flex-row-reverse justify-start"
-                : "flex-row justify-start",
-            )}>
-            <span className="rounded-[3px] bg-white px-2 py-1 text-[9px] font-medium text-[#4f5148] sm:text-[10px]">
-              {t("chat.modificationRequest.cardTitle", "Modification request")}
-            </span>
-          </div>
+      <Card className="overflow-hidden rounded-[8px] border border-[#e4e2dc] bg-white py-0 shadow-none ring-0">
+        <div className="bg-[#eef0f5] py-2.5 text-center">
+          <span className="text-[10px] font-bold text-[#4f5148] sm:text-[11px]">
+            {t("chat.modificationRequest.cardTitle", "طلب تعديل من الشركة")}
+          </span>
+        </div>
 
-          <ul className="space-y-1.5 text-[10px] leading-5 text-[#34342f] sm:text-[11px]">
-            <li>
-              <span className="font-semibold">
-                {t("chat.modificationRequest.reason", "Reason")}:{" "}
+        <CardContent className={cn("p-0", isRTL ? "text-right" : "text-left")}>
+          <div className="flex flex-col text-[10px] leading-5 text-[#34342f] sm:text-[11px]">
+            <div className="border-b border-[#f1f0ec] px-4 py-2.5">
+              <span className="block font-bold">
+                {t("chat.modificationRequest.reason", "السبب")} :
               </span>
-              {reason}
-            </li>
-            <li>
-              <span className="font-semibold">
+              <span className="block text-[#5d5a55]">{reason}</span>
+            </div>
+            
+            <div className="border-b border-[#f1f0ec] px-4 py-2.5">
+              <span className="block font-bold">
+                {t("chat.modificationRequest.description", "التفاصيل المطلوبة")} :
+              </span>
+              <span className="block text-[#5d5a55]">{description}</span>
+            </div>
+            
+            <div className="border-b border-[#f1f0ec] px-4 py-2.5">
+              <span className="block font-bold">
+                {t("chat.modificationRequest.type", "نوع التعديل")} :
+              </span>
+              <span className="block text-[#5d5a55]">
+                {t("chat.modificationRequest.typeSimple", "بسيط")}
+              </span>
+            </div>
+
+            <div className="border-b border-[#f1f0ec] px-4 py-2.5">
+              <span className="block font-bold">
                 {t(
                   "chat.modificationRequest.newDeliveryDate",
-                  "New delivery date",
-                )}
-                :{" "}
+                  "موعد التسليم الجديد",
+                )} :
               </span>
-              {deliveryDate}
-            </li>
-            <li>
-              <span className="font-semibold">
-                {t("chat.modificationRequest.description", "Details")}:{" "}
-              </span>
-              {description}
-            </li>
-          </ul>
-
-          {role === "influencer" ? (
-            <div
-              className={cn(
-                "mt-3 flex gap-2",
-                isRTL
-                  ? "flex-row-reverse justify-start"
-                  : "flex-row justify-start",
-              )}>
-              <Button
-                type="button"
-                size="sm"
-                disabled={isResolved}
-                onClick={() => onAction("accepted")}
-                className="h-6 min-w-24 rounded-[3px] bg-[#42a756] px-3 text-[9px] font-medium text-white hover:bg-[#388e49]">
-                {status === "accepted"
-                  ? t("chat.modificationRequest.accepted", "Accepted")
-                  : t("chat.modificationRequest.accept", "Accept changes")}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isResolved}
-                onClick={() => onAction("rejected")}
-                className="h-6 min-w-24 rounded-[3px] border-[#e5a3a3] bg-white px-3 text-[9px] font-medium text-[#c85353] hover:bg-[#fff5f5]">
-                {status === "rejected"
-                  ? t("chat.modificationRequest.rejected", "Rejected")
-                  : t("chat.modificationRequest.reject", "Reject changes")}
-              </Button>
+              <span className="block text-[#5d5a55]">{deliveryDate}</span>
             </div>
-          ) : null}
+
+            <div className="bg-[#f8f8f7] py-2 text-center text-[9px] font-medium text-[#77736b] sm:text-[10px]">
+              {status === "accepted" 
+                ? t("chat.modificationRequest.statusAccepted", "تم الموافقة على التعديل")
+                : status === "rejected"
+                  ? t("chat.modificationRequest.statusRejected", "تم رفض التعديل")
+                  : t("chat.modificationRequest.statusPending", "بانتظار النسخة المعدلة")}
+            </div>
+          </div>
         </CardContent>
       </Card>
+
+      {role === "influencer" && !isResolved ? (
+        <div className="mt-3 flex flex-col gap-3">
+          <div
+            className={cn(
+              "flex gap-2",
+              isRTL
+                ? "flex-row-reverse justify-center"
+                : "flex-row justify-center",
+            )}>
+            <Button
+              type="button"
+              size="sm"
+              disabled={isResolved}
+              onClick={() => onAction("accepted")}
+              className="h-7 min-w-28 rounded-[4px] bg-[#3daf4e] px-3 text-[10px] font-medium text-white hover:bg-[#349642]">
+              {t("chat.modificationRequest.accept", "الموافقة على التعديل")}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={isResolved && !showRejectInput}
+              onClick={handleRejectClick}
+              className="h-7 min-w-28 rounded-[4px] bg-[#e62e2e] px-3 text-[10px] font-medium text-white hover:bg-[#cc2929]">
+              {t("chat.modificationRequest.reject", "الاعتراض على التعديل")}
+            </Button>
+          </div>
+
+          {showRejectInput ? (
+            <div className="mt-2 text-center">
+              <p className="mb-2 text-[10px] font-medium text-[#2f342d] sm:text-[11px]">
+                {t("chat.modificationRequest.rejectReasonPrompt", "من فضلك قم بإدخال سبب الاعتراض لضمان حقوقك")}
+              </p>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  className="h-9 w-full rounded-full border border-[#d3d0c7] bg-white pl-10 pr-4 text-[10px] text-[#34342f] outline-none placeholder:text-[#a3a694] focus:border-[#9fb88d] sm:text-[11px]"
+                />
+                <button
+                  type="button"
+                  onClick={handleRejectClick}
+                  disabled={!rejectReason.trim()}
+                  className="absolute left-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-[#9fb88d] text-white transition hover:bg-[#8da87c] disabled:opacity-50"
+                >
+                  <Send className={cn("h-3.5 w-3.5", isRTL ? "rotate-180" : "")} />
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

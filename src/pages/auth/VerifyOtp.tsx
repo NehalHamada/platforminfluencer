@@ -203,6 +203,7 @@ function VerifyOtp() {
       sessionStorage.setItem("resetOtp", otpCode);
       console.log("forget password verified otp:", otpCode);
       console.log("reset password session data:", { email, otp: otpCode });
+      toast.success(t("verifyOtp.success_reset"));
       navigate("/reset-password");
       return;
     }
@@ -214,7 +215,14 @@ function VerifyOtp() {
       });
       logOtpFromResponse("verify otp response:", response);
 
-      toast.success(t("verifyOtp.success"));
+      const successKey =
+        otpPurpose === "login-verification" ||
+        otpPurpose === "influencer-register" ||
+        otpPurpose === "company-register"
+          ? "verifyOtp.success_login"
+          : "verifyOtp.success_reset";
+
+      toast.success(t(successKey));
 
       if (otpPurpose === "influencer-register") {
         const verifiedUser = resolveVerifiedUser(response);

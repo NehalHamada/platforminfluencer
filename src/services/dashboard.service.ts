@@ -124,6 +124,9 @@ const getNumber = (value: unknown) => {
   return Number.isFinite(numberValue) ? numberValue : undefined;
 };
 
+const getObject = (value: unknown): ApiObject | undefined =>
+  isObject(value) ? value : undefined;
+
 const normalizeStatus = (
   value: unknown,
 ): "pending" | "rejected" | "accepted" => {
@@ -173,23 +176,27 @@ const mapCurrentInfo = (
 ): CurrentInfoItem | null => {
   if (!isObject(item)) return null;
 
+  const campaign = getObject(item.campaign);
+  const company = getObject(item.company) ?? getObject(campaign?.company) ?? getObject(item.user);
+
   return {
     id: Number(item.id ?? index + 1),
     date:
       getNestedString(item, ["execution_time", "executionTime"]) ||
+      getNestedString(campaign, ["execution_time", "executionTime"]) ||
       formatDate(
-        item.date ?? item.execution_date ?? item.deadline ?? item.due_date,
+        item.date ?? item.execution_date ?? item.deadline ?? item.due_date ?? campaign?.execution_date,
       ),
     title: getNestedString(
       item,
       ["campaign", "campaign_name", "title"],
-      getString(item.title ?? item.name ?? item.campaignName, ""),
+      getString(item.title ?? item.name ?? item.campaignName ?? campaign?.name ?? campaign?.campaign_name, ""),
     ),
     company: getNestedString(
-      item,
-      ["company", "task", "current_task"],
+      company,
+      ["company_name", "name", "full_name"],
       getString(
-        item.company ?? item.company_name ?? item.task ?? item.status_text,
+        item.company ?? item.company_name ?? item.brand ?? company?.company_name ?? company?.name,
         "",
       ),
     ),
@@ -202,12 +209,28 @@ const mapUpcomingCampaign = (
 ): UpcomingCampaignItem | null => {
   if (!isObject(item)) return null;
 
+  const company = getObject(item.company) ?? getObject(item.user) ?? getObject(item.brand);
+
   return {
     id: getNumber(item.id) ?? index + 1,
+    campaignId: getNumber(getObject(item.campaign)?.id) ?? getNumber(item.campaign_id) ?? getNumber(item.id) ?? (index + 1),
     brand: getNestedString(
+      company,
+      ["company_name", "name", "full_name"],
+      getNestedString(
+        item,
+        ["brand", "company", "user", "campaign"],
+        getString(item.brand ?? item.company_name ?? item.companyName ?? company?.name, ""),
+      ),
+    ),
+    campaignName: getNestedString(
       item,
-      ["brand", "company", "user", "campaign"],
-      getString(item.brand ?? item.company_name ?? item.companyName, ""),
+      ["campaign", "campaign_name", "title"],
+      getNestedString(
+        getObject(item.campaign),
+        ["name", "campaign_name", "title"],
+        getString(item.campaign_name ?? item.campaignName ?? item.title ?? item.name, ""),
+      ),
     ),
     type: getNestedString(
       item,
@@ -228,13 +251,13 @@ const mapUpcomingCampaign = (
         "",
       ),
     ),
-    typeId: getNumber(item.campaign_type_id),
+    typeId: getNumber(item.campaign_type_id) ?? getNumber((item.campaign as ApiObject)?.campaign_type_id),
     date:
       getNestedString(item, ["execution_time", "executionTime", "campaign"]) ||
       formatDate(
         item.date ?? item.execution_date ?? item.deadline ?? item.created_at,
       ),
-    dateId: getNumber(item.execution_time_id),
+    dateId: getNumber(item.execution_time_id) ?? getNumber((item.campaign as ApiObject)?.execution_time_id),
     budget: getNestedString(
       item,
       ["budget_range", "budgetRange", "campaign"],
@@ -243,11 +266,11 @@ const mapUpcomingCampaign = (
         "",
       ),
     ),
-    budgetId: getNumber(item.budget_range_id),
-    platformId: getNumber(item.platform_id),
-    targetAudienceId: getNumber(item.target_audience_id),
-    targetLocationId: getNumber(item.target_location_id),
-    influencerCountRangeId: getNumber(item.influencer_count_range_id),
+    budgetId: getNumber(item.budget_range_id) ?? getNumber((item.campaign as ApiObject)?.budget_range_id),
+    platformId: getNumber(item.platform_id) ?? getNumber((item.campaign as ApiObject)?.platform_id),
+    targetAudienceId: getNumber(item.target_audience_id) ?? getNumber((item.campaign as ApiObject)?.target_audience_id),
+    targetLocationId: getNumber(item.target_location_id) ?? getNumber((item.campaign as ApiObject)?.target_location_id),
+    influencerCountRangeId: getNumber(item.influencer_count_range_id) ?? getNumber((item.campaign as ApiObject)?.influencer_count_range_id),
     status: normalizeStatus(item.status),
     raw: item,
   };
@@ -259,7 +282,11 @@ const mapActivity = (item: unknown, index: number): ActivityItem | null => {
   return {
     id: Number(item.id ?? index + 1),
     image: getString(
-      item.image ?? item.photo ?? item.thumbnail,
+      item.media_url ?? item.thumbnail_url ?? item.image ?? item.photo ?? item.thumbnail,
+      "/assets/platImg.png",
+    ),
+    src: getString(
+      item.media_url ?? item.thumbnail_url ?? item.image ?? item.photo ?? item.thumbnail,
       "/assets/platImg.png",
     ),
     title: getString(item.title ?? item.name ?? item.campaign_name, ""),

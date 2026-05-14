@@ -12,6 +12,8 @@ import { useApplyCampaignMutation } from "@/queries/campaigns/useApplyCampaignMu
 import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
 import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
 import { useRespondToCollaborationRequestMutation } from "@/queries/campaigns/useRespondToCollaborationRequestMutation";
+import { useUpdateApplicationStatusMutation } from "@/queries/campaigns/useUpdateApplicationStatusMutation";
+import { useCampaignStore } from "@/store/campaign.store";
 import { queryKeys } from "@/constants/queryKeys";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
 import { useConversationsQuery } from "@/queries/chat/useConversationsQuery";
@@ -22,9 +24,6 @@ import { resolveAcceptedConversationId } from "@/utils/chat";
 import { isClosedCampaignStatus } from "@/utils/campaignProgress";
 import {
   getCompletedCampaignEntries,
-  isCompletedApplicationId,
-  isCompletedCampaignId,
-  isCompletedConversationId,
   saveCompletedCampaignEntry,
 } from "@/utils/completedCampaigns";
 
@@ -183,17 +182,16 @@ function Cooperation() {
 
   // ─── Data sources ───
   const influencerDashboardQuery = useInfluencerDashboardQuery();
+  const respondMutation = useRespondToCollaborationRequestMutation();
   const collabRequestsQuery = useCollaborationRequestsQuery();
   const myApplicationsQuery = useCampaignRequestsQuery();
   const conversationsQuery = useConversationsQuery();
 
   const applyCampaignMutation = useApplyCampaignMutation();
-  const respondMutation = useRespondToCollaborationRequestMutation();
+  const updateStatusMutation = useUpdateApplicationStatusMutation();
   const [acceptingItemId, setAcceptingItemId] = useState<string | null>(null);
 
-  const [rejectedCampaignIds, setRejectedCampaignIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const { rejectedCampaignIds, addRejectedCampaignId } = useCampaignStore();
   const cooperationConversationIds = useMemo(() => {
     const ids = new Set<string>();
     const targets = [
@@ -339,28 +337,8 @@ function Cooperation() {
     for (const request of collabRequestsQuery.data?.data ?? []) {
       if (!request.campaign) continue;
       if (isClosedCampaignStatus(request.status)) continue;
-      if (isCompletedConversationId(request.conversation_id)) continue;
-      if (
-        request.conversation_id &&
-        approvedConversationIds.has(String(request.conversation_id))
-      ) {
-        saveCompletedCampaignEntry({
-          conversationId: request.conversation_id,
-          applicationId: request.id,
-          campaignId: request.campaign_id ?? request.campaign.id,
-          campaignName: request.campaign.name,
-          companyName: request.company?.company_name ?? request.company?.name,
-          amount: request.price,
-          category:
-            request.campaign.campaign_type?.name ??
-            request.campaign.campaignType?.name ??
-            request.campaign.campaign_type_name,
-          date: request.updated_at ?? request.created_at,
-        });
-        continue;
-      }
-      if (isCompletedCampaignId(request.campaign_id ?? request.campaign.id)) continue;
       const cId = String(request.campaign.id);
+      if (rejectedCampaignIds.has(cId)) continue;
       seenCampaignIds.add(cId);
 
       const reqCompany = request.company as Record<string, unknown> | null;
@@ -440,29 +418,8 @@ function Cooperation() {
     for (const app of myApplicationsQuery.data?.data ?? []) {
       if (!app.campaign) continue;
       if (isClosedCampaignStatus(app.status)) continue;
-      if (isCompletedConversationId(app.conversation_id)) continue;
-      if (
-        app.conversation_id &&
-        approvedConversationIds.has(String(app.conversation_id))
-      ) {
-        saveCompletedCampaignEntry({
-          conversationId: app.conversation_id,
-          applicationId: app.id,
-          campaignId: app.campaign_id ?? app.campaign.id,
-          campaignName: app.campaign.name,
-          companyName: app.campaign.user?.company_name ?? app.campaign.user?.name,
-          amount: app.price,
-          category:
-            app.campaign.campaign_type?.name ??
-            app.campaign.campaignType?.name ??
-            app.campaign.campaign_type_name,
-          date: app.updated_at ?? app.created_at,
-        });
-        continue;
-      }
-      if (isCompletedApplicationId(app.id)) continue;
-      if (isCompletedCampaignId(app.campaign_id ?? app.campaign.id)) continue;
       const cId = String(app.campaign.id);
+      if (rejectedCampaignIds.includes(cId)) continue;
       if (seenCampaignIds.has(cId)) continue;
       seenCampaignIds.add(cId);
 
@@ -561,7 +518,7 @@ function Cooperation() {
       } as Campaign;
       const cId = String(campaign.id);
       if (seenCampaignIds.has(cId)) continue;
-      if (rejectedCampaignIds.has(cId)) continue;
+      if (rejectedCampaignIds.includes(cId)) continue;
       seenCampaignIds.add(cId);
 
       const currentCamp = campaign as Record<string, unknown>;
@@ -588,7 +545,6 @@ function Cooperation() {
       });
     }
 
-    console.log("Cooperation Data:", items);
     return items;
   }, [
     influencerDashboardQuery.data?.upcomingCampaigns,
@@ -607,7 +563,6 @@ function Cooperation() {
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
- 
 
   const handleAccept = (item: CooperationItem) => {
     if (acceptingItemId) return;
@@ -619,10 +574,7 @@ function Cooperation() {
       campaign.conversation_id ||
       getConversationIdFromResponse(item);
 
-    console.log("Accepting item via API:", item);
-
     const onAcceptSuccess = async (response: unknown) => {
-      console.log("Accept success:", response);
       const responseConversationId = getConversationIdFromResponse(response);
 
       await Promise.all([
@@ -663,24 +615,18 @@ function Cooperation() {
       setAcceptingItemId(null);
     };
 
-    // 1. My applications are accepted/rejected only by the company.
-    // If the application is already accepted, just open the chat.
     if (item.source === "my-application" && item.applicationId) {
       if (isAcceptedStatus(item.status)) {
         void onAcceptSuccess(item);
       } else {
         setAcceptingItemId(null);
       }
-    } 
-    // 2. If it's a direct request, respond with accepted
-    else if (item.source === "collaboration-request" && item.requestId) {
+    } else if (item.source === "collaboration-request" && item.requestId) {
       respondMutation.mutate(
         { requestId: item.requestId, status: "accepted" },
         { onSuccess: onAcceptSuccess, onError: onAcceptError }
       );
-    } 
-    // 3. If it's a new campaign, apply to it
-    else if (item.source === "campaign") {
+    } else if (item.source === "campaign") {
       const campToApply = campaign as Record<string, unknown>;
       applyCampaignMutation.mutate(
         {
@@ -703,9 +649,7 @@ function Cooperation() {
           onError: onAcceptError,
         }
       );
-    } 
-    // 4. Fallback
-    else {
+    } else {
       if (convId) {
         void onAcceptSuccess(item);
       } else {
@@ -715,26 +659,31 @@ function Cooperation() {
   };
 
   const handleReject = (item: CooperationItem) => {
-    // For collaboration requests → tell the backend
-    if (item.source === "collaboration-request" && item.requestId) {
+    // Determine the ID to use for rejection based on source
+    const requestId = item.requestId;
+    const applicationId = item.applicationId;
+
+    if (item.source === "collaboration-request" && requestId) {
       respondMutation.mutate({
-        requestId: item.requestId,
+        requestId: requestId,
         status: "rejected",
       });
+    } else if (item.source === "my-application" && applicationId) {
+      updateStatusMutation.mutate({
+        applicationId: applicationId,
+        status: "rejected",
+      });
+    } else {
     }
 
-    // Always hide locally
-    setRejectedCampaignIds((prev) => {
-      const next = new Set(prev);
-      next.add(String(item.campaign.id));
-      return next;
-    });
+    addRejectedCampaignId(item.campaign.id);
   };
 
   const isActionPending =
     applyCampaignMutation.isPending || 
     respondMutation.isPending ||
     Boolean(acceptingItemId);
+
   const isLoading =
     influencerDashboardQuery.isLoading ||
     collabRequestsQuery.isLoading ||
@@ -781,11 +730,9 @@ function Cooperation() {
                   <div className="mt-4 grid grid-cols-1 gap-3 sm:mt-8 sm:gap-6 md:grid-cols-2">
                     {cooperationItems.map((item) => {
                       const campaign = item.campaign;
-
                       const camp = campaign as Record<string, unknown>;
                       const campUser = campaign.user as Record<string, unknown> | null;
 
-                      // Align with backend keys and Image 2
                       const displayData = {
                         companyName: item.companyName,
                         contentType:
@@ -797,13 +744,11 @@ function Cooperation() {
                           (campUser?.field as string | undefined) ??
                           (camp.field as string | undefined) ??
                           "-",
-                        // Prefer execution_date if it's an application, otherwise execution_time name
                         date:
                           item.executionDate ??
                           campaign.execution_time?.name ??
                           campaign.executionTime?.name ??
                           formatDate(campaign.created_at),
-                        // Show item price if available, else budget range
                         budget: item.price
                           ? `${item.price} ريال`
                           : (campaign.budget_range?.name ??
@@ -859,25 +804,27 @@ function Cooperation() {
 
                             <div className="space-y-3">
                               <div className="grid grid-cols-2 gap-3">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => handleAccept(item)}
-                                    disabled={isActionPending}
-                                    className="h-9 rounded-[8px] border border-[#aacd9f] bg-transparent text-xs font-medium text-[#5faa55] hover:bg-[#f7fcf5] sm:h-11 sm:text-sm">
-                                    {acceptingItemId === item.id
-                                      ? t("createCampaign.submitting", "Sending...")
-                                      : isAcceptedStatus(item.status)
-                                      ? t("cooperation.openChat", "فتح المحادثة")
-                                      : t("cooperation.accept")}
-                                  </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => handleAccept(item)}
+                                  disabled={isActionPending}
+                                  className="h-9 rounded-[8px] border border-[#aacd9f] bg-transparent text-xs font-medium text-[#5faa55] hover:bg-[#f7fcf5] sm:h-11 sm:text-sm">
+                                  {acceptingItemId === item.id || (respondMutation.isPending && respondMutation.variables?.status === "accepted" && String(respondMutation.variables?.requestId) === String(item.requestId))
+                                    ? t("createCampaign.submitting", "Sending...")
+                                    : isAcceptedStatus(item.status)
+                                    ? t("cooperation.openChat", "فتح المحادثة")
+                                    : t("cooperation.accept")}
+                                </Button>
                                 <Button
                                   type="button"
                                   variant="outline"
                                   onClick={() => handleReject(item)}
                                   disabled={isActionPending}
                                   className="h-9 rounded-[8px] border border-[#ea9f9f] bg-transparent text-xs font-medium text-[#e25d5d] hover:bg-[#fff7f7] sm:h-11 sm:text-sm">
-                                  {t("cooperation.reject")}
+                                  {respondMutation.isPending && respondMutation.variables?.status === "rejected" && String(respondMutation.variables?.requestId) === String(item.requestId)
+                                    ? t("cooperation.rejecting", "Rejecting...")
+                                    : t("cooperation.reject")}
                                 </Button>
                               </div>
 
@@ -893,10 +840,7 @@ function Cooperation() {
                                 }}
                                 className="h-9 w-full rounded-[8px] border border-[#d7d4ca] bg-transparent text-xs font-medium text-[#6f6d66] hover:bg-[#faf9f5] sm:h-11 sm:text-sm">
                                 {isAcceptedStatus(item.status)
-                                  ? t(
-                                      "campaign.followPublishing",
-                                      "متابعة النشر",
-                                    )
+                                  ? t("campaign.followPublishing", "متابعة النشر")
                                   : t("cooperation.negotiate")}
                               </Button>
                             </div>

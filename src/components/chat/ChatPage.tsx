@@ -28,6 +28,7 @@ import {
   saveInfluencerReview,
   type InfluencerReviewInput,
 } from "@/utils/influencerReviews";
+import { useCampaignStore } from "@/store/campaign.store";
 
 import { pusher } from "@/lib/pusher";
 import MessageThread from "./MessageThread";
@@ -147,6 +148,17 @@ const isClosedConversation = (conversation: Conversation) => {
     (nestedCampaign?.status as string | undefined);
 
   if (isClosedCampaignStatus(status)) return true;
+
+  const campaignId = String(rawConversation.campaign_id ?? rawConversation.campaignId ?? nestedCampaign?.id);
+  const applicationId = String(rawConversation.application_id ?? rawConversation.applicationId ?? nestedApplication?.id ?? nestedRequest?.id);
+  const rejectedIds = useCampaignStore.getState().rejectedCampaignIds;
+
+  if (
+    (campaignId && rejectedIds.includes(campaignId)) ||
+    (applicationId && rejectedIds.includes(applicationId))
+  ) {
+    return true;
+  }
 
   const messages = Array.isArray(conversation.messages)
     ? conversation.messages
@@ -1503,9 +1515,68 @@ function ChatPage({
         queryKey: queryKeys.chat.messages(selectedConvId),
       });
 
+      // If rejected, close the chat and clean up the campaign from both sides
+      if (status === "rejected") {
+        const campaignId = selectedConversation?.campaignId ?? stateLocation?.campaignId;
+        const applicationId = selectedConversation?.applicationId ?? stateLocation?.applicationId;
+        
+        // Track the rejection so UI hides it everywhere
+        if (campaignId) {
+          useCampaignStore.getState().addRejectedCampaignId(campaignId);
+        }
+        if (applicationId) {
+          useCampaignStore.getState().addRejectedCampaignId(applicationId);
+        }
+
+        // Remove conversation from the local list
+        queryClient.setQueryData(
+          queryKeys.chat.conversations(),
+          (oldData: unknown) => {
+            const oldResponse = getObject(oldData);
+            const oldConversations = Array.isArray(oldResponse?.data)
+              ? (oldResponse.data as Conversation[])
+              : [];
+
+            return {
+              ...(oldResponse ?? { success: true }),
+              data: oldConversations.filter(
+                (conversation) => String(conversation.id) !== String(selectedConvId),
+              ),
+            };
+          },
+        );
+
+        // Invalidate all campaign-related queries on both influencer and company sides
+        await queryClient.invalidateQueries({ queryKey: queryKeys.chat.conversations() });
+        await queryClient.invalidateQueries({ queryKey: ["campaigns", "collaboration-requests"] });
+        await queryClient.invalidateQueries({ queryKey: ["campaigns", "company-collaboration-requests"] });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.campaigns.myApplications() });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.campaigns.allApplications() });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.campaigns.list() });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.influencer() });
+        await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.company() });
+
+        if (selectedConversation?.campaignId) {
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.campaigns.details(selectedConversation.campaignId),
+          });
+          await queryClient.invalidateQueries({
+            queryKey: queryKeys.campaigns.applications(selectedConversation.campaignId),
+          });
+        }
+
+        // Navigate back to campaigns page
+        navigate(
+          role === "company"
+            ? "/dashboard/company/campaigns"
+            : "/dashboard/influencer",
+          { replace: true },
+        );
+      }
+
       return true;
     },
-    [queryClient, selectedConvId, sendMutation],
+    [queryClient, navigate, role, selectedConvId, selectedConversation?.applicationId, selectedConversation?.campaignId, sendMutation, stateLocation?.applicationId, stateLocation?.campaignId],
   );
 
   const handleContentDeliverySubmit = useCallback(
@@ -1668,6 +1739,7 @@ function ChatPage({
     async (
       messageId: string,
       status: "accepted" | "rejected",
+      reason?: string,
     ) => {
       if (!selectedConvId) return false;
 
@@ -1684,7 +1756,8 @@ function ChatPage({
           status,
           rejection_reason:
             status === "rejected"
-              ? t(
+              ? reason ||
+                t(
                   "chat.modificationRequest.rejectionReasonFallback",
                   "The influencer rejected the modification request.",
                 )
@@ -1696,6 +1769,13 @@ function ChatPage({
         message: buildModificationResponseMessage(modificationId, status),
         type: "text",
       });
+
+      if (status === "rejected" && reason) {
+        await sendMutation.mutateAsync({
+          message: reason,
+          type: "text",
+        });
+      }
 
       await queryClient.invalidateQueries({
         queryKey: queryKeys.chat.messages(selectedConvId),

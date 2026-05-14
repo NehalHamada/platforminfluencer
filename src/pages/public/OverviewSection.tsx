@@ -210,7 +210,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
 
         {/* Desktop Layout (Restored Original) */}
         <div className="hidden lg:block">
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+          <div className="mb-6 mt-10 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
             <h2
               className={cn(
                 "font-bold text-[#202020]",

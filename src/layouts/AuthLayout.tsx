@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import Footer from "@/components/common/Footer";
+
 import LanguageToggle from "@/components/common/LanguageToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";

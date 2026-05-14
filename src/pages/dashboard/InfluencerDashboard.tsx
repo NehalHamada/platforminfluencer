@@ -12,6 +12,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
 import { useInfluencerDashboardQuery } from "@/queries/dashboard/useInfluencerDashboardQuery";
+import { useRespondToCollaborationRequestMutation } from "@/queries/campaigns/useRespondToCollaborationRequestMutation";
+import { useCampaignStore } from "@/store/campaign.store";
+import { isClosedCampaignStatus } from "@/utils/campaignProgress";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/constants/queryKeys";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+
 import { useAuthStore } from "@/store/auth.store";
 import type { AuthUser } from "@/types/auth.types";
 import type { InfluencerDashboardResponse } from "@/types/dashboard.types";
@@ -30,32 +44,32 @@ const staticLatestActivities = [
     id: 1,
     src: "/assets/platImg1.png",
     alt: "Recent activity",
-    className: "h-9 w-12 sm:h-14 sm:w-20",
+    className: "h-9 w-12 sm:h-20 sm:w-28 sm:-mb-4",
   },
   {
     id: 2,
     src: "/assets/platImg.png",
     alt: "Recent activity",
-    className: "h-14 w-14 sm:h-[5.5rem] sm:w-[5.5rem]",
+    className: "h-14 w-14 sm:h-28 sm:w-28 sm:-mb-2",
   },
   {
     id: 3,
     src: "/assets/iphone2.png",
     alt: "Recent activity",
-    className: "h-20 w-16 sm:h-[7.5rem] sm:w-[6.5rem]",
+    className: "h-20 w-16 sm:h-44 sm:w-36",
     featured: true,
   },
   {
     id: 4,
     src: "/assets/user1.png",
     alt: "Recent activity",
-    className: "h-14 w-14 sm:h-[5.5rem] sm:w-[5.5rem]",
+    className: "h-14 w-14 sm:h-28 sm:w-28 sm:-mb-2",
   },
   {
     id: 5,
     src: "/assets/infImg3.png",
     alt: "Recent activity",
-    className: "h-9 w-12 sm:h-14 sm:w-20",
+    className: "h-9 w-12 sm:h-20 sm:w-28 sm:-mb-4",
   },
 ];
 
@@ -152,16 +166,20 @@ function SectionTitle({
 }
 
 function InfluencerDashboard() {
+  const respondMutation = useRespondToCollaborationRequestMutation();
+
+  const queryClient = useQueryClient();
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const { rejectedCampaignIds, addRejectedCampaignId } = useCampaignStore();
   const [showAllUpcomingMobile, setShowAllUpcomingMobile] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const authUser = useAuthStore((state) => state.user);
   const {
     data: dashboardData,
     isLoading,
     isError,
   } = useInfluencerDashboardQuery();
-  const collaborationRequestsQuery = useCollaborationRequestsQuery();
 
   const isRTL = i18n.dir() === "rtl";
   const storedUser = getStoredUser();
@@ -213,7 +231,9 @@ function InfluencerDashboard() {
           defaultValue: fallback,
         })
       : fallback;
-  const recommendedCampaignCards = data.upcomingCampaigns.map((campaign, index) => ({
+  const recommendedCampaignCards = data.upcomingCampaigns
+    .filter((c) => !isClosedCampaignStatus(c.status))
+    .map((campaign, index) => ({
         id: campaign.id,
         image: index % 2 === 0 ? "/assets/choImg3.png" : "/assets/choImg4.png",
         title: campaign.type,
@@ -234,38 +254,23 @@ function InfluencerDashboard() {
         ),
         typeId: campaign.typeId,
       }));
-  const cooperationRequests = useMemo(
-    () =>
-      (collaborationRequestsQuery.data?.data ?? [])
-        .filter((request) => request.campaign)
-        .map((request) => {
-          const campaign = request.campaign!;
-          return {
-            id: request.id,
-            companyName: getRequestCompanyName(request),
-            contentType:
-              campaign.campaign_type?.name ??
-              campaign.campaignType?.name ??
-              campaign.campaign_type_name ??
-              campaign.idea ??
-              "-",
-            date:
-              campaign.execution_time?.name ??
-              campaign.executionTime?.name ??
-              campaign.created_at ??
-              "-",
-            budget:
-              request.price !== undefined && request.price !== null
-                ? String(request.price)
-                : (campaign.budget_range?.name ??
-                  campaign.budgetRange?.name ??
-                  campaign.budget_range_name ??
-                  "-"),
-            status: request.status,
-          };
-        }),
-    [collaborationRequestsQuery.data?.data],
-  );
+
+  const handleReject = (requestId: number | string, campaignId: number | string) => {
+    respondMutation.mutate(
+      {
+        requestId,
+        status: "rejected",
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["campaigns", "collaboration-requests"] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.influencer() });
+        },
+      }
+    );
+
+    addRejectedCampaignId(campaignId);
+  };
   const postsCollage = staticLatestActivities;
 
   if (location.pathname !== "/dashboard/influencer") {
@@ -287,290 +292,362 @@ function InfluencerDashboard() {
 
       <main className="relative -mt-4 bg-[rgba(251,251,251,1)] px-0 pb-0 sm:-mt-5 sm:rounded-t-3xl">
         <div className="rounded-t-[12px] bg-[#f7f7f7] px-2.5 pb-16 pt-4 shadow-[0_-1px_0_rgba(0,0,0,0.03)] sm:rounded-t-[16px] sm:px-8 sm:pt-5 lg:px-9">
+          {/* Mobile Header Layout */}
+          <div className={cn(
+            "mb-8 flex items-center justify-between sm:hidden",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <div className={cn(
+              "flex flex-col gap-1",
+              isRTL ? "items-start" : "items-end"
+            )}>
+              <p className="text-[17px] font-bold text-[#232323]">
+                {data.profile.name}
+              </p>
+              <div className="flex items-center gap-1.5 rounded-full border border-[#ecece7] bg-white px-3 py-1 text-[11px] font-medium shadow-sm">
+                <span className="font-bold text-[#34a853]">{t("influencerDashboard.verified")}</span>
+                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-[#34a853] text-white">
+                  <ShieldCheck className="h-2.5 w-2.5" />
+                </div>
+              </div>
+            </div>
+
+            <Avatar className="h-16 w-16 border-4 border-white shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+              <AvatarImage
+                src={data.profile.avatar || undefined}
+                alt={data.profile.name}
+              />
+              <AvatarFallback
+                className={cn("text-lg font-semibold text-white", avatarColor)}>
+                {profileInitial}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          {/* Desktop Header Layout */}
           <div
             className={cn(
-              "mb-5 flex items-start justify-end gap-4 sm:mb-8 sm:justify-between",
-              isRTL ? "flex-row" : "flex-row",
+              "mb-8 hidden items-center justify-between sm:mb-12 sm:flex",
+              isRTL ? "flex-row" : "flex-row-reverse",
             )}>
-            <Button
-              variant="outline"
-              className="hidden h-6 rounded-sm border-[#d9d9d9] bg-white px-3 text-[9px] text-[#666666] shadow-none hover:bg-[#fafafa] sm:inline-flex">
-              {t("influencerDashboard.verify")}
-              <ShieldCheck className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex items-center gap-1.5 rounded-md border border-[#ecece7] bg-white px-3 py-1.5 text-[11px] font-medium text-[#232323] shadow-sm sm:px-4 sm:py-2 sm:text-sm">
+              <span className="opacity-80">{t("influencerDashboard.verified")}</span>
+              <ShieldCheck className="h-4 w-4 text-[#a37bb0] sm:h-5 sm:w-5" />
+            </div>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className={isRTL ? "text-right" : "text-left"}>
-                <p className="text-[10px] font-medium text-[#2f2f2f] sm:text-sm">
-                  {data.profile.name}
-                </p>
-                <p className="mt-0.5 text-[8px] font-medium text-[#8a9f68] sm:hidden">
-                  {isLoading
-                    ? t("influencerDashboard.loading")
-                    : isError
-                      ? t("influencerDashboard.error")
-                      : t("influencerDashboard.verify")}
-                </p>
-              </div>
-
-              <Avatar className="h-7 w-7 sm:h-9 sm:w-9">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <p className="text-sm font-bold text-[#232323] sm:text-lg">
+                {data.profile.name}
+              </p>
+              <Avatar className="h-10 w-10 border border-white shadow-sm sm:h-14 sm:w-14">
                 <AvatarImage
                   src={data.profile.avatar || undefined}
                   alt={data.profile.name}
                 />
                 <AvatarFallback
-                  className={cn("text-xs font-semibold text-white", avatarColor)}>
+                  className={cn("text-sm font-semibold text-white sm:text-lg", avatarColor)}>
                   {profileInitial}
                 </AvatarFallback>
               </Avatar>
             </div>
           </div>
 
-          <section className="mb-6 sm:mb-10">
-            <div className="sm:hidden">
-              <SectionTitle title={t("influencerDashboard.currentInfo")} />
-            </div>
-            <div className={cn("mb-6 hidden sm:block text-center")}>
-              <h2 className="inline-block  border-b border-[#1f1f1f] pb-1 text-base font-bold text-[#232323]">
-                {t("influencerDashboard.currentInfo")}
+          <section className="mb-10 sm:mb-16">
+            <div className="mb-10 text-center">
+              <h2 className="relative inline-block pb-3 text-base font-bold text-[#1a1a1a] sm:text-2xl">
+                {t("influencerDashboard.currentTasks")}
+                <span className="absolute bottom-0 left-1/2 h-0.5 w-full -translate-x-1/2 bg-[#1a1a1a]" />
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 gap-2.5 sm:mx-auto sm:max-w-147.5 sm:grid-cols-2 sm:gap-4">
-              {data.currentInfo.map((item) => (
-                <div key={item.id} className="relative pb-5 sm:pb-7">
-                  <Card className="rounded-sm border-0 bg-[#ededed] py-0 shadow-none sm:overflow-hidden sm:rounded-[8px]">
-                    <CardContent className="px-2 py-1.5 sm:px-0 sm:py-0">
-                      <div className="mb-1.5 bg-[#e2e4dd] py-1 text-center text-[8px] text-[#8c8c8c] sm:mb-0 sm:bg-[#dedede] sm:px-5 sm:py-2 sm:text-[12px]">
-                        <span className="hidden text-[#879b6d] sm:inline">
-                          {t("influencerDashboard.deadline", "Deadline")} :
-                        </span>{" "}
-                        {item.date}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "space-y-0.5 text-[8px] leading-4 text-[#555] sm:space-y-2 sm:px-5 sm:py-3 sm:text-[12px] sm:leading-5",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        <p>
-                          <span className="hidden font-bold text-[#282828] sm:inline">
-                            {t("influencerDashboard.campaignName", "Campaign name")} :
-                          </span>{" "}
-                          {item.title}
-                        </p>
-                        <p>
-                          <span className="hidden font-bold text-[#282828] sm:inline">
-                            {t("influencerDashboard.currentTask", "Current task")} :
-                          </span>{" "}
-                          {item.company}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Button
-                    type="button"
-                    className={cn(
-                      "mt-1.5 bg-transparent text-[8px] font-medium text-[#4a4a4a] underline underline-offset-2 sm:absolute sm:bottom-0 sm:h-8 sm:min-w-22 sm:rounded-t-none sm:rounded-b-[8px] sm:bg-white sm:px-5 sm:text-[12px] sm:shadow-none hover:bg-white",
-                      isRTL ? "text-right sm:right-0" : "text-left sm:left-0",
-                    )}>
-                    {t("influencerDashboard.editProfile")}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {(collaborationRequestsQuery.isLoading || cooperationRequests.length > 0) ? (
-            <section className="mb-7 sm:mb-10">
-              <SectionTitle title={t("cooperation.title")} />
-
-              {collaborationRequestsQuery.isLoading ? (
-                <div className="flex justify-center py-6">
-                  <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#94a67d] border-t-transparent" />
-                </div>
+            <div className="sm:mx-auto sm:max-w-[850px]">
+              {data.currentInfo.length === 0 ? (
+                <Card className="flex flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-[#eef1e6] bg-transparent px-6 py-10 text-center">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f2f4ee]">
+                    <ShieldCheck className="h-6 w-6 text-[#94a67d]" />
+                  </div>
+                  <p className="mb-2 text-sm font-bold text-[#8b9870]">
+                    {t("influencerDashboard.noActiveTasks")}
+                  </p>
+                  <p className="max-w-xs text-xs leading-5 text-[#b0b0a0]">
+                    {t("influencerDashboard.noActiveTasksSubtitle")}
+                  </p>
+                </Card>
               ) : (
-                <div className="space-y-3 sm:mx-auto sm:max-w-147.5">
-                  {cooperationRequests.map((item) => (
-                    <Card
-                      key={`cooperation-${item.id}`}
-                      className="rounded-[10px] border border-[#eceee9] bg-white py-0 shadow-[0_6px_18px_rgba(0,0,0,0.05)] sm:rounded-[8px]">
-                      <CardContent className="px-4 py-4 text-center sm:grid sm:min-h-24 sm:grid-cols-[15rem_1fr] sm:items-center sm:gap-8 sm:px-4 sm:py-3 sm:text-right">
-                        <div className="text-[15px] font-bold tracking-tight text-[#161616] sm:hidden">
-                          {item.companyName}
-                        </div>
-
-                        <div
-                          className={cn(
-                            "mt-4 space-y-3 text-[13px] leading-5 text-[#303030] sm:mt-0 sm:flex sm:items-center sm:justify-end sm:gap-8 sm:space-y-0 sm:text-[12px] sm:leading-5",
-                            isRTL ? "sm:text-right" : "sm:text-left",
-                          )}>
-                          <strong className="hidden shrink-0 text-lg font-black text-[#090909] sm:block">
-                            {item.companyName}
-                          </strong>
-
-                          <div className="space-y-3 sm:space-y-2">
-                            <p>
-                              <span className="font-bold text-[#242424]">
-                                {t("cooperation.contentType")} :
-                              </span>{" "}
-                              {item.contentType}
-                            </p>
-                            <p>
-                              <span className="font-bold text-[#242424]">
-                                {t("cooperation.date")} :
-                              </span>{" "}
-                              {item.date}
-                            </p>
-                            <p>
-                              <span className="font-bold text-[#242424]">
-                                {t("cooperation.budget")} :
-                              </span>{" "}
-                              {item.budget}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="hidden items-center justify-start gap-3 sm:flex">
-                          <Badge className="flex h-9 w-28 items-center justify-center rounded-full bg-[#94a67d] px-5 text-sm font-medium text-white hover:bg-[#94a67d]">
-                            {t(`influencerDashboard.status.${item.status}`, {
-                              defaultValue: item.status,
-                            })}
-                          </Badge>
-
-                          <Button
-                            asChild
-                            type="button"
-                            variant="outline"
-                            className="h-9 w-28 rounded-full border border-[#94a67d] bg-white px-6 text-sm font-medium text-[#555] shadow-none hover:bg-white">
-                            <Link to="/dashboard/influencer/cooperation">
-                              {t("cooperation.title")}
-                            </Link>
-                          </Button>
-                        </div>
-
-                        <div className="mt-4 grid grid-cols-2 gap-3 sm:hidden">
-                          <Badge className="flex h-8 items-center justify-center rounded-full bg-[#94a67d] px-5 text-xs font-medium text-white hover:bg-[#94a67d]">
-                            {t(`influencerDashboard.status.${item.status}`, {
-                              defaultValue: item.status,
-                            })}
-                          </Badge>
-
-                          <Button
-                            asChild
-                            type="button"
-                            variant="outline"
-                            className="h-8 rounded-full border border-[#94a67d] bg-white px-5 text-xs font-medium text-[#555] shadow-none hover:bg-white">
-                            <Link to="/dashboard/influencer/cooperation">
-                              {t("cooperation.title")}
-                            </Link>
-                          </Button>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-8">
+                  {data.currentInfo.map((item) => (
+                    <Card key={item.id} className="group relative overflow-hidden rounded-[15px] border-0 bg-[#f4f4f4] shadow-none sm:rounded-[20px]">
+                      <div className="bg-[#e2e4dd] px-4 py-2.5 text-center text-[11px] font-medium text-[#8a947d] sm:px-6 sm:py-3 sm:text-[14px]">
+                        {t("influencerDashboard.deadline")} : {item.date}
+                      </div>
+                      
+                      <CardContent className={cn(
+                        "px-6 py-6 pb-14 text-[11px] leading-relaxed text-[#232323] sm:px-8 sm:py-8 sm:pb-16 sm:text-[15px]",
+                        isRTL ? "text-right" : "text-left"
+                      )}>
+                        <div className="space-y-2 sm:space-y-3">
+                          <p>
+                            <span className="font-bold">{t("influencerDashboard.campaignName")} :</span>{" "}
+                            {item.title}
+                          </p>
+                          <p>
+                            <span className="font-bold">{t("influencerDashboard.currentTask")} :</span>{" "}
+                            {t("influencerDashboard.publishContent")}
+                          </p>
                         </div>
                       </CardContent>
+
+                      <div className={cn(
+                        "absolute bottom-0 h-11 bg-white px-6 py-2 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] transition-all sm:h-13 sm:px-8 sm:py-3",
+                        isRTL ? "left-0 rounded-tr-[20px]" : "right-0 rounded-tl-[20px]"
+                      )}>
+                        <Link
+                          to={`/dashboard/influencer/${item.id}/publish`}
+                          className="cursor-pointer text-[11px] font-bold text-[#232323] underline underline-offset-4 decoration-2 hover:text-black sm:text-[15px]"
+                        >
+                          {t("influencerDashboard.publishContent")}
+                        </Link>
+                      </div>
                     </Card>
                   ))}
                 </div>
               )}
-            </section>
-          ) : null}
+            </div>
+          </section>
 
-          <section className="mb-7 sm:mb-10">
-            <SectionTitle title={t("influencerDashboard.upcomingCampaigns")} />
 
-            <div className="space-y-3 sm:mx-auto sm:max-w-147.5">
-              {data.upcomingCampaigns.map((item, index) => (
+
+          <Dialog open={!!selectedCampaign} onOpenChange={() => setSelectedCampaign(null)}>
+            <DialogContent className="w-[92%] max-w-lg overflow-hidden rounded-[30px] p-0 sm:rounded-[40px] border-0 [&>button]:hidden">
+              <DialogHeader className="bg-[#f2f4ee] px-8 py-6 relative">
+                <DialogTitle className={cn(
+                  "text-xl font-bold text-[#1a1a1a] sm:text-2xl",
+                  isRTL ? "text-right" : "text-left"
+                )}>
+                  {t("influencerDashboard.viewDetails")}
+                </DialogTitle>
+              </DialogHeader>
+              
+              <ScrollArea className="max-h-[70vh] p-8">
+                {selectedCampaign && (
+                  <div className={cn(
+                    "space-y-8",
+                    isRTL ? "text-right" : "text-left"
+                  )} dir={isRTL ? "rtl" : "ltr"}>
+                    <div>
+                      <h4 className="mb-4 text-lg font-black text-[#94a67d]">
+                        {t("influencerDashboard.campaignName")}
+                      </h4>
+                      <p className="text-base leading-relaxed text-[#444]">
+                        {selectedCampaign.campaignName || selectedCampaign.brand || selectedCampaign.companyName}
+                      </p>
+                    </div>
+
+                    <Separator className="bg-[#eef1e6]" />
+
+                    <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                      <div>
+                        <h4 className="mb-2 text-sm font-bold text-[#888]">
+                          {t("influencerDashboard.date")}
+                        </h4>
+                        <p className="text-base font-medium text-[#1a1a1a]">
+                          {selectedCampaign.date}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="mb-2 text-sm font-bold text-[#888]">
+                          {t("influencerDashboard.suggestedBudget")}
+                        </h4>
+                        <p className="text-base font-medium text-[#1a1a1a]">
+                          {selectedCampaign.budget} {isRTL ? "ريال" : "SAR"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Separator className="bg-[#eef1e6]" />
+
+                    <div>
+                      <h4 className="mb-4 text-lg font-black text-[#94a67d]">
+                        {t("influencerDashboard.contentType")}
+                      </h4>
+                      <p className="text-base leading-relaxed text-[#444]">
+                        {selectedCampaign.type}
+                      </p>
+                    </div>
+
+                    {selectedCampaign.campaign?.description && (
+                      <>
+                        <Separator className="bg-[#eef1e6]" />
+                        <div>
+                          <h4 className="mb-4 text-lg font-black text-[#94a67d]">
+                            {t("influencerDashboard.campaignDescription", "Campaign Description")}
+                          </h4>
+                          <p className="text-base leading-relaxed text-[#444]">
+                            {selectedCampaign.campaign.description}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </ScrollArea>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 p-8 pt-0">
+                <Button 
+                  asChild
+                  className="h-12 min-w-40 rounded-full bg-[#94a67d] font-bold text-white hover:bg-[#86976f]"
+                >
+                  <Link to="/dashboard/influencer/cooperation">
+                    {t("nav.cooperation")}
+                  </Link>
+                </Button>
+                <Button 
+                  variant="ghost"
+                  onClick={() => setSelectedCampaign(null)}
+                  className="h-12 min-w-32 rounded-full font-bold text-[#888] hover:bg-[#f8f9f4]"
+                >
+                  {isRTL ? "إغلاق" : "Close"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <section className="mb-12 sm:mb-20">
+            <div className="mb-10 text-center">
+              <h2 className="relative inline-block pb-1 text-base font-bold text-[#1a1a1a] sm:text-2xl">
+                {t("influencerDashboard.newCooperationRequests")}
+                <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#1a1a1a]" />
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:mx-auto sm:max-w-[1000px]">
+              {data.upcomingCampaigns
+                .filter((item) => !rejectedCampaignIds.includes(String(item.campaignId || item.id)))
+                .map((item, index) => (
                 <div
                   key={item.id}
                   className={cn(
                     index > 0 && !showAllUpcomingMobile && "hidden sm:block",
                   )}>
-                  <Card className="rounded-[10px] border border-[#eceee9] bg-linear-to-b from-white to-[#eef2e8] py-0 shadow-[0_6px_18px_rgba(0,0,0,0.06)] sm:rounded-[8px] sm:border-0 sm:bg-linear-to-b sm:from-white sm:to-[#eef2e8] sm:shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
-                    <CardContent className="px-4 py-4 text-center sm:grid sm:min-h-25 sm:grid-cols-[15rem_1fr] sm:items-center sm:gap-8 sm:px-4 sm:py-3 sm:text-right">
-                      <div className="text-[15px] font-bold tracking-tight text-[#161616] sm:hidden">
-                        {item.brand}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "mt-4 space-y-3 text-[13px] leading-5 text-[#303030] sm:mt-0 sm:flex sm:items-center sm:justify-end sm:gap-8 sm:space-y-0 sm:text-[12px] sm:leading-5 sm:text-[#303030]",
-                          isRTL ? "sm:text-right" : "sm:text-left",
-                        )}>
-                        <strong className="hidden shrink-0 text-lg font-black tracking-[-0.04em] text-[#090909] sm:block">
+                  {/* Mobile Layout */}
+                  <div className="mb-8 block sm:hidden">
+                    <div className="rounded-[30px] bg-[#f2f4ee] p-6 text-center">
+                      <div className="mb-4 flex items-center justify-center gap-2">
+                        <span className="text-xl font-black tracking-tighter text-[#1a1a1a] uppercase">
                           {item.brand}
-                        </strong>
-
-                        <div className="space-y-3 sm:space-y-2">
-                          <p>
-                            <span className="font-bold text-[#242424]">
-                              {t("influencerDashboard.contentType", "Content type")} :
-                            </span>{" "}
-                            {getMasterDataTranslation(
-                              "campaignTypes",
-                              item.typeId,
-                              item.type,
-                            )}
-                          </p>
-                          <p>
-                            <span className="font-bold text-[#242424]">
-                              {t("influencerDashboard.date", "Date")} :
-                            </span>{" "}
-                            {getMasterDataTranslation(
-                              "executionTimes",
-                              item.dateId,
-                              item.date,
-                            )}
-                          </p>
-                          <p>
-                            <span className="font-bold text-[#242424]">
-                              {t("influencerDashboard.suggestedBudget", "Suggested budget")} :
-                            </span>{" "}
-                            {getMasterDataTranslation(
-                              "budgetRanges",
-                              item.budgetId,
-                              item.budget,
-                            )}
-                          </p>
+                        </span>
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1a1a1a] text-white">
+                          <span className="text-xs">✦</span>
                         </div>
                       </div>
-                      <div className="hidden items-center justify-start gap-3 sm:flex">
-                        <Badge className="flex h-9 w-28 items-center justify-center rounded-full bg-[#94a67d] px-5 text-sm font-medium text-white hover:bg-[#94a67d]">
-                          {t(`influencerDashboard.status.${item.status}`)}
-                        </Badge>
+                      <div className="space-y-2.5 text-[14px] text-[#232323]">
+                        <p className="flex items-center justify-center gap-1.5">
+                          <span className="font-bold">{t("influencerDashboard.contentType")} :</span>{" "}
+                          {getMasterDataTranslation("campaignTypes", item.typeId, item.type)}
+                        </p>
+                        <p className="flex items-center justify-center gap-1.5">
+                          <span className="font-bold">{t("influencerDashboard.date")} :</span>{" "}
+                          {getMasterDataTranslation("executionTimes", item.dateId, item.date)}
+                        </p>
+                        <p className="flex items-center justify-center gap-1.5">
+                          <span className="font-bold">{t("influencerDashboard.suggestedBudget")} :</span>{" "}
+                          {getMasterDataTranslation("budgetRanges", item.budgetId, item.budget)} {isRTL ? "ريال" : "SAR"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={cn(
+                      "mt-4 flex items-center gap-4",
+                      isRTL ? "flex-row" : "flex-row-reverse"
+                    )}>
+                      <Button
+                        onClick={() => setSelectedCampaign(item)}
+                        className="h-12 flex-1 rounded-full bg-[#94a67d] text-sm font-bold text-white shadow-none">
+                        {t("influencerDashboard.viewDetails")}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleReject(item.id, item.campaignId || item.id)}
+                        className="h-12 flex-1 rounded-full border-2 border-dashed border-[#f87171] bg-white text-sm font-bold text-[#f87171] shadow-none">
+                        {respondMutation.isPending && String(respondMutation.variables?.requestId) === String(item.id) 
+                          ? t("cooperation.rejecting") 
+                          : t("influencerDashboard.reject")}
+                      </Button>
+                    </div>
+                  </div>
 
+                  {/* Desktop Layout */}
+                  <Card className="group hidden sm:block overflow-hidden rounded-[25px] border-0 bg-[#f2f4ee] p-0 shadow-none sm:rounded-[30px]">
+                    <CardContent className={cn(
+                      "flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:p-8",
+                      isRTL ? "sm:flex-row" : "sm:flex-row-reverse"
+                    )}>
+                      {/* Brand / Logo Section */}
+                      <div className={cn(
+                        "flex min-w-[120px] items-center justify-center sm:justify-end",
+                        isRTL ? "sm:order-1" : "sm:order-3"
+                      )}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl font-black tracking-tighter text-[#1a1a1a] sm:text-2xl uppercase">
+                            {item.brand}
+                          </span>
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1a1a1a] text-white">
+                            <span className="text-xs">✦</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Info Section */}
+                      <div className={cn(
+                        "flex-1 space-y-2 text-[13px] text-[#232323] sm:space-y-2.5 sm:text-[15px]",
+                        isRTL ? "sm:order-2 text-right" : "sm:order-2 text-left"
+                      )}>
+                        <p>
+                          <span className="font-bold">{t("influencerDashboard.contentType")} :</span>{" "}
+                          {getMasterDataTranslation("campaignTypes", item.typeId, item.type)}
+                        </p>
+                        <p>
+                          <span className="font-bold">{t("influencerDashboard.date")} :</span>{" "}
+                          {getMasterDataTranslation("executionTimes", item.dateId, item.date)}
+                        </p>
+                        <p>
+                          <span className="font-bold">{t("influencerDashboard.suggestedBudget")} :</span>{" "}
+                          {getMasterDataTranslation("budgetRanges", item.budgetId, item.budget)} {isRTL ? "ريال" : "SAR"}
+                        </p>
+                      </div>
+
+                      {/* Buttons Section */}
+                      <div className={cn(
+                        "flex items-center gap-3 sm:gap-4",
+                        isRTL ? "sm:order-3" : "sm:order-1"
+                      )}>
                         <Button
-                          type="button"
+                          onClick={() => setSelectedCampaign(item)}
+                          className="h-10 rounded-full bg-[#94a67d] px-6 text-sm font-bold text-white shadow-none hover:bg-[#86976f] sm:h-12 sm:px-8 sm:text-base">
+                          {t("influencerDashboard.viewDetails")}
+                        </Button>
+                        <Button
                           variant="outline"
-                          className="h-9 w-28 rounded-full border border-[#f06f67] bg-white px-6 text-sm font-medium text-[#555] shadow-none hover:bg-white">
-                          {t("influencerDashboard.reject")}
+                          onClick={() => handleReject(item.id, item.campaignId || item.id)}
+                          className="h-10 rounded-full border-[#fca5a5] bg-white px-6 text-sm font-bold text-[#f87171] shadow-none hover:bg-[#fff5f5] hover:text-[#ef4444] sm:h-12 sm:px-8 sm:text-base whitespace-nowrap">
+                          {respondMutation.isPending && String(respondMutation.variables?.requestId) === String(item.id) 
+                            ? t("cooperation.rejecting") 
+                            : t("influencerDashboard.reject")}
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
-
-                  <div className="mt-2 grid grid-cols-2 gap-3 sm:hidden">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-8 rounded-full border border-dashed border-[#db8d88] bg-white px-5 text-xs font-medium text-[#b65a55] shadow-none hover:bg-white">
-                      {t("influencerDashboard.reject")}
-                    </Button>
-
-                    <Badge className="flex h-8 items-center justify-center rounded-full bg-[#94a67d] px-5 text-xs font-medium text-white hover:bg-[#94a67d]">
-                      {t(`influencerDashboard.status.${item.status}`)}
-                    </Badge>
-                  </div>
-
-                  <Button
-                    type="button"
-                    onClick={() => setShowAllUpcomingMobile((value) => !value)}
-                    className="mx-auto bg-transparent mt-4 block text-xs text-[#8b9870] underline underline-offset-2 sm:hidden">
-                    {showAllUpcomingMobile
-                      ? t("influencerDashboard.showLess", "Show less")
-                      : t("influencerDashboard.showAll", "Show all")}
-                  </Button>
                 </div>
               ))}
+              {data.upcomingCampaigns.length > 0 && (
+                <Button
+                  type="button"
+                  onClick={() => setShowAllUpcomingMobile((value) => !value)}
+                  className="mx-auto bg-transparent mt-2 block text-[15px] text-[#8b9870] underline underline-offset-4 sm:hidden">
+                  {showAllUpcomingMobile
+                    ? t("influencerDashboard.showLess", "Show less")
+                    : t("influencerDashboard.showAll", "Show all")}
+                </Button>
+              )}
             </div>
           </section>
 
@@ -596,22 +673,19 @@ function InfluencerDashboard() {
             />
 
             <div
-              className="relative z-10 -mx-3 flex max-w-none items-end justify-center gap-1 overflow-hidden px-0 pb-2 pt-1 sm:mx-auto sm:max-w-108 sm:px-1 sm:gap-2"
+              className="relative z-10 -mx-3 flex max-w-none items-center justify-center gap-1 overflow-hidden px-0 pb-2 pt-1 sm:mx-auto sm:max-w-2xl sm:items-end sm:gap-0"
               aria-label={t("influencerDashboard.latestActivities")}>
-              {postsCollage.map((item, index) => (
+              {postsCollage.map((item) => (
                 <div
                   key={item.id}
                   className={cn(
                     "relative shrink-0 overflow-hidden rounded-lg bg-white shadow-[0_8px_22px_rgba(0,0,0,0.08)]",
                     item.className,
-                    index === 1 && "-me-1 sm:-me-3",
-                    index === 3 && "-ms-1 sm:-ms-3",
-                    item.featured &&
-                      "z-20 shadow-[0_12px_30px_rgba(0,0,0,0.18)]",
+                    item.featured ? "z-30 shadow-[0_12px_40px_rgba(0,0,0,0.18)] sm:scale-110" : "z-10 sm:-mx-4",
                   )}>
                   <img
-                    src={item.src}
-                    alt={item.alt}
+                    src={item.src || item.image}
+                    alt={item.alt || item.title}
                     className={cn(
                       "h-full w-full object-cover",
                       item.featured && "brightness-90",

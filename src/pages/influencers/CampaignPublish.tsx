@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { CalendarDays, Check, Circle, MessageCircleMore } from "lucide-react";
+import {
+  CalendarDays,
+  Check,
+  Circle,
+  MessageCircleMore,
+  Link2,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   useLocation,
@@ -8,13 +15,14 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import hero from "/assets/Hero.png";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+
 import { queryKeys } from "@/constants/queryKeys";
 import { cn } from "@/lib/utils";
 import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";
@@ -113,6 +121,8 @@ const getCompletedSteps = (
 };
 
 function CampaignPublish() {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -224,10 +234,9 @@ function CampaignPublish() {
   );
   const isApprovedFromEndpoint = isContentApprovedStatus(application?.status);
   const isApproved = isApprovedFromEndpoint || hasApprovedMessage;
-  const statusLabel =
-    isApproved
-      ? "تمت الموافقة على المحتوى"
-      : hasDeliveredContent
+  const statusLabel = isApproved
+    ? "تمت الموافقة على المحتوى"
+    : hasDeliveredContent
       ? "بانتظار موافقة الشركة"
       : getStatusLabel(application?.status);
   const completedSteps = getCompletedSteps(
@@ -263,7 +272,9 @@ function CampaignPublish() {
 
   useEffect(() => {
     if (!application || !isApproved) return;
-    const latestContentMessage = getLatestContentMessage(messagesQuery.data?.data);
+    const latestContentMessage = getLatestContentMessage(
+      messagesQuery.data?.data,
+    );
 
     saveCompletedCampaignEntry({
       conversationId,
@@ -441,7 +452,7 @@ function CampaignPublish() {
   };
 
   return (
-    <section dir="rtl" className="relative -mt-24 overflow-x-hidden bg-[#f4f4f2]">
+    <section dir={isRTL ? "rtl" : "ltr"} className="relative -mt-24 overflow-x-hidden bg-white">
       <div className="relative h-56 w-full overflow-hidden sm:h-80">
         <img
           src={hero}
@@ -454,11 +465,12 @@ function CampaignPublish() {
         </h1>
       </div>
 
-      <div className="relative z-10 -mt-9 min-h-[430px] rounded-t-[28px] bg-white px-4 pb-20 pt-7 sm:-mt-10 sm:rounded-t-[34px] sm:bg-[#f7f6f2] sm:px-6 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-10 lg:pt-8">
+      <div className="relative z-10 -mt-9 min-h-[430px] rounded-t-[28px] bg-white px-4 pb-20 pt-7 sm:-mt-10 sm:rounded-t-[34px] sm:px-6 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-10 lg:pt-8">
         <div className="mx-auto max-w-md sm:max-w-4xl">
-          <div className="bg-white shadow-none sm:rounded-[28px] sm:p-6 sm:shadow-[0_16px_48px_rgba(28,30,24,0.06)] lg:p-8">
-            <div className="rounded-none bg-white p-0 sm:rounded-[22px] sm:bg-[#fbfaf7] sm:p-6">
-              {applicationsQuery.isLoading || collaborationRequestsQuery.isLoading ? (
+          <div className="p-0 sm:p-6 lg:p-8">
+            <div className="p-0 sm:p-6">
+              {applicationsQuery.isLoading ||
+              collaborationRequestsQuery.isLoading ? (
                 <div className="flex items-center justify-center py-20">
                   <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#9baa87] border-t-transparent" />
                 </div>
@@ -467,66 +479,99 @@ function CampaignPublish() {
                   لا توجد حملة نشطة للمتابعة حاليا
                 </div>
               ) : view === "form" ? (
-                <form onSubmit={handleSubmit} className="mx-auto max-w-md pb-16 pt-2 sm:py-8">
-                  <h1 className="mx-auto mb-7 w-fit border-b border-[#20231f] pb-1 text-center text-[12px] font-semibold text-[#252722] sm:text-sm">
-                    إرسال محتوى الحملة
+                <form
+                  onSubmit={handleSubmit}
+                  className="mx-auto max-w-md pb-8 pt-2">
+                  <h1 className="mx-auto mb-10 w-fit border-b border-black pb-1 text-center text-[14px] font-bold text-[#252722] sm:text-base">
+                    {t(
+                      "influencerDashboard.publishForm.title",
+                      "قم بنشر محتوى الحملة",
+                    )}
                   </h1>
 
-                  <div className="space-y-3">
-                    <label className="block text-center text-[11px] font-medium text-[#3b3d37]">
-                      رابط المحتوى النهائي
-                      <Input
-                        value={form.mediaUrl}
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            mediaUrl: event.target.value,
-                          }))
-                        }
-                        placeholder="https://..."
-                        className="mt-2 h-8 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[11px] shadow-none"
-                      />
+                  <div className="space-y-5">
+                    <label className="block text-start text-[11px] font-bold text-[#3b3d37] sm:text-[12px]">
+                      {t(
+                        "influencerDashboard.publishForm.link",
+                        "رابط المحتوى المنشور",
+                      )}
+                      <div className="relative mt-2">
+                        <Input
+                          value={form.mediaUrl}
+                          onChange={(event) =>
+                            setForm((current) => ({
+                              ...current,
+                              mediaUrl: event.target.value,
+                            }))
+                          }
+                          placeholder=""
+                          className="h-11 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[#9baa87]"
+                        />
+                        {!form.mediaUrl && (
+                          <Link2 className="pointer-events-none absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-[#a3a694]" />
+                        )}
+                      </div>
                     </label>
 
-                    <label className="block text-center text-[11px] font-medium text-[#3b3d37]">
-                      الوصف
-                      <Textarea
-                        value={form.description}
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            description: event.target.value,
-                          }))
-                        }
-                        placeholder="اكتب وصف مختصر للمحتوى"
-                        className="mt-2 h-8 min-h-8 resize-none rounded-full border-[#d9d7d0] bg-white px-4 py-2 text-center text-[11px] shadow-none"
-                      />
+                    <label className="block text-start text-[11px] font-bold text-[#3b3d37] sm:text-[12px]">
+                      {t(
+                        "influencerDashboard.publishForm.story",
+                        "ستوري",
+                      )}
+                      <div className="relative mt-2">
+                        <Input
+                          value={form.description}
+                          onChange={(event) =>
+                            setForm((current) => ({
+                              ...current,
+                              description: event.target.value,
+                            }))
+                          }
+                          placeholder=""
+                          className="h-11 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[#9baa87]"
+                        />
+                        {!form.description && (
+                          <ImageIcon className="pointer-events-none absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-[#a3a694]" />
+                        )}
+                      </div>
                     </label>
 
-                    <label className="block text-center text-[11px] font-medium text-[#3b3d37]">
-                      تاريخ النشر
-                      <Input
-                        type="date"
-                        value={form.publishDate}
-                        onChange={(event) =>
-                          setForm((current) => ({
-                            ...current,
-                            publishDate: event.target.value,
-                          }))
-                        }
-                        className="mt-2 h-8 rounded-full border-[#d9d7d0] bg-white text-center text-[11px] shadow-none"
-                      />
+                    <label className="block text-start text-[11px] font-bold text-[#3b3d37] sm:text-[12px]">
+                      {t(
+                        "influencerDashboard.publishForm.publishDate",
+                        "تاريخ ووقت النشر",
+                      )}
+                      <div className="relative mt-2">
+                        <Input
+                          type="date"
+                          value={form.publishDate}
+                          onChange={(event) =>
+                            setForm((current) => ({
+                              ...current,
+                              publishDate: event.target.value,
+                            }))
+                          }
+                          dir={isRTL ? "rtl" : "ltr"}
+                          className="h-11 w-full rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[#9baa87] [&::-webkit-calendar-picker-indicator]:opacity-50"
+                        />
+                      </div>
                     </label>
                   </div>
 
-                  <div className="mt-5 flex justify-center">
+                  <div className="mt-8 flex justify-center">
                     <Button
                       type="submit"
                       disabled={submitContentMutation.isPending}
-                      className="h-8 min-w-36 rounded-full bg-[#9baa87] px-8 text-[11px] font-semibold text-white shadow-[0_10px_18px_rgba(130,143,108,0.22)] hover:bg-[#8d9d77]">
+                      className="h-10 min-w-40 rounded-full bg-[#9baa87] px-8 text-[12px] font-semibold text-white shadow-[0_10px_18px_rgba(130,143,108,0.22)] hover:bg-[#8d9d77] sm:min-w-48 sm:text-[13px]">
                       {submitContentMutation.isPending
-                        ? "جاري الإرسال..."
-                        : "تأكيد النشر"}
+                        ? t(
+                            "influencerDashboard.publishForm.submitting",
+                            "جاري الإرسال...",
+                          )
+                        : t(
+                            "influencerDashboard.publishForm.submit",
+                            "تأكيد النشر",
+                          )}
                     </Button>
                   </div>
                 </form>
@@ -552,9 +597,7 @@ function CampaignPublish() {
                         <span
                           className={cn(
                             "rounded-sm px-3 py-1.5 text-[10px] font-medium text-white sm:self-auto sm:rounded-md sm:px-4 sm:text-[12px]",
-                            isApproved
-                              ? "bg-[#39b54a]"
-                              : "bg-[#9baa87]",
+                            isApproved ? "bg-[#39b54a]" : "bg-[#9baa87]",
                           )}>
                           {statusLabel}
                         </span>

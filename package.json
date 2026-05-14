@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5.2.8",
+    "@fontsource/ibm-plex-sans-arabic": "^5.2.9",
+    "@fontsource/lemonada": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.99.0",

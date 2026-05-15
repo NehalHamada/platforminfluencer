@@ -38,8 +38,8 @@ import type {
 } from "@/types/dashboard.types";
 import { getInfluencerReviewSummary } from "@/utils/influencerReviews";
 
-import hero from "/assets/Hero.png";
-import emptySearchImage from "/assets/search.png";
+import hero from "/assets/Hero.optimized.jpg";
+import emptySearchImage from "/assets/search.optimized.png";
 
 type FilterOption = {
   label: string;

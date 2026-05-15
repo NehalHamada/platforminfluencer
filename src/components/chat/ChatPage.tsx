@@ -32,7 +32,7 @@ import { useCampaignStore } from "@/store/campaign.store";
 
 import { pusher } from "@/lib/pusher";
 import MessageThread from "./MessageThread";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 
 export type ChatMessage = {
   id: string;

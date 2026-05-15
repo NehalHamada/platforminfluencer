@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 
 import SelectField from "@/components/common/company/SelectField";
 import { Button } from "@/components/ui/Button";

@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import LazyMapFrame from "@/components/common/contact/LazyMapFrame";
 import { useSendContactMessageMutation } from "@/queries/contact/useSendContactMessageMutation";
 import { useForm } from "react-hook-form";

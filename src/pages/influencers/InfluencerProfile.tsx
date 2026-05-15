@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import { useNavigate } from "react-router-dom";
 import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDiscoveryQuery";
 

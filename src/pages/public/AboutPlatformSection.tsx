@@ -5,7 +5,7 @@ import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import centerImg from "/assets/platImg.png";
 import profileImg from "/assets/platImg1.png";
-import logoImg from "/assets/platLogo.png";
+import logoImg from "/assets/platLogo.optimized.png";
 import bgImage from "/assets/login-register.png";
 import type { LandingSection } from "@/types/landing.types";
 import { getImageList, getString, sectionText } from "@/utils/landing";

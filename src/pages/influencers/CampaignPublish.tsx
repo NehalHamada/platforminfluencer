@@ -18,7 +18,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";

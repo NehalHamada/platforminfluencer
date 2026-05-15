@@ -18,7 +18,7 @@ import { useInfluencerDiscoveryQuery } from "@/queries/dashboard/useInfluencerDi
 import type { InfluencerDiscoveryItem } from "@/types/dashboard.types";
 import { getInfluencerReviewSummary } from "@/utils/influencerReviews";
 
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import latestCampaign1 from "/assets/res1.jpg";
 import latestCampaign2 from "/assets/res3.jpg";
 import latestCampaign3 from "/assets/res2.jpg";

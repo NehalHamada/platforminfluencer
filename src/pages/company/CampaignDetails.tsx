@@ -2,7 +2,7 @@ import { CalendarDays, Check, Circle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/card";

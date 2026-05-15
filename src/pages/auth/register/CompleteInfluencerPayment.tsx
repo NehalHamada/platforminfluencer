@@ -30,8 +30,8 @@ import {
   type CompleteInfluencerPaymentSchemaType,
 } from "@/schema/auth.schema";
 import { cn } from "@/lib/utils";
-import hero from "/assets/Hero.png";
-import successImage from "/assets/popImg.png";
+import hero from "/assets/Hero.optimized.jpg";
+import successImage from "/assets/popImg.optimized.png";
 import { useCompleteInfluencerProfileMutation } from "@/queries/auth/useCompleteInfluencerProfileMutation";
 import { logOtpFromResponse } from "@/utils/logOtp";
 import type {

@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 
 function Offers() {
   const { t, i18n } = useTranslation();

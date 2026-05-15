@@ -11,7 +11,7 @@ import { CircleAlert, CreditCard, Landmark, Loader2, Wallet } from "lucide-react
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueries } from "@tanstack/react-query";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import { useInfluencerEarningsQuery } from "@/queries/dashboard/useInfluencerEarningsQuery";
 import { useCampaignRequestsQuery } from "@/queries/campaigns/useCampaignsRequestQuery";
 import { useCollaborationRequestsQuery } from "@/queries/campaigns/useCollaborationRequestsQuery";

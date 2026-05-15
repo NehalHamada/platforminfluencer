@@ -2,10 +2,10 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { BsHddStack } from "react-icons/bs";
-import chI1 from "/assets/choImg1.png";
-import chI2 from "/assets/choImg2.png";
-import chI3 from "/assets/choImg3.png";
-import chI4 from "/assets/choImg4.png";
+import chI1 from "/assets/choImg1.optimized.jpg";
+import chI2 from "/assets/choImg2.optimized.jpg";
+import chI3 from "/assets/choImg3.optimized.jpg";
+import chI4 from "/assets/choImg4.optimized.jpg";
 import type { LandingSection } from "@/types/landing.types";
 import {
   getImageList,

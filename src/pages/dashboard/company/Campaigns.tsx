@@ -12,7 +12,7 @@ import { type FormEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueries } from "@tanstack/react-query";
 
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import { useAboutUsQuery } from "@/queries/about/useAboutUsQuery";
 
 function WhoUs() {

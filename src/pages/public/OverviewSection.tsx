@@ -150,7 +150,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="overflow-hidden  mt-35 md:mt-16">
+      className="overflow-hidden  mt-40 md:mt-16">
       <div className="mx-auto w-full max-w-6xl">
         {/* Mobile Layout */}
         <div className="flex flex-col gap-2 px-3 lg:hidden">

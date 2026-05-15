@@ -22,7 +22,7 @@ import {
   type CompleteInfluencerSchemaType,
 } from "@/schema/auth.schema";
 import { cn } from "@/lib/utils";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import { usePlatformsQuery } from "@/queries/masterData/usePlatformsQuery";
 import type { SharedRegisterData } from "@/types/auth.types";
 

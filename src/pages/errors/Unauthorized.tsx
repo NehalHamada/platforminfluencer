@@ -1,4 +1,4 @@
-import unauthorized from "/assets/unauthorized.png";
+import unauthorized from "/assets/unauthorized.optimized.png";
 
 function Unauthorized() {
   return (

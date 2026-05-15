@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import orbImg from "/assets/cc2.png";
+import orbImg from "/assets/cc2.optimized.png";
 import phone1 from "/assets/iphone1.png";
 import phone2 from "/assets/iphone2.png";
 import phone3 from "/assets/iphone3.png";
@@ -69,21 +69,21 @@ function CampaignShowcaseSection({ data }: CampaignShowcaseSectionProps) {
                 <img
                   src={phone1}
                   alt={t("campaignShowcase.items.1.alt")}
-                  className="absolute left-[0%] top-[-15%] max-md:top-[-5%] z-10 w-[48%] -rotate-6 rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
+                  className="absolute left-[0%] top-[-15%] max-md:top-[-10%] z-10 w-[48%] -rotate-6 rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
                 />
 
                 {/* Phone 3 (Back Right - Slightly Elevated) */}
                 <img
                   src={phone3}
                   alt={t("campaignShowcase.items.3.alt")}
-                  className="absolute right-[0%] top-[-10%] max-md:top-[0%] z-10 w-[48%] rotate-6 rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
+                  className="absolute right-[0%] top-[-10%] max-md:top-[-5%] z-10 w-[48%] rotate-6 rounded-[2rem] shadow-2xl transition-transform duration-700 hover:rotate-0"
                 />
 
                 {/* Phone 2 (Front Center - Lowered) */}
                 <img
                   src={phone2}
                   alt={t("campaignShowcase.items.2.alt")}
-                  className="absolute left-[24%] top-[10%] max-md:top-[15%] z-30 w-[52%] rounded-[2rem] shadow-[0_40px_80px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:scale-[1.03]"
+                  className="absolute left-[24%] top-[4%] max-md:top-[5%] z-30 w-[52%] rounded-[2rem] shadow-[0_40px_80px_rgba(0,0,0,0.7)] transition-transform duration-700 hover:scale-[1.03]"
                 />
 
                 {/* Decorative Orb */}

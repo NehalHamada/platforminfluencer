@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import hero from "/assets/Hero.png";
+import hero from "/assets/Hero.optimized.jpg";
 import { cn } from "@/lib/utils";
 import { getConversationIdFromResponse } from "@/utils/apiResponse";
 import { resolveAcceptedConversationId } from "@/utils/chat";

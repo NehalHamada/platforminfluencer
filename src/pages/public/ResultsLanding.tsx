@@ -127,11 +127,11 @@ function ResultsLanding({ data }: ResultsLandingProps) {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-4xl text-center font-['IBM_Plex_Sans_Arabic']">
-          <h2 className="relative inline-block px-2 font-bold text-[#899A6D] text-xl md:text-3xl lg:text-4xl">
+          <h2 className="relative inline-block px-2 font-bold text-[rgba(111,66,193,1)] text-lg md:text-2xl lg:text-3xl">
             <span className="relative z-10">{title}</span>
-            <span className="absolute bottom-2 left-0 w-full h-1.5 bg-[#899A6D]/30 z-0 rounded-full" />
+            <span className="absolute bottom-2 left-0 w-full h-1.5 bg-[rgba(111,66,193,0.3)] z-0 rounded-full" />
           </h2>
-          <p className="mx-auto mt-10 max-w-3xl font-medium leading-relaxed text-gray-500 text-sm md:text-lg">
+          <p className="mx-auto mt-10 max-w-3xl font-medium leading-relaxed text-gray-500 text-xs md:text-base">
             {description}
           </p>
         </motion.div>
@@ -194,7 +194,7 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                   {/* Play Icon for inactive cards */}
                   {!isActive && (
                     <div className="absolute inset-0 hidden sm:flex items-center justify-center bg-black/10">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/40 bg-white/10 text-[#A7B78E] backdrop-blur-sm transition-transform group-hover:scale-110">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/40 bg-white/10 text-[rgba(111,66,193,1)] backdrop-blur-sm transition-transform group-hover:scale-110">
                         <Play size={32} fill="currentColor" />
                       </div>
                     </div>
@@ -282,7 +282,7 @@ function ResultsLanding({ data }: ResultsLandingProps) {
             }}
             variant="outline"
             size="icon"
-            className="h-8 w-8 sm:h-14 sm:w-14 rounded-full border border-[#899A6D] sm:border-[#A7B78E]/30 bg-transparent sm:bg-white text-[#899A6D] sm:text-[#A7B78E] shadow-none sm:shadow-xl transition-all hover:bg-[#899A6D] sm:hover:bg-[#A7B78E] hover:text-white active:scale-95">
+            className="h-8 w-8 sm:h-14 sm:w-14 rounded-full border border-[rgba(111,66,193,0.5)] sm:border-[rgba(111,66,193,0.3)] bg-transparent sm:bg-white text-[rgba(111,66,193,1)] shadow-none sm:shadow-xl transition-all hover:bg-[rgba(111,66,193,1)] hover:text-white active:scale-95">
             <ChevronLeft className="h-4 w-4 sm:h-7 sm:w-7" />
           </Button>
 
@@ -298,12 +298,12 @@ function ResultsLanding({ data }: ResultsLandingProps) {
                     "rounded-full overflow-hidden transition-all duration-700",
                     isCurrent
                       ? "h-2 sm:h-2 w-8 sm:w-24 md:w-48 bg-gray-200 border-0"
-                      : "h-2 sm:h-2 w-2 sm:w-12 md:w-20 border border-[#899A6D] bg-transparent sm:border-0 sm:bg-gray-200",
+                      : "h-2 sm:h-2 w-2 sm:w-12 md:w-20 border border-[rgba(111,66,193,0.5)] bg-transparent sm:border-0 sm:bg-gray-200",
                   )}>
                   {isCurrent && (
                     <motion.div
                       key={progressKey}
-                      className="h-full rounded-full bg-[#A7B78E]"
+                      className="h-full rounded-full bg-[rgba(111,66,193,1)]"
                       initial={{ width: "0%" }}
                       animate={{ width: "100%" }}
                       transition={{
@@ -324,7 +324,7 @@ function ResultsLanding({ data }: ResultsLandingProps) {
             }}
             variant="outline"
             size="icon"
-            className="h-8 w-8 sm:h-14 sm:w-14 rounded-full border border-[#899A6D] sm:border-[#A7B78E]/30 bg-transparent sm:bg-white text-[#899A6D] sm:text-[#A7B78E] shadow-none sm:shadow-xl transition-all hover:bg-[#899A6D] sm:hover:bg-[#A7B78E] hover:text-white active:scale-95">
+            className="h-8 w-8 sm:h-14 sm:w-14 rounded-full border border-[rgba(111,66,193,0.5)] sm:border-[rgba(111,66,193,0.3)] bg-transparent sm:bg-white text-[rgba(111,66,193,1)] shadow-none sm:shadow-xl transition-all hover:bg-[rgba(111,66,193,1)] hover:text-white active:scale-95">
             <ChevronRight className="h-4 w-4 sm:h-7 sm:w-7" />
           </Button>
         </div>

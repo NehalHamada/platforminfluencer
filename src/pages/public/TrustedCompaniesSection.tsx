@@ -130,13 +130,13 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
           className={cn(
             "font-bold leading-tight text-[#2f3133]",
             isRTL
-              ? "text-2xl sm:text-[30px] md:text-[50px]"
-              : "text-xl sm:text-2xl md:text-[38px]",
+              ? "text-xl sm:text-[26px] md:text-[42px]"
+              : "text-lg sm:text-xl md:text-[30px]",
           )}>
           {title || (
             <>
               {t("trustedCompanies.title1")}{" "}
-              <span className="text-[#aeb98e]">
+              <span className="text-[rgba(201,162,39,1)]">
                 {t("trustedCompanies.count")}
               </span>{" "}
               {t("trustedCompanies.title2")}
@@ -148,8 +148,8 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
           className={cn(
             "mt-2 font-bold leading-[1.2] text-[#2f3133]",
             isRTL
-              ? "text-2xl sm:text-[30px] md:text-[50px]"
-              : "text-xl sm:text-2xl md:text-[38px]",
+              ? "text-xl sm:text-[26px] md:text-[42px]"
+              : "text-lg sm:text-xl md:text-[30px]",
           )}>
           {t("trustedCompanies.title3")}
         </h2>
@@ -158,8 +158,8 @@ function TrustedCompaniesSection({ data }: TrustedCompaniesSectionProps) {
           className={cn(
             "mx-auto mt-6 max-w-175 leading-6 text-[#6f7174]",
             isRTL
-              ? "text-xs sm:text-[13px] md:text-sm"
-              : "text-[11px] sm:text-xs md:text-[13px]",
+              ? "text-[11px] sm:text-xs md:text-[12px]"
+              : "text-[10px] sm:text-[11px] md:text-xs",
           )}>
           {description}
         </p>

@@ -206,7 +206,7 @@ function CampaignsInf() {
             <div className="space-y-5 rounded-none bg-white p-0 sm:rounded-[22px] sm:bg-[#fbfaf7] sm:p-5 lg:p-6">
               {isLoading ? (
                 <div className="flex items-center justify-center py-16">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[rgba(111,66,193,0.5)] border-t-transparent" />
                 </div>
               ) : null}
 
@@ -232,7 +232,7 @@ function CampaignsInf() {
                         className={`flex items-center gap-1.5 sm:gap-2 ${
                           isRTL ? "flex-row-reverse" : "flex-row-reverse"
                         }`}>
-                        <span className="inline-flex rounded-sm bg-[#9baa87] px-3 py-1.5 text-[11px] font-medium text-white sm:rounded-md sm:bg-[#262626] sm:px-3 sm:py-1.5 sm:text-xs">
+                        <span className="inline-flex rounded-sm bg-[rgba(111,66,193,1)] px-3 py-1.5 text-[11px] font-medium text-white sm:rounded-md sm:bg-[#262626] sm:px-3 sm:py-1.5 sm:text-xs">
                           {t("campaign.chatAvailable")}
                         </span>
                         <MessageCircleMore className="hidden h-3 w-3 text-[#979b90] sm:block sm:h-4 sm:w-4" />
@@ -255,7 +255,7 @@ function CampaignsInf() {
                               ? "sm:flex-row-reverse sm:justify-end"
                               : "sm:flex-row-reverse sm:justify-end"
                           }`}>
-                          <span className="order-2 self-center inline-flex rounded-sm bg-[#39b54a] px-4 py-1.5 text-[12px] font-medium text-white sm:order-0 sm:self-auto sm:rounded-md sm:px-4 sm:py-1.5 sm:text-sm">
+                          <span className="order-2 self-center inline-flex rounded-sm bg-[rgba(111,66,193,1)] px-4 py-1.5 text-[12px] font-medium text-white sm:order-0 sm:self-auto sm:rounded-md sm:px-4 sm:py-1.5 sm:text-sm">
                             {t("campaign.campaignCompleted")}
                           </span>
                           <p className="text-sm leading-7 text-[#4f5049] sm:text-[15px] sm:leading-7">
@@ -345,8 +345,8 @@ function CampaignsInf() {
                               <div
                                 className={`relative z-10 flex h-2 w-2 shrink-0 items-center justify-center rounded-full text-white sm:h-4 sm:w-4 ${
                                   step.completed
-                                    ? "bg-[#9baa87] sm:bg-[#8f8cb0]"
-                                    : "bg-[#d8dccb] sm:bg-[#d9d5ea]"
+                                    ? "bg-[rgba(111,66,193,0.5)] sm:bg-[rgba(111,66,193,1)]"
+                                    : "bg-[rgba(111,66,193,0.15)] sm:bg-[rgba(111,66,193,0.2)]"
                                 }`}>
                                 {step.completed ? (
                                   <Check
@@ -369,7 +369,7 @@ function CampaignsInf() {
                       </div>
                     </div>
 
-                    <div className="mt-6 rounded-full bg-[#eef2ef] px-4 py-2.5 text-center text-xs leading-5 text-[#595c55] sm:mt-8 sm:rounded-[12px] sm:px-4 sm:py-4 sm:text-sm">
+                    <div className="mt-6 rounded-full bg-[rgba(111,66,193,0.06)] px-4 py-2.5 text-center text-xs leading-5 text-[#595c55] sm:mt-8 sm:rounded-[12px] sm:px-4 sm:py-4 sm:text-sm">
                       {campaign.completedText}
                     </div>
 

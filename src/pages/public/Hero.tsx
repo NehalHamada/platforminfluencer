@@ -185,7 +185,7 @@ const renderHighlightedTitle = (title: string, isArabic: boolean) => {
     ) : (
       <span
         key={index}
-        className={part.highlight ? "text-[#A7B78E]" : undefined}>
+        className={part.highlight ? "text-[rgba(201,162,39,1)]" : undefined}>
         {part.text}
       </span>
     ),
@@ -291,12 +291,16 @@ function Hero({ data }: HeroProps) {
           <motion.h1
             initial={{ opacity: 0, y: 36 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.8,
+              delay: 0.15,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className={cn(
               "font-bold leading-[1.3] text-white drop-shadow-[0_8px_18px_rgba(0,0,0,0.36)]",
               isArabic
-                ? "text-[1.35rem] lg:text-[clamp(1.5rem,3.2vw,3.5rem)]"
-                : "text-[1.05rem] lg:text-[clamp(1.15rem,2.2vw,2.25rem)]",
+                ? "text-[1.15rem] lg:text-[clamp(1.25rem,2.6vw,2.8rem)]"
+                : "text-[0.85rem] lg:text-[clamp(0.9rem,1.6vw,1.65rem)]",
             )}>
             {renderHighlightedTitle(title, isArabic)}
           </motion.h1>
@@ -308,8 +312,8 @@ function Hero({ data }: HeroProps) {
             className={cn(
               "mt-5 max-w-2xl text-white/95 transition-all duration-300",
               isArabic
-                ? "hidden text-[clamp(0.95rem,1.3vw,1.2rem)] leading-relaxed lg:block"
-                : "hidden text-[clamp(0.8rem,1vw,0.95rem)] leading-relaxed lg:block",
+                ? "hidden text-[clamp(0.8rem,1.1vw,1rem)] leading-relaxed lg:block"
+                : "hidden text-[clamp(0.65rem,0.8vw,0.78rem)] leading-relaxed lg:block",
             )}>
             {description}
           </motion.p>
@@ -317,7 +321,11 @@ function Hero({ data }: HeroProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.6,
+              delay: 0.48,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className={cn(
               "mt-7 flex w-fit flex-nowrap items-center gap-2 lg:mt-10 lg:flex-wrap lg:gap-4",
               isArabic
@@ -326,24 +334,28 @@ function Hero({ data }: HeroProps) {
             )}>
             <Button
               onClick={() => navigateToLoginForRole("influencer")}
-              className="h-9 min-w-30 cursor-pointer rounded-full bg-[#A7B78E] px-4 text-xs font-bold text-white hover:bg-[#9caf7f] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
+              className="h-9 min-w-30 cursor-pointer rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-4 text-xs font-bold text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90 sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
               <span>{t("infBtn")}</span>
-              {isArabic ? <ArrowLeft size={17} /> : <ArrowLeft size={17} />}
+              {isArabic ? <ArrowLeft size={17} /> : <ArrowRight size={17} />}
             </Button>
 
             <Button
               onClick={() => navigateToLoginForRole("company")}
               variant="outline"
-              className="h-9 min-w-30 cursor-pointer rounded-full border-[rgba(255,219,195,1)] bg-black/20 px-4 text-xs font-bold text-[rgba(167,183,142,1)] hover:bg-white/10 hover:text-[rgba(167,183,142,1)] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
+              className="h-9 min-w-30 cursor-pointer rounded-full border-[rgba(201,162,39,0.6)] bg-black/20 px-4 text-xs font-bold text-[rgba(224,193,90,1)] hover:bg-white/10 hover:text-[rgba(224,193,90,1)] sm:min-w-36 lg:h-11 lg:min-w-36 lg:px-6 lg:text-sm">
               <span>{t("compBtn")}</span>
-              {isArabic ? <ArrowRight size={17} /> : <ArrowRight size={17} />}
+              {isArabic ? <ArrowLeft size={17} /> : <ArrowRight size={17} />}
             </Button>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.6,
+              delay: 0.65,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             className={cn(
               "mt-9 flex w-fit items-center gap-2 text-white lg:mt-10 lg:gap-6",
               isArabic ? "ml-auto justify-end lg:ml-0" : "justify-start",

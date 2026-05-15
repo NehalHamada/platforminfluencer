@@ -467,14 +467,14 @@ function CampaignPublish() {
         </h1>
       </div>
 
-      <div className="relative z-10 -mt-9 min-h-[430px] rounded-t-[28px] bg-white px-4 pb-20 pt-7 sm:-mt-10 sm:rounded-t-[34px] sm:px-6 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-10 lg:pt-8">
+      <div className="relative z-10 -mt-9 min-h-107.5 rounded-t-[28px] bg-white px-4 pb-20 pt-7 sm:-mt-10 sm:rounded-t-[34px] sm:px-6 sm:pb-10 sm:pt-6 lg:rounded-t-[42px] lg:px-10 lg:pt-8">
         <div className="mx-auto max-w-md sm:max-w-4xl">
           <div className="p-0 sm:p-6 lg:p-8">
             <div className="p-0 sm:p-6">
               {applicationsQuery.isLoading ||
               collaborationRequestsQuery.isLoading ? (
                 <div className="flex items-center justify-center py-20">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#9baa87] border-t-transparent" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[rgba(111,66,193,0.5)] border-t-transparent" />
                 </div>
               ) : !application ? (
                 <div className="py-20 text-center text-sm text-[#7d8077]">
@@ -507,7 +507,7 @@ function CampaignPublish() {
                             }))
                           }
                           placeholder=""
-                          className="h-11 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[#9baa87]"
+                          className="h-11 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[rgba(111,66,193,0.5)]"
                         />
                         {!form.mediaUrl && (
                           <Link2 className="pointer-events-none absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-[#a3a694]" />
@@ -527,7 +527,7 @@ function CampaignPublish() {
                             }))
                           }
                           placeholder=""
-                          className="h-11 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[#9baa87]"
+                          className="h-11 rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[rgba(111,66,193,0.5)]"
                         />
                         {!form.description && (
                           <ImageIcon className="pointer-events-none absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 text-[#a3a694]" />
@@ -551,7 +551,7 @@ function CampaignPublish() {
                             }))
                           }
                           dir={isRTL ? "rtl" : "ltr"}
-                          className="h-11 w-full rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[#9baa87] [&::-webkit-calendar-picker-indicator]:opacity-50"
+                          className="h-11 w-full rounded-full border-[#d9d7d0] bg-white px-4 text-center text-[12px] shadow-none focus-visible:ring-1 focus-visible:ring-[rgba(111,66,193,0.5)] [&::-webkit-calendar-picker-indicator]:opacity-50"
                         />
                       </div>
                     </label>
@@ -561,7 +561,7 @@ function CampaignPublish() {
                     <Button
                       type="submit"
                       disabled={submitContentMutation.isPending}
-                      className="h-10 min-w-40 rounded-full bg-[#9baa87] px-8 text-[12px] font-semibold text-white shadow-[0_10px_18px_rgba(130,143,108,0.22)] hover:bg-[#8d9d77] sm:min-w-48 sm:text-[13px]">
+                      className="h-10 min-w-40 rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-8 text-[12px] font-semibold text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90 sm:min-w-48 sm:text-[13px]">
                       {submitContentMutation.isPending
                         ? t(
                             "influencerDashboard.publishForm.submitting",
@@ -578,7 +578,7 @@ function CampaignPublish() {
                 <>
                   <div className="mb-4 flex items-center justify-between gap-2 px-1 pb-2 sm:mb-6 sm:border-b sm:border-[#f0eee8] sm:px-0 sm:pb-5 sm:pt-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-flex rounded-sm bg-[#b7c69b] px-2.5 py-1.5 text-[10px] font-medium text-white sm:rounded-md sm:text-[11px]">
+                      <span className="inline-flex rounded-sm bg-[rgba(111,66,193,1)] px-2.5 py-1.5 text-[10px] font-medium text-white sm:rounded-md sm:text-[11px]">
                         {statusLabel}
                       </span>
                       <MessageCircleMore className="hidden h-4 w-4 text-[#979b90] sm:block" />
@@ -596,7 +596,9 @@ function CampaignPublish() {
                         <span
                           className={cn(
                             "rounded-sm px-3 py-1.5 text-[10px] font-medium text-white sm:self-auto sm:rounded-md sm:px-4 sm:text-[12px]",
-                            isApproved ? "bg-[#39b54a]" : "bg-[#9baa87]",
+                            isApproved
+                              ? "bg-[rgba(111,66,193,1)]"
+                              : "bg-[rgba(111,66,193,1)]",
                           )}>
                           {statusLabel}
                         </span>
@@ -646,7 +648,7 @@ function CampaignPublish() {
                     <div className="order-first lg:order-0">
                       <div className="relative">
                         <div
-                          className="absolute bottom-3 right-[7px] top-3 w-px bg-[#d9d5ea] sm:left-2 sm:right-auto"
+                          className="absolute bottom-3 right-1.75 top-3 w-px bg-[rgba(111,66,193,0.3)] sm:left-2 sm:right-auto"
                           aria-hidden="true"
                         />
                         <div className="relative block space-y-6 pb-2 sm:space-y-9">
@@ -661,8 +663,8 @@ function CampaignPublish() {
                                   className={cn(
                                     "relative z-10 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-white sm:h-5 sm:w-5",
                                     completed
-                                      ? "bg-[#9baa87] sm:bg-[#8f8cb0]"
-                                      : "bg-[#d8dccb] sm:bg-[#d9d5ea]",
+                                      ? "bg-[rgba(111,66,193,0.5)] sm:bg-[rgba(111,66,193,1)]"
+                                      : "bg-[rgba(111,66,193,0.15)] sm:bg-[rgba(111,66,193,0.2)]",
                                   )}>
                                   {completed ? (
                                     <Check

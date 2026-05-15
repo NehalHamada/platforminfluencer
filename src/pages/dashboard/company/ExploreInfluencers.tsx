@@ -113,7 +113,7 @@ function InfluencerCard({
             <button
               type="button"
               onClick={(e) => e.stopPropagation()}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[#b5c09a] hover:bg-[#f3f5ef]"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[rgba(111,66,193,0.7)] hover:bg-[rgba(111,66,193,0.05)]"
               aria-label="Bookmark">
               <Bookmark className="h-3.5 w-3.5" />
             </button>
@@ -143,14 +143,14 @@ function InfluencerCard({
             <span className="truncate text-[11px] text-[#6f6e67]">
               {item.category || item.audience || "â€”"}
             </span>
-            <BadgeCheck className="h-3.5 w-3.5 shrink-0 fill-[#a7b78e] text-white" />
+            <BadgeCheck className="h-3.5 w-3.5 shrink-0 fill-[rgba(111,66,193,1)] text-white" />
           </div>
 
           <Button
             type="button"
             size="sm"
             variant="outline"
-            className="h-7 w-fit gap-1.5 rounded-full border-[#d5dbc9] px-3 text-[11px] text-[#617047] hover:bg-[#f2f5ec]"
+            className="h-7 w-fit gap-1.5 rounded-full border-[rgba(111,66,193,0.3)] px-3 text-[11px] text-[rgba(111,66,193,1)] hover:bg-[rgba(111,66,193,0.05)]"
             onClick={handleButtonClick}>
             <MessageCircle className="h-3 w-3" />
             {t("exploreInfluencers.sendMessage")}
@@ -417,7 +417,7 @@ function ExploreInfluencers() {
                   )}
                   className="h-64 w-auto object-contain"
                 />
-                <p className="mt-2 text-sm font-medium text-[#9cab80]">
+                <p className="mt-2 text-sm font-medium text-[rgba(111,66,193,0.7)]">
                   {t(
                     "exploreInfluencers.emptySearchTitle",
                     "No search results",

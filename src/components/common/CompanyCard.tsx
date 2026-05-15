@@ -15,10 +15,10 @@ function CompanyCard({ name, sub, icon }: CompanyCardProps) {
         <LogoIcon type={icon} />
 
         <div>
-          <h3 className="text-[20px] font-semibold uppercase leading-none text-[#b4baa5]">
+          <h3 className="text-[20px] font-semibold uppercase leading-none text-[rgba(111,66,193,1)]">
             {name}
           </h3>
-          <p className="mt-2 text-[14px] leading-none text-[#c5cab8]">{sub}</p>
+          <p className="mt-2 text-[14px] leading-none text-[rgba(111,66,193,0.6)]">{sub}</p>
         </div>
       </CardContent>
     </Card>

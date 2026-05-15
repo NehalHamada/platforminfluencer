@@ -75,12 +75,11 @@ function Message() {
         ?.filter(
           (request) =>
             isAcceptedStatus(request.status) &&
-            request.conversation_id &&
             !isCompletedConversationId(request.conversation_id) &&
             !isCompletedCampaignId(request.campaign_id ?? request.campaign?.id),
         )
         .map((request) => ({
-          id: request.conversation_id as string | number,
+          id: (request.conversation_id ?? `pending:req:${request.id}`) as string | number,
           status: request.status,
           application_id: request.id,
           campaign_id: request.campaign_id ?? request.campaign?.id,
@@ -96,7 +95,6 @@ function Message() {
         ?.filter(
           (application) =>
             isAcceptedStatus(application.status) &&
-            application.conversation_id &&
             !isCompletedConversationId(application.conversation_id) &&
             !isCompletedApplicationId(application.id) &&
             !isCompletedCampaignId(
@@ -104,7 +102,7 @@ function Message() {
             ),
         )
         .map((application) => ({
-          id: application.conversation_id as string | number,
+          id: (application.conversation_id ?? `pending:app:${application.id}`) as string | number,
           status: application.status,
           application_id: application.id,
           campaign_id: application.campaign_id ?? application.campaign?.id,

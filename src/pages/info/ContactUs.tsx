@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -78,189 +77,173 @@ function ContactUs() {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="relative -mt-24 w-full max-w-full overflow-x-clip bg-[#efefec]">
-      <div className="relative h-64 w-full overflow-hidden sm:h-56 lg:h-80">
+      className="relative -mt-24 w-full max-w-full overflow-x-clip">
+      {/* Hero */}
+      <div className="relative h-60 w-full overflow-hidden sm:h-52 lg:h-72">
         <img
           src={hero}
           alt={t("contsctForUs.heroAlt")}
           className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-black/62" />
-      </div>
-
-      <div className="absolute inset-x-0 top-52 z-20 px-4 sm:top-34 sm:px-6 lg:top-65">
-        <div className="mx-auto max-w-7xl">
-          <div className={cn(isRTL ? "text-right" : "text-left")}>
-            <span className="inline-block text-sm font-medium text-white underline underline-offset-4 sm:text-base">
-              {t("contsctForUs.kicker")}
-            </span>
-          </div>
+        {/* Kicker anchored to bottom of hero */}
+        <div
+          className={cn(
+            "absolute bottom-10 z-10 px-5 sm:bottom-10 sm:px-8",
+            isRTL ? "right-0 text-right" : "left-0 text-left",
+          )}>
+          <span className="inline-block text-sm font-medium text-white underline underline-offset-4 sm:text-base">
+            {t("contsctForUs.kicker")}
+          </span>
         </div>
       </div>
 
-      <div className="relative z-10 -mt-4 w-full max-w-full sm:-mt-6 sm:px-4">
-        <div className="mx-auto w-full max-w-7xl overflow-x-hidden">
-          <Card className="w-full max-w-full overflow-hidden rounded-t-[24px] rounded-b-none border-0 bg-white py-0 shadow-[0_12px_40px_rgba(32,34,28,0.05)] sm:rounded-t-[28px]">
-            <CardContent className="px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10">
-              <div className="w-full max-w-full">
-                <div className="w-full max-w-full overflow-hidden rounded-[22px] border border-[#f0ece2] bg-[#f6f5f1]">
-                  <LazyMapFrame title={t("contsctForUs.mapAlt")} />
-                </div>
+      {/* White content card */}
+      <div className="relative z-10 -mt-6 rounded-t-[24px] bg-white sm:-mt-8 sm:rounded-t-[32px]">
+        <div className="mx-auto max-w-7xl px-4 pt-6 pb-14 sm:px-6 sm:pt-8 sm:pb-16 lg:px-10 lg:pt-10">
+          {/* Map */}
+          <div className="overflow-hidden rounded-[18px]">
+            <LazyMapFrame title={t("contsctForUs.mapAlt")} />
+          </div>
 
-                <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[0.82fr_1.08fr] lg:items-start lg:gap-12">
-                  <div
-                    className={cn(
-                      "space-y-6",
-                      isRTL ? "text-right" : "text-left",
-                    )}>
-                    <div>
-                      <h1 className="text-2xl font-semibold leading-tight text-[#232320] sm:text-[2rem]">
-                        {contactInfo?.title || t("contsctForUs.title")}
-                      </h1>
-                      <p className="mt-3 max-w-md text-sm leading-8 text-[#5d5b53] sm:text-[15px]">
-                        {contactInfo?.description ||
-                          t("contsctForUs.description")}
-                      </p>
-                    </div>
-
-                    <div className="space-y-5">
-                      {infoCards.map(({ key, icon: Icon, value }) => (
-                        <div
-                          key={key}
-                          className={cn(
-                            "flex items-center gap-3 text-[#4c4b44]",
-                            isRTL ? "flex-row justify-start" : "justify-start",
-                          )}>
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#ddd8cb] bg-[#f9f8f4] text-[#8d9c6f]">
-                            <Icon size={15} aria-hidden="true" />
-                          </span>
-                          <span className="text-sm leading-7 sm:text-[15px]">
-                            {value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label
-                        className={cn(
-                          "block text-sm text-[#55544e]",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        {t("contsctForUs.form.name")}
-                      </Label>
-                      <Input
-                        {...register("name", { required: true })}
-                        className={cn(
-                          "h-11 rounded-full border-[#ddd8cb] bg-white px-5 shadow-none",
-                          isRTL ? "text-right" : "text-left",
-                        )}
-                      />
-                      {errors.name ? (
-                        <p className="text-xs text-red-500">
-                          {t("contsctForUs.form.required")}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        className={cn(
-                          "block text-sm text-[#55544e]",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        {t("contsctForUs.form.email")}
-                      </Label>
-                      <Input
-                        {...register("email", { required: true })}
-                        className={cn(
-                          "h-11 rounded-full border-[#ddd8cb] bg-white px-5 shadow-none",
-                          isRTL ? "text-right" : "text-left",
-                        )}
-                      />
-                      {errors.email ? (
-                        <p className="text-xs text-red-500">
-                          {t("contsctForUs.form.required")}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        className={cn(
-                          "block text-sm text-[#55544e]",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        {t("contsctForUs.form.phone")}
-                      </Label>
-                      <Input
-                        {...register("phone", { required: true })}
-                        className={cn(
-                          "h-11 rounded-full border-[#ddd8cb] bg-white px-5 shadow-none",
-                          isRTL ? "text-right" : "text-left",
-                        )}
-                      />
-                      {errors.phone ? (
-                        <p className="text-xs text-red-500">
-                          {t("contsctForUs.form.required")}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        className={cn(
-                          "block text-sm text-[#55544e]",
-                          isRTL ? "text-right" : "text-left",
-                        )}>
-                        {t("contsctForUs.form.message")}
-                      </Label>
-                      <Textarea
-                        {...register("message", { required: true })}
-                        className={cn(
-                          "min-h-28 rounded-[16px] border-[#ddd8cb] bg-white px-5 py-4 shadow-none",
-                          isRTL ? "text-right" : "text-left",
-                        )}
-                      />
-                      {errors.message ? (
-                        <p className="text-xs text-red-500">
-                          {t("contsctForUs.form.required")}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <div
-                      className={cn(
-                        "flex",
-                        isRTL ? "justify-start" : "justify-end",
-                      )}>
-                      <Button
-                        type="submit"
-                        disabled={sendMessageMutation.isPending}
-                        variant="brand"
-                        className={cn(
-                          "h-11 min-w-32 rounded-md bg-[#9cab80] px-6 text-sm font-medium text-white hover:bg-[#92a273]",
-                          isRTL ? "flex-row" : "flex-row",
-                        )}>
-                        <span>
-                          {sendMessageMutation.isPending
-                            ? t("contsctForUs.form.sending")
-                            : t("contsctForUs.form.submit")}
-                        </span>
-                        {isRTL ? (
-                          <ArrowLeft size={16} aria-hidden="true" />
-                        ) : (
-                          <ArrowRight size={16} aria-hidden="true" />
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
+          {/* Form + Info */}
+          <div className="mt-8 grid grid-cols-1 gap-9 sm:mt-10 lg:grid-cols-2 lg:items-start lg:gap-14">
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label
+                  className={cn(
+                    "block text-sm text-[#55544e]",
+                    isRTL ? "text-right" : "text-left",
+                  )}>
+                  {t("contsctForUs.form.name")}
+                </Label>
+                <Input
+                  {...register("name", { required: true })}
+                  className={cn(
+                    "h-11 rounded-full border-[#ddd8cb] bg-white px-5 shadow-none",
+                    isRTL ? "text-right" : "text-left",
+                  )}
+                />
+                {errors.name ? (
+                  <p className="text-xs text-red-500">
+                    {t("contsctForUs.form.required")}
+                  </p>
+                ) : null}
               </div>
-            </CardContent>
-          </Card>
+
+              <div className="space-y-2">
+                <Label
+                  className={cn(
+                    "block text-sm text-[#55544e]",
+                    isRTL ? "text-right" : "text-left",
+                  )}>
+                  {t("contsctForUs.form.email")}
+                </Label>
+                <Input
+                  {...register("email", { required: true })}
+                  className={cn(
+                    "h-11 rounded-full border-[#ddd8cb] bg-white px-5 shadow-none",
+                    isRTL ? "text-right" : "text-left",
+                  )}
+                />
+                {errors.email ? (
+                  <p className="text-xs text-red-500">
+                    {t("contsctForUs.form.required")}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  className={cn(
+                    "block text-sm text-[#55544e]",
+                    isRTL ? "text-right" : "text-left",
+                  )}>
+                  {t("contsctForUs.form.phone")}
+                </Label>
+                <Input
+                  {...register("phone", { required: true })}
+                  className={cn(
+                    "h-11 rounded-full border-[#ddd8cb] bg-white px-5 shadow-none",
+                    isRTL ? "text-right" : "text-left",
+                  )}
+                />
+                {errors.phone ? (
+                  <p className="text-xs text-red-500">
+                    {t("contsctForUs.form.required")}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  className={cn(
+                    "block text-sm text-[#55544e]",
+                    isRTL ? "text-right" : "text-left",
+                  )}>
+                  {t("contsctForUs.form.message")}
+                </Label>
+                <Textarea
+                  {...register("message", { required: true })}
+                  className={cn(
+                    "min-h-28 rounded-[16px] border-[#ddd8cb] bg-white px-5 py-4 shadow-none",
+                    isRTL ? "text-right" : "text-left",
+                  )}
+                />
+                {errors.message ? (
+                  <p className="text-xs text-red-500">
+                    {t("contsctForUs.form.required")}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="flex justify-start">
+                <Button
+                  type="submit"
+                  disabled={sendMessageMutation.isPending}
+                  variant="brand"
+                  className={cn(
+                    "h-11 min-w-32 gap-2 rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-6 text-sm font-medium text-white hover:opacity-90",
+                    isRTL ? "flex-row" : "flex-row",
+                  )}>
+                  <span>
+                    {sendMessageMutation.isPending
+                      ? t("contsctForUs.form.sending")
+                      : t("contsctForUs.form.submit")}
+                  </span>
+                  {isRTL ? (
+                    <ArrowLeft size={16} aria-hidden="true" />
+                  ) : (
+                    <ArrowRight size={16} aria-hidden="true" />
+                  )}
+                </Button>
+              </div>
+            </form>
+
+            {/* Contact info */}
+            <div
+              className={cn("space-y-5", isRTL ? "text-right" : "text-left")}>
+              <h2 className="text-xl font-semibold leading-snug text-[#232320] sm:text-2xl">
+                {contactInfo?.description || t("contsctForUs.description")}
+              </h2>
+
+              <div className="space-y-4 pt-1">
+                {infoCards.map(({ key, icon: Icon, value }) => (
+                  <div
+                    key={key}
+                    className="flex items-center gap-3 text-[#4c4b44]">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#ddd8cb] bg-[rgba(111,66,193,0.08)] text-[rgba(111,66,193,0.7)]">
+                      <Icon size={15} aria-hidden="true" />
+                    </span>
+                    <span className="text-sm leading-6 sm:text-[15px]">
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

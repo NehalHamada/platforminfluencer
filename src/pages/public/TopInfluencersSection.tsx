@@ -161,7 +161,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
           <h2
             className={cn(
               "mx-auto wrap-break-words text-center font-bold text-[#202020]",
-              isRTL ? "text-2xl md:text-[32px]" : "text-xl md:text-[26px]",
+              isRTL ? "text-xl md:text-[27px]" : "text-lg md:text-[21px]",
             )}>
             {title}
           </h2>
@@ -169,7 +169,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
           <p
             className={cn(
               "mx-auto mt-4 wrap-break-words text-center font-medium leading-[1.75] text-[#606060]",
-              isRTL ? "text-lg md:text-[20px]" : "text-base md:text-[16px]",
+              isRTL ? "text-base md:text-[17px]" : "text-sm md:text-[13px]",
             )}>
             {description}
           </p>
@@ -222,7 +222,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
               variant="outline"
               onClick={isRTL ? goNext : goPrev}
               aria-label={isRTL ? t("Influencers.next") : t("Influencers.prev")}
-              className="h-8 w-8 rounded-full border-[#98a77e] text-[#7d8b65] hover:bg-white">
+              className="h-8 w-8 rounded-full border-[rgba(111,66,193,0.5)] text-[rgba(111,66,193,1)] hover:bg-white">
               <ChevronLeft size={16} />
             </Button>
 
@@ -239,8 +239,8 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
                   className={cn(
                     "rounded-full p-0 transition-all duration-300 hover:bg-transparent",
                     currentIndex === index
-                      ? "h-1.5 w-10 bg-[#cfd6bd]"
-                      : "h-2.5 w-2.5 bg-[#d8ddcf]",
+                      ? "h-1.5 w-10 bg-[rgba(111,66,193,1)]"
+                      : "h-2.5 w-2.5 bg-[rgba(111,66,193,0.25)]",
                   )}
                 />
               ))}
@@ -252,7 +252,7 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
               variant="outline"
               onClick={isRTL ? goPrev : goNext}
               aria-label={isRTL ? t("Influencers.prev") : t("Influencers.next")}
-              className="h-8 w-8 rounded-full border-[#98a77e] text-[#7d8b65] hover:bg-white">
+              className="h-8 w-8 rounded-full border-[rgba(111,66,193,0.5)] text-[rgba(111,66,193,1)] hover:bg-white">
               <ChevronRight size={16} />
             </Button>
           </div>
@@ -295,10 +295,10 @@ function TopInfluencersSection({ data }: TopInfluencersSectionProps) {
                       {item.followers}
                     </div>
                     <div className="flex flex-row items-center gap-1.5">
-                      <div className="flex h-6 w-6 lg:h-7 lg:w-7 items-center justify-center rounded-[6px] border border-[#d2d2c5] bg-transparent text-[#9b9b9b] transition-colors hover:border-[#b7c58d]">
+                      <div className="flex h-6 w-6 lg:h-7 lg:w-7 items-center justify-center rounded-[6px] border border-[#d2d2c5] bg-transparent text-[#9b9b9b] transition-colors hover:border-[rgba(111,66,193,0.5)]">
                         <FaInstagram size={13} aria-hidden="true" />
                       </div>
-                      <div className="flex h-6 w-6 lg:h-7 lg:w-7 items-center justify-center rounded-[6px] border border-[#d2d2c5] bg-transparent text-[#9b9b9b] transition-colors hover:border-[#b7c58d]">
+                      <div className="flex h-6 w-6 lg:h-7 lg:w-7 items-center justify-center rounded-[6px] border border-[#d2d2c5] bg-transparent text-[#9b9b9b] transition-colors hover:border-[rgba(111,66,193,0.5)]">
                         <FaTiktok size={13} aria-hidden="true" />
                       </div>
                     </div>

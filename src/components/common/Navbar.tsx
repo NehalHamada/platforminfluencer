@@ -115,12 +115,11 @@ function Navbar() {
   ];
 
   const homeMobileNavLinks: HomeLink[] = [
-    { label: t("nav.home"), href: "#" },
+    { label: t("nav.platform"), href: "#platform" },
     { label: t("nav.ourResults"), href: "#follow" },
     { label: t("nav.whoUs"), href: "#about" },
+    { label: t("nav.ourServices"), href: "#services" },
     { label: t("nav.influencers"), href: "#influencers" },
-    { label: t("whyChooseUs"), href: "#why-choose-us" },
-    { label: t("nav.contactUs"), href: "#contact" },
   ];
 
   const influencerNavLinks: DashboardLink[] = [
@@ -147,14 +146,6 @@ function Navbar() {
     {
       label: t("nav.createCampaign"),
       path: "/dashboard/company/create",
-    },
-    {
-      label: t("nav.contactUs"),
-      path: "/contact",
-    },
-    {
-      label: t("nav.whoAreWe"),
-      path: "/about",
     },
   ];
 
@@ -418,7 +409,7 @@ function Navbar() {
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <SheetContent
           side={isArabic ? "left" : "right"}
-          className="w-full border-0 bg-[#171917] p-0 text-white sm:max-w-sm"
+          className="w-full border-0 bg-[rgba(26,20,37,1)] p-0 text-white sm:max-w-sm"
           showCloseButton={false}>
           <div
             dir={isArabic ? "rtl" : "ltr"}
@@ -429,7 +420,7 @@ function Navbar() {
 
             <div
               className={cn(
-                "flex h-14 items-center justify-between rounded-full border border-white/25 bg-[rgba(78,89,64,0.75)] px-5 shadow-[0_8px_24px_rgba(0,0,0,0.25)]",
+                "flex h-14 items-center justify-between rounded-full border border-white/25 bg-[rgba(111,66,193,0.2)] px-5 shadow-[0_8px_24px_rgba(0,0,0,0.25)]",
                 isArabic ? "flex-row-reverse" : "flex-row",
               )}>
               <Button
@@ -452,7 +443,6 @@ function Navbar() {
             </div>
 
             <div className="flex flex-1 flex-col pt-7">
-
               <div
                 className={cn(
                   isHome ? "flex flex-col gap-5 pt-2" : "flex flex-col gap-2",
@@ -494,7 +484,8 @@ function Navbar() {
                 )}
               </div>
 
-              <div className={cn("space-y-6 pb-3", isHome ? "mt-8" : "mt-auto")}>
+              <div
+                className={cn("space-y-6 pb-3", isHome ? "mt-8" : "mt-auto")}>
                 {renderMobileLanguageToggle()}
 
                 {showAuthLogin && !isHome && (
@@ -562,7 +553,7 @@ function Navbar() {
         <header
           dir={isArabic ? "rtl" : "ltr"}
           className="fixed top-4 left-1/2 z-50 w-[95%] -translate-x-1/2">
-          <div className="flex items-center justify-between rounded-full border border-white/10 bg-[rgba(167,183,142,0.3)] px-4 py-3 backdrop-blur-md md:px-5 md:py-4">
+          <div className="flex items-center justify-between rounded-full border border-white/10 bg-[rgba(26,20,37,0.75)] px-4 py-3 backdrop-blur-md md:px-5 md:py-4">
             {mobileMenuButton}
 
             <div className="hidden md:block">{brandButton("/")}</div>
@@ -658,7 +649,7 @@ function Navbar() {
         <header
           dir={isArabic ? "rtl" : "ltr"}
           className="absolute top-4 left-1/2 z-50 w-[97%] -translate-x-1/2">
-          <div className="flex items-center justify-between rounded-[32px] border border-white/10 bg-[rgba(167,183,142,0.3)] px-4 py-3 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-6 md:py-4">
+          <div className="flex items-center justify-between rounded-[32px] border border-white/10 bg-[rgba(26,20,37,0.75)] px-4 py-3 backdrop-blur-xl shadow-[0_0_20px_rgba(111,66,193,0.25)] md:px-6 md:py-4">
             {brandButton("/dashboard/influencer")}
             {renderDesktopLinks(influencerNavLinks)}
             <div className="flex items-center gap-3 text-white">
@@ -679,7 +670,7 @@ function Navbar() {
         <header
           dir={isArabic ? "rtl" : "ltr"}
           className="absolute top-4 left-1/2 z-50 w-[97%] -translate-x-1/2">
-          <div className="flex items-center justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(167,183,142,0.3)] px-2 py-1 backdrop-blur-xl shadow-[0_8px_30px_rgba(0,0,0,0.18)] md:px-5 md:py-4">
+          <div className="flex items-center justify-between overflow-hidden rounded-[32px] border border-white/10 bg-[rgba(26,20,37,0.75)] px-2 py-1 backdrop-blur-xl shadow-[0_0_20px_rgba(111,66,193,0.25)] md:px-5 md:py-4">
             {brandButton("/dashboard/company")}
             {renderDesktopLinks(companyNavLinks, true)}
             <div className="flex shrink-0 items-center gap-3 text-white">
@@ -696,7 +687,7 @@ function Navbar() {
 
   return (
     <header className="absolute top-4 left-1/2 z-50 w-[90%] -translate-x-1/2">
-      <div className="flex items-center justify-between rounded-full bg-[rgba(167,183,142,0.3)]">
+      <div className="flex items-center justify-between rounded-full bg-[rgba(26,20,37,0.75)]">
         <Button
           type="button"
           variant="ghost"

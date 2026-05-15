@@ -1,4 +1,13 @@
-import { ArrowLeft, ArrowRight, CalendarDays, Check, MessageCircleMore, Send, Star, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  Check,
+  MessageCircleMore,
+  Send,
+  Star,
+  X,
+} from "lucide-react";
 import { type FormEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueries } from "@tanstack/react-query";
@@ -95,7 +104,10 @@ const mergeCompletedItem = (
   review: next.review ?? current.review,
   paymentSummary: next.paymentSummary ?? current.paymentSummary,
   completedSteps: Math.max(current.completedSteps, next.completedSteps),
-  date: String(next.date).localeCompare(String(current.date)) > 0 ? next.date : current.date,
+  date:
+    String(next.date).localeCompare(String(current.date)) > 0
+      ? next.date
+      : current.date,
 });
 
 const dedupeCompletedItems = (items: CompletedCampaignView[]) =>
@@ -124,7 +136,7 @@ function ReviewStars({
   return (
     <div className="flex items-center justify-center gap-2">
       {[1, 2, 3, 4, 5].map((rating) => (
-        <button
+        <Button
           key={rating}
           type="button"
           onClick={() => onChange(rating)}
@@ -137,7 +149,7 @@ function ReviewStars({
                 : "fill-white text-[#8f9488]",
             )}
           />
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -167,7 +179,9 @@ function CampaignReviewPopup({
     event.preventDefault();
 
     if (!scheduleCommitment || !contentQuality || !communication) {
-      setError(isRTL ? "من فضلك أكمل كل التقييمات" : "Please complete all ratings");
+      setError(
+        isRTL ? "من فضلك أكمل كل التقييمات" : "Please complete all ratings",
+      );
       return;
     }
 
@@ -240,7 +254,7 @@ function CampaignReviewPopup({
                     ? "اكتب ملاحظتك عن تجربة التعاون"
                     : "Write your collaboration feedback"
                 }
-                className="h-8 w-full rounded-full border border-[#dedbd2] bg-white px-4 text-center text-[10px] text-[#34342f] outline-none placeholder:text-[#8d887e] focus:border-[#9fb88d] sm:text-[11px]"
+                className="h-8 w-full rounded-full border border-[#dedbd2] bg-white px-4 text-center text-[10px] text-[#34342f] outline-none placeholder:text-[#8d887e] focus:border-[rgba(111,66,193,0.5)] sm:text-[11px]"
               />
             </label>
 
@@ -248,7 +262,10 @@ function CampaignReviewPopup({
               <p className="mb-2 text-center text-[11px] font-medium text-[#34342f]">
                 {isRTL ? "جودة المحتوى" : "Content quality"}
               </p>
-              <ReviewStars value={contentQuality} onChange={setContentQuality} />
+              <ReviewStars
+                value={contentQuality}
+                onChange={setContentQuality}
+              />
             </div>
 
             <div>
@@ -269,7 +286,7 @@ function CampaignReviewPopup({
             <Button
               type="submit"
               className={cn(
-                "h-9 min-w-42 rounded-full bg-[#8d9978] px-5 text-[10px] font-semibold text-white hover:bg-[#7f8d6d] sm:text-[11px]",
+                "h-9 min-w-42 rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-5 text-[10px] font-semibold text-white hover:opacity-90 sm:text-[11px]",
                 isRTL ? "flex-row" : "flex-row-reverse",
               )}>
               <Send className="h-3.5 w-3.5" />
@@ -278,7 +295,7 @@ function CampaignReviewPopup({
           </div>
         </div>
 
-        <div className="bg-[linear-gradient(100deg,#252923_0%,#30352f_100%)] px-6 py-5 text-center text-white">
+        <div className="bg-[rgba(26,20,37,1)] px-6 py-5 text-center text-white">
           <p className="text-[11px] font-semibold">GROWTH</p>
           <p className="mx-auto mt-2 max-w-82 text-[10px] leading-5 text-white/90">
             {isRTL
@@ -317,21 +334,20 @@ function Campaigns() {
   });
   const completedConversationEntries = useMemo(
     () =>
-      conversationMessagesQueries.reduce<ReturnType<typeof getCompletedCampaignEntries>>(
-        (entries, query, index) => {
-          if (!hasContentApprovalMessage(query.data?.data)) return entries;
-          const conversation = conversations.find(
-            (item) => String(item.id) === String(conversationIds[index]),
+      conversationMessagesQueries.reduce<
+        ReturnType<typeof getCompletedCampaignEntries>
+      >((entries, query, index) => {
+        if (!hasContentApprovalMessage(query.data?.data)) return entries;
+        const conversation = conversations.find(
+          (item) => String(item.id) === String(conversationIds[index]),
+        );
+        if (conversation) {
+          entries.push(
+            buildCompletedEntryFromConversation(conversation, query.data?.data),
           );
-          if (conversation) {
-            entries.push(
-              buildCompletedEntryFromConversation(conversation, query.data?.data),
-            );
-          }
-          return entries;
-        },
-        [],
-      ),
+        }
+        return entries;
+      }, []),
     [conversationIds, conversationMessagesQueries, conversations],
   );
   const allCompletedEntries = [
@@ -482,7 +498,9 @@ function Campaigns() {
                 </div>
               ) : null}
 
-              {!isLoading && !campaignsQuery.isError && !completedItems.length ? (
+              {!isLoading &&
+              !campaignsQuery.isError &&
+              !completedItems.length ? (
                 <div className="rounded-[22px] bg-white p-8 text-center text-sm text-[#6a6a63]">
                   {t("campaigns.empty")}
                 </div>
@@ -507,10 +525,10 @@ function Campaigns() {
                             "flex items-center gap-1.5 sm:gap-2",
                             isRTL ? "flex-row-reverse" : "flex-row",
                           )}>
-                          <Badge className="rounded-sm bg-[#b9c69f] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#b9c69f] sm:rounded-md sm:px-3 sm:py-1.5 sm:text-xs">
+                          <Badge className="rounded-sm bg-[rgba(111,66,193,1)] px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[rgba(111,66,193,1)] sm:rounded-md sm:px-3 sm:py-1.5 sm:text-xs">
                             {t("campaigns.openChat")}
                           </Badge>
-                          <MessageCircleMore className="hidden h-3 w-3 text-[#9baa87] sm:block sm:h-4 sm:w-4" />
+                          <MessageCircleMore className="hidden h-3 w-3 text-[rgba(111,66,193,0.7)] sm:block sm:h-4 sm:w-4" />
                         </div>
 
                         <div
@@ -557,7 +575,11 @@ function Campaigns() {
                                 {paymentSummary.paymentMethod ? (
                                   <li>
                                     <span className="font-semibold text-[#4a4a45]">
-                                      {t("sureCampaign.paymentOption", "طريقة الدفع")} :
+                                      {t(
+                                        "sureCampaign.paymentOption",
+                                        "طريقة الدفع",
+                                      )}{" "}
+                                      :
                                     </span>{" "}
                                     {paymentSummary.paymentMethod}
                                   </li>
@@ -565,7 +587,11 @@ function Campaigns() {
                                 {paymentSummary.postsCount ? (
                                   <li>
                                     <span className="font-semibold text-[#4a4a45]">
-                                      {t("campaignPayment.postsCount", "عدد المنشورات")} :
+                                      {t(
+                                        "campaignPayment.postsCount",
+                                        "عدد المنشورات",
+                                      )}{" "}
+                                      :
                                     </span>{" "}
                                     {paymentSummary.postsCount}
                                   </li>
@@ -573,7 +599,11 @@ function Campaigns() {
                                 {paymentSummary.executionDate ? (
                                   <li>
                                     <span className="font-semibold text-[#4a4a45]">
-                                      {t("campaignPayment.executionDate", "موعد التنفيذ")} :
+                                      {t(
+                                        "campaignPayment.executionDate",
+                                        "موعد التنفيذ",
+                                      )}{" "}
+                                      :
                                     </span>{" "}
                                     {paymentSummary.executionDate}
                                   </li>
@@ -621,11 +651,16 @@ function Campaigns() {
                                   key={step.id}
                                   className={cn(
                                     "relative flex flex-1 flex-col items-center gap-1 sm:flex-row sm:gap-4",
-                                    isRTL ? "sm:flex-row-reverse" : "sm:flex-row-reverse",
+                                    isRTL
+                                      ? "sm:flex-row-reverse"
+                                      : "sm:flex-row-reverse",
                                   )}>
-                                  <div className="relative z-10 flex h-2 w-2 shrink-0 items-center justify-center rounded-full bg-[#9baa87] text-white sm:h-5 sm:w-5 sm:bg-[#8f8cb0]">
+                                  <div className="relative z-10 flex h-2 w-2 shrink-0 items-center justify-center rounded-full bg-[rgba(111,66,193,0.5)] text-white sm:h-5 sm:w-5 sm:bg-[rgba(111,66,193,1)]">
                                     {step.completed ? (
-                                      <Check className="hidden h-3 w-3 sm:block" strokeWidth={3} />
+                                      <Check
+                                        className="hidden h-3 w-3 sm:block"
+                                        strokeWidth={3}
+                                      />
                                     ) : null}
                                   </div>
 
@@ -648,7 +683,7 @@ function Campaigns() {
                           <Button
                             type="button"
                             onClick={() => setReviewItem(item)}
-                            className="h-9 rounded-sm bg-[#8d9978] text-xs font-medium text-white hover:bg-[#7f8d6d] sm:h-12 sm:rounded-md sm:text-sm">
+                            className="h-9 rounded-sm bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] text-xs font-medium text-white hover:opacity-90 sm:h-12 sm:rounded-md sm:text-sm">
                             <Star className="h-3.5 w-3.5 fill-white text-white" />
                             {isRTL ? "تقييم المؤثر" : "Rate influencer"}
                           </Button>
@@ -656,7 +691,11 @@ function Campaigns() {
                             type="button"
                             onClick={() => {
                               if (item.contentUrl) {
-                                window.open(item.contentUrl, "_blank", "noopener,noreferrer");
+                                window.open(
+                                  item.contentUrl,
+                                  "_blank",
+                                  "noopener,noreferrer",
+                                );
                               }
                             }}
                             disabled={!item.contentUrl}
@@ -674,11 +713,11 @@ function Campaigns() {
               <div className="flex justify-center pt-3 sm:pt-8">
                 <Button
                   type="button"
-                  className="group h-9 rounded-full bg-[#aab48f] px-4 text-xs font-medium text-white shadow-none hover:bg-[#9eaa83] sm:h-14 sm:px-6 sm:text-sm sm:shadow-[0_10px_30px_rgba(170,180,143,0.3)]">
+                  className="group h-9 rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-4 text-xs font-medium text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90 sm:h-14 sm:px-6 sm:text-sm">
                   <span className={isRTL ? "text-right" : "text-left"}>
                     {t("campaigns.relaunch")}
                   </span>
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#eef2e6] text-[#8b9677] sm:h-8 sm:w-8">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-white sm:h-8 sm:w-8">
                     {isRTL ? (
                       <ArrowLeft className="h-3 w-3 sm:h-4.5 sm:w-4.5" />
                     ) : (

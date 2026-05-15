@@ -9,7 +9,7 @@ type LogoIconProps = {
 };
 
 function LogoIcon({ type, className }: LogoIconProps) {
-  const common = "text-[#b4baa5]";
+  const common = "text-[rgba(111,66,193,0.7)]";
 
   if (type === "puzzle") {
     return (
@@ -49,7 +49,7 @@ function LogoIcon({ type, className }: LogoIconProps) {
     return (
       <Card
         className={cn(
-          "h-10 w-10 rounded-full border-0 bg-[#b4baa5] py-0 shadow-none ring-0",
+          "h-10 w-10 rounded-full border-0 bg-[rgba(111,66,193,0.7)] py-0 shadow-none ring-0",
           className,
         )}>
         <CardContent className="flex h-10 w-10 items-center justify-center p-0">
@@ -71,7 +71,7 @@ function LogoIcon({ type, className }: LogoIconProps) {
           className,
         )}>
         <CardContent className="relative h-10 w-10 p-0">
-          <div className="absolute left-1 top-1 h-8 w-8 rounded-full bg-[#b4baa5] opacity-90" />
+          <div className="absolute left-1 top-1 h-8 w-8 rounded-full bg-[rgba(111,66,193,0.7)] opacity-90" />
           <div className="absolute left-4 top-2 h-5 w-2 rotate-45 rounded-full bg-white/70" />
         </CardContent>
       </Card>
@@ -82,7 +82,7 @@ function LogoIcon({ type, className }: LogoIconProps) {
     return (
       <Card
         className={cn(
-          "h-10 w-10 rounded-full border-0 bg-[#b4baa5] py-0 text-white shadow-none ring-0",
+          "h-10 w-10 rounded-full border-0 bg-[rgba(111,66,193,0.7)] py-0 text-white shadow-none ring-0",
           className,
         )}>
         <CardContent className="flex h-10 w-10 items-center justify-center p-0">
@@ -97,7 +97,7 @@ function LogoIcon({ type, className }: LogoIconProps) {
   return (
     <Card
       className={cn(
-        "h-10 w-10 rounded-full border-0 bg-[#b4baa5] py-0 shadow-none ring-0",
+        "h-10 w-10 rounded-full border-0 bg-[rgba(111,66,193,0.7)] py-0 shadow-none ring-0",
         className,
       )}>
       <CardContent className="h-10 w-10 p-0" />

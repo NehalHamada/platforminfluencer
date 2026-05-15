@@ -896,6 +896,7 @@ function ChatPage({
   const statePeerName = stateLocation?.peerName ?? stateLocation?.companyName;
   const [pendingMessages, setPendingMessages] = useState<ChatMessage[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const approvedOnLoadRef = useRef<Record<string, boolean | undefined>>({});
   const agreementSubmitLockRef = useRef<string | null>(null);
 
   // ─── Fetch conversations ───
@@ -973,8 +974,9 @@ function ChatPage({
         ? apiConversations[0].id
         : undefined);
 
+  const isPendingConversation = String(selectedConvId ?? "").startsWith("pending:");
   // ─── Fetch messages for selected conversation ───
-  const messagesQuery = useMessagesQuery(selectedConvId);
+  const messagesQuery = useMessagesQuery(isPendingConversation ? undefined : selectedConvId);
   const apiMessages = useMemo(
     () => messagesQuery.data?.data ?? [],
     [messagesQuery.data?.data],
@@ -1086,8 +1088,25 @@ function ChatPage({
     };
   }, [currentUserId, queryClient]);
 
+  // Track initial approval state so we only navigate when approval happens
+  // DURING the session, not when the page loads with an already-approved conversation.
   useEffect(() => {
-    if (!selectedConvId || !hasApprovedApiMessage) return;
+    if (!selectedConvId) return;
+    const key = String(selectedConvId);
+
+    // Wait for messages to finish loading before recording initial state
+    if (!messagesQuery.isSuccess) return;
+
+    // Record whether this conversation was already approved on first load
+    if (approvedOnLoadRef.current[key] === undefined) {
+      approvedOnLoadRef.current[key] = hasApprovedApiMessage;
+    }
+
+    if (!hasApprovedApiMessage) return;
+
+    // If it was already approved when we first loaded it, don't navigate away
+    if (approvedOnLoadRef.current[key] === true) return;
+
     const latestDelivery = [...apiMessages]
       .reverse()
       .find(
@@ -1133,6 +1152,7 @@ function ChatPage({
     );
   }, [
     hasApprovedApiMessage,
+    messagesQuery.isSuccess,
     navigate,
     queryClient,
     role,
@@ -1363,6 +1383,7 @@ function ChatPage({
   const handleSendMessage = useCallback(
     async (text: string) => {
       if (isSendingMessage) return false;
+      if (isPendingConversation) return false;
       setIsSendingMessage(true);
 
       const tempMessage: ChatMessage = {
@@ -1427,6 +1448,7 @@ function ChatPage({
     },
     [
       isSendingMessage,
+      isPendingConversation,
       selectedConvId,
       sendMutation,
       queryClient,
@@ -2099,6 +2121,14 @@ function ChatPage({
           <div className="sr-only" aria-live="polite">
             {selectedConversation.lastMessage}
           </div>
+
+          {isPendingConversation && (
+            <div className="mx-4 mb-3 rounded-xl bg-[rgba(111,66,193,0.07)] px-4 py-3 text-center text-sm text-[#6f42c1]">
+              {isRTL
+                ? "تم الاتفاق — يتم إعداد الدردشة، يرجى الانتظار قليلاً"
+                : "Agreement reached — Chat is being set up, please wait a moment"}
+            </div>
+          )}
 
           <MessageThread
             conversation={selectedConversation}

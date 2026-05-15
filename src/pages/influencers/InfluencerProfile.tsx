@@ -233,7 +233,7 @@ function InfluencerProfile() {
                     </h1>
                     <div
                       className={cn(
-                        "mt-1 flex items-center gap-1 text-xs text-[#6daa57]",
+                        "mt-1 flex items-center gap-1 text-xs text-[rgba(111,66,193,1)]",
                         isRTL
                           ? "flex-row-reverse justify-start"
                           : "justify-start",
@@ -300,7 +300,7 @@ function InfluencerProfile() {
                             isRTL && "flex-row-reverse",
                           )}>
                           <span>{chip}</span>
-                          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#aab48f] text-white sm:h-4 sm:w-4">
+                          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[rgba(111,66,193,1)] text-white sm:h-4 sm:w-4">
                             <Globe className="h-2.5 w-2.5" />
                           </span>
                         </div>
@@ -493,7 +493,7 @@ function InfluencerProfile() {
                     className={cn(
                       "rounded-full px-4",
                       activeFilter === filter.key
-                        ? "border-0 bg-[#eef2e6] text-[#5d7b46] hover:bg-[#e6edd9]"
+                        ? "border-0 bg-[rgba(111,66,193,0.1)] text-[rgba(111,66,193,1)] hover:bg-[rgba(111,66,193,0.15)]"
                         : "border-[#e5e1d8] bg-white text-[#727169] hover:bg-[#faf9f5]",
                     )}>
                     {filter.label}
@@ -635,7 +635,7 @@ function InfluencerProfile() {
                 className="h-7 w-7 rounded-full border-[#e6e2d8] bg-white">
                 {isRTL ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
               </Button>
-              <div className="h-1.5 w-10 rounded-full bg-[#d8ddcf]" />
+              <div className="h-1.5 w-10 rounded-full bg-[rgba(111,66,193,0.3)]" />
               <Button
                 type="button"
                 size="icon-sm"
@@ -666,7 +666,7 @@ function InfluencerProfile() {
               {reviews.map((review) => (
                 <Card
                   key={review.id}
-                  className="rounded-[18px] border-0 bg-[linear-gradient(180deg,#2a2b28_0%,#1f201d_100%)] py-0 text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+                  className="rounded-[18px] border-0 bg-[rgba(26,20,37,1)] py-0 text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
                   <CardContent className="p-4">
                     <div className={isRTL ? "text-right" : "text-left"}>
                       <div
@@ -694,7 +694,7 @@ function InfluencerProfile() {
                       <div className="mt-4 space-y-2 text-sm text-white/80">
                         <p>{review.date}</p>
                         <p>{review.amount}</p>
-                        <p className="text-[#b9c89b]">{review.status}</p>
+                        <p className="text-[rgba(111,66,193,0.5)]">{review.status}</p>
                       </div>
 
                       <div
@@ -718,7 +718,7 @@ function InfluencerProfile() {
               {reviews.map((review) => (
                 <Card
                   key={review.id}
-                  className="min-w-42 rounded-[16px] border-0 bg-[linear-gradient(180deg,#2a2b28_0%,#1f201d_100%)] py-0 text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+                  className="min-w-42 rounded-[16px] border-0 bg-[rgba(26,20,37,1)] py-0 text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
                   <CardContent className="p-3">
                     <div className={isRTL ? "text-right" : "text-left"}>
                       <div
@@ -746,7 +746,7 @@ function InfluencerProfile() {
                       <div className="mt-3 space-y-1.5 text-[11px] text-white/80">
                         <p>{review.date}</p>
                         <p>{review.amount}</p>
-                        <p className="text-[#b9c89b]">{review.status}</p>
+                        <p className="text-[rgba(111,66,193,0.5)]">{review.status}</p>
                       </div>
 
                       <div

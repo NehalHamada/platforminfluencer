@@ -156,7 +156,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
         <div className="flex flex-col gap-2 px-3 lg:hidden">
           {/* Mobile Title */}
           <div className="mb-1 flex items-center justify-start gap-2 px-1">
-            <h2 className="font-bold text-[#202020] text-[16px] sm:text-[18px]">
+            <h2 className="font-bold text-[#202020] text-[13px] sm:text-[15px]">
               {sectionText(data, "title", t("overview.title"), isRTL)}
             </h2>
             <Eye className="h-4 w-4 text-[#b7bcc5]" aria-hidden="true" />
@@ -164,16 +164,16 @@ function OverviewSection({ data }: OverviewSectionProps) {
           </div>
 
           {/* Text Card (TOP on mobile) */}
-          <Card className="flex w-full rounded-[16px] border-0 ring-0 bg-[rgba(167,183,142,1)] py-0 text-white shadow-none">
+          <Card className="flex w-full rounded-[16px] border-0 ring-0 bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] py-0 text-white shadow-none">
             <CardContent className="flex w-full flex-col justify-center px-4 py-4 text-center">
-              <p className="mx-auto font-semibold leading-normal text-[13px] sm:text-[15px]">
+              <p className="mx-auto font-semibold leading-normal text-[11px] sm:text-[13px]">
                 {sideText}
               </p>
             </CardContent>
           </Card>
 
           {/* Social Media Cards (BOTTOM on mobile) */}
-          <Card className="w-full rounded-[16px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none">
+          <Card className="w-full rounded-[16px] border-0 ring-0 bg-[rgba(111,66,193,0.08)] py-0 shadow-none">
             <CardContent className="p-2 sm:p-3">
               <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
                 {platforms.map((item) => (
@@ -221,8 +221,8 @@ function OverviewSection({ data }: OverviewSectionProps) {
               className={cn(
                 "font-bold text-[#202020]",
                 isRTL
-                  ? "text-xl sm:text-2xl md:text-[30px]"
-                  : "text-lg sm:text-xl md:text-[24px]",
+                  ? "text-lg sm:text-xl md:text-[26px]"
+                  : "text-base sm:text-lg md:text-[20px]",
               )}>
               {sectionText(data, "title", t("overview.title"), isRTL)}
             </h2>
@@ -231,7 +231,7 @@ function OverviewSection({ data }: OverviewSectionProps) {
           </motion.div>
 
           <div className="flex flex-col items-stretch gap-4 lg:flex-row">
-            <Card className="w-full rounded-[24px] border-0 ring-0 bg-[rgba(167,183,142,0.1)] py-0 shadow-none lg:w-fit lg:max-w-[75%]">
+            <Card className="w-full rounded-[24px] border-0 ring-0 bg-[rgba(111,66,193,0.08)] py-0 shadow-none lg:w-fit lg:max-w-[75%]">
               <CardContent className="h-full p-4 sm:p-5 md:p-6">
                 <div className="flex h-full flex-wrap content-start gap-4">
                   {platforms.map((item) => (
@@ -286,14 +286,14 @@ function OverviewSection({ data }: OverviewSectionProps) {
               </CardContent>
             </Card>
 
-            <Card className="flex w-full flex-1 rounded-[24px] border-0 ring-0 bg-[rgba(167,183,142,1)] py-0 text-white shadow-none">
+            <Card className="flex w-full flex-1 rounded-[24px] border-0 ring-0 bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] py-0 text-white shadow-none">
               <CardContent className="flex w-full flex-col justify-center p-5 text-center sm:p-6 md:p-8">
                 <p
                   className={cn(
                     "mx-auto max-w-[20rem] font-semibold leading-[1.7] lg:mx-0 lg:max-w-none",
                     isRTL
-                      ? "text-lg sm:text-xl md:text-[23px] lg:text-[26px]"
-                      : "text-base sm:text-lg md:text-[19px] lg:text-[22px]",
+                      ? "text-base sm:text-lg md:text-[20px] lg:text-[22px]"
+                      : "text-sm sm:text-base md:text-[15px] lg:text-[17px]",
                     isRTL ? "lg:text-right" : "lg:text-left",
                   )}>
                   {sideText}

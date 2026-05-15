@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[rgba(167,183,142,1)] text-primary-foreground [a]:hover:bg-[rgba(167,183,142,0.5)]",
+          "bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90",
 
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
@@ -26,7 +26,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
 
         brand:
-          "text-white hover:opacity-90 bg-[linear-gradient(0deg,_#A7B78E,_#A7B78E),linear-gradient(180deg,_rgba(167,183,142,1)_97.71%,_rgba(167,183,142,1)_100%),radial-gradient(50%_50%_at_50%_50%,_rgba(255,255,255,0.07)_0%,_rgba(0,0,0,0.2)_100%)]",
+          "text-white bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90",
 
         light:
           "bg-[rgba(245,245,245,1)] text-black border border-gray-200 hover:bg-gray-100",

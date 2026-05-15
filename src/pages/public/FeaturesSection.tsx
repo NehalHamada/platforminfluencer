@@ -39,14 +39,14 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
 
   return (
     <section
-      className="font-ibm-plex overflow-hidden bg-[rgba(167,183,142,0.15)] px-4 py-8 md:py-12"
+      className="font-ibm-plex overflow-hidden bg-[rgba(111,66,193,0.05)] px-4 py-8 md:py-12"
       dir={isRTL ? "rtl" : "ltr"}>
       <div className="mx-auto max-w-5xl">
         {/* Mobile Layout */}
         <div className="flex flex-col md:hidden">
           {/* Title */}
           <div className="mb-8 w-full text-center">
-            <h2 className="inline-block border-b-[1.5px] border-[#333] pb-2 text-[20px] font-bold text-[#2c2c2c]">
+            <h2 className="inline-block border-b-[1.5px] border-[#333] pb-2 text-[17px] font-bold text-[#2c2c2c]">
               {sectionText(data, "title", "كيف نخلق القيمة", true)}
             </h2>
           </div>
@@ -65,11 +65,11 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                     <div className="flex w-full flex-1 flex-col items-end pt-1 text-right">
                       <div className="flex w-full items-start justify-between gap-2">
                         <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
-                        <h3 className="text-right text-[16px] font-bold text-[#2c2c2c]">
+                        <h3 className="text-right text-[14px] font-bold text-[#2c2c2c]">
                           {item.title}
                         </h3>
                       </div>
-                      <p className="mt-1 w-full text-right text-[13px] leading-relaxed text-[#606060]">
+                      <p className="mt-1 w-full text-right text-[11px] leading-relaxed text-[#606060]">
                         {item.desc}
                       </p>
                     </div>
@@ -84,12 +84,12 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                     </div>
                     <div className="flex w-full flex-1 flex-col items-start pt-1 text-left">
                       <div className="flex w-full items-start justify-between gap-2">
-                        <h3 className="text-left text-[16px] font-bold text-[#2c2c2c]">
+                        <h3 className="text-left text-[14px] font-bold text-[#2c2c2c]">
                           {item.title}
                         </h3>
                         <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
                       </div>
-                      <p className="mt-1 w-full text-left text-[13px] leading-relaxed text-[#606060]">
+                      <p className="mt-1 w-full text-left text-[11px] leading-relaxed text-[#606060]">
                         {item.desc}
                       </p>
                     </div>
@@ -121,11 +121,11 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                     <div className="flex w-full flex-1 flex-col items-end pt-1 text-right">
                       <div className="flex w-full items-start justify-between gap-2">
                         <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
-                        <h3 className="text-right text-[16px] font-bold text-[#2c2c2c]">
+                        <h3 className="text-right text-[14px] font-bold text-[#2c2c2c]">
                           {item.title}
                         </h3>
                       </div>
-                      <p className="mt-1 w-full text-right text-[13px] leading-relaxed text-[#606060]">
+                      <p className="mt-1 w-full text-right text-[11px] leading-relaxed text-[#606060]">
                         {item.desc}
                       </p>
                     </div>
@@ -140,12 +140,12 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                     </div>
                     <div className="flex w-full flex-1 flex-col items-start pt-1 text-left">
                       <div className="flex w-full items-start justify-between gap-2">
-                        <h3 className="text-left text-[16px] font-bold text-[#2c2c2c]">
+                        <h3 className="text-left text-[14px] font-bold text-[#2c2c2c]">
                           {item.title}
                         </h3>
                         <FaCaretDown className="mt-1 h-5 w-5 shrink-0 text-[#2c2c2c]" aria-hidden="true" />
                       </div>
-                      <p className="mt-1 w-full text-left text-[13px] leading-relaxed text-[#606060]">
+                      <p className="mt-1 w-full text-left text-[11px] leading-relaxed text-[#606060]">
                         {item.desc}
                       </p>
                     </div>
@@ -200,7 +200,7 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                 <div className="flex flex-1 flex-col pt-1">
                   {/* Title & Arrow */}
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-[16px] font-semibold text-[#2c2c2c] md:text-[18px]">
+                    <h3 className="text-[14px] font-semibold text-[#2c2c2c] md:text-[15px]">
                       {item.title}
                     </h3>
                     <FaCaretDown
@@ -210,7 +210,7 @@ function FeaturesSection({ data }: FeaturesSectionProps) {
                   </div>
 
                   {/* Description */}
-                  <p className="mt-3 text-[13px] leading-relaxed text-[#606060] md:text-[14px]">
+                  <p className="mt-3 text-[11px] leading-relaxed text-[#606060] md:text-[14px]">
                     {item.desc}
                   </p>
                 </div>

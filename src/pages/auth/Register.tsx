@@ -118,7 +118,7 @@ function Register() {
         <section
           dir={isArabic ? "rtl" : "ltr"}
           className={cn(
-            "fixed inset-0 z-60 flex min-h-screen flex-col items-center justify-center overflow-y-auto px-4 py-8 text-white lg:relative lg:inset-auto lg:z-auto lg:flex-col-reverse lg:justify-between lg:gap-10 lg:p-4 lg:text-inherit",
+            "fixed inset-0 z-60 flex min-h-screen flex-col items-center justify-center overflow-y-auto px-4 py-8 text-white lg:relative lg:inset-auto lg:z-auto lg:flex-col-reverse lg:justify-between lg:gap-6 lg:p-4 lg:text-inherit",
             "lg:flex-row",
             isArabic ? "lg:flex-row-reverse" : "lg:flex-row-reverse",
           )}>
@@ -358,7 +358,7 @@ function Register() {
                       type="submit"
                       disabled={isSubmitting}
                       variant="brand"
-                      className="relative h-10 w-full rounded-full text-sm lg:h-14 lg:text-base">
+                      className="relative h-10 w-full rounded-full text-sm lg:h-11">
                       <span
                         className={cn(
                           "pointer-events-none absolute top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[#93a079]",
@@ -383,7 +383,7 @@ function Register() {
             <img
               src={logphoto}
               alt="register"
-              className="h-50 w-full rounded-[20px] object-cover lg:h-[calc(100vh-32px)]"
+              className="h-50 w-full rounded-[20px] object-cover lg:h-155"
             />
           </div>
         </section>

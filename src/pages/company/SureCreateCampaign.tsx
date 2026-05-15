@@ -341,10 +341,10 @@ function SureCreateCampaign() {
                     <Button
                       type="button"
                       onClick={handleLaunch}
-                      className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
+                      className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-6 text-sm font-medium text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] transition hover:scale-[1.02] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
                       <span
                         className={cn(
-                          "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3f7eb] text-[#8c9878] sm:h-8 sm:w-8",
+                          "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white sm:h-8 sm:w-8",
                           isRTL ? "left-2" : "right-2",
                         )}>
                         {isRTL ? (

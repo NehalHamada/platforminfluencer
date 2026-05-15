@@ -61,17 +61,14 @@ const normalizeText = (value?: string | number | null) =>
 const getRecord = (value: unknown) =>
   value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 
-const getNestedRecord = (value: unknown, key: string) => getRecord(getRecord(value)[key]);
+const getNestedRecord = (value: unknown, key: string) =>
+  getRecord(getRecord(value)[key]);
 
 const getAnyText = (...values: unknown[]) =>
-  values
-    .map((value) => String(value ?? "").trim())
-    .find(Boolean);
+  values.map((value) => String(value ?? "").trim()).find(Boolean);
 
 const getAnyId = (...values: unknown[]) =>
-  values
-    .map((value) => String(value ?? "").trim())
-    .find(Boolean);
+  values.map((value) => String(value ?? "").trim()).find(Boolean);
 
 const getCampaignName = (campaign?: Campaign | null) => {
   const raw = getRecord(campaign);
@@ -262,10 +259,10 @@ function Cooperation() {
 
         return Boolean(
           target.campaignName &&
-            conversationCampaignName === target.campaignName &&
-            (!target.companyName ||
-              !conversationCompanyName ||
-              conversationCompanyName === target.companyName),
+          conversationCampaignName === target.campaignName &&
+          (!target.companyName ||
+            !conversationCompanyName ||
+            conversationCompanyName === target.companyName),
         );
       });
 
@@ -310,14 +307,23 @@ function Cooperation() {
     };
 
     for (const conversation of conversationsQuery.data?.data ?? []) {
-      if (!conversation.id || !approvedConversationIds.has(String(conversation.id))) {
+      if (
+        !conversation.id ||
+        !approvedConversationIds.has(String(conversation.id))
+      ) {
         continue;
       }
 
-      const applicationId = normalizeText(getConversationApplicationId(conversation));
+      const applicationId = normalizeText(
+        getConversationApplicationId(conversation),
+      );
       const campaignId = normalizeText(getConversationCampaignId(conversation));
-      const campaignName = normalizeText(getConversationCampaignName(conversation));
-      const companyName = normalizeText(getConversationCompanyName(conversation));
+      const campaignName = normalizeText(
+        getConversationCampaignName(conversation),
+      );
+      const companyName = normalizeText(
+        getConversationCompanyName(conversation),
+      );
 
       if (applicationId) matches.applicationIds.add(applicationId);
       if (campaignId) matches.campaignIds.add(campaignId);
@@ -344,7 +350,10 @@ function Cooperation() {
       const reqCompany = request.company as Record<string, unknown> | null;
       const reqCampaign = request.campaign as Record<string, unknown>;
       const reqUser = request.user as Record<string, unknown> | null;
-      const campaignUser = request.campaign.user as Record<string, unknown> | null;
+      const campaignUser = request.campaign.user as Record<
+        string,
+        unknown
+      > | null;
 
       const companyName =
         request.company?.company_name ??
@@ -358,19 +367,21 @@ function Cooperation() {
         "-";
       const campaignName = getCampaignName(request.campaign);
       const approvedByConversationMatch =
-        approvedConversationMatches.applicationIds.has(normalizeText(request.id)) ||
+        approvedConversationMatches.applicationIds.has(
+          normalizeText(request.id),
+        ) ||
         approvedConversationMatches.campaignIds.has(
           normalizeText(request.campaign_id ?? request.campaign.id),
         ) ||
         Boolean(
           campaignName &&
-            approvedConversationMatches.campaignNames.has(
-              normalizeText(campaignName),
-            ) &&
-            (!companyName ||
-              approvedConversationMatches.companyNames.has(
-                normalizeText(companyName),
-              )),
+          approvedConversationMatches.campaignNames.has(
+            normalizeText(campaignName),
+          ) &&
+          (!companyName ||
+            approvedConversationMatches.companyNames.has(
+              normalizeText(companyName),
+            )),
         );
 
       if (approvedByConversationMatch) {
@@ -441,13 +452,13 @@ function Cooperation() {
         ) ||
         Boolean(
           campaignName &&
-            approvedConversationMatches.campaignNames.has(
-              normalizeText(campaignName),
-            ) &&
-            (!companyName ||
-              approvedConversationMatches.companyNames.has(
-                normalizeText(companyName),
-              )),
+          approvedConversationMatches.campaignNames.has(
+            normalizeText(campaignName),
+          ) &&
+          (!companyName ||
+            approvedConversationMatches.companyNames.has(
+              normalizeText(companyName),
+            )),
         );
 
       if (approvedByConversationMatch) {
@@ -493,7 +504,8 @@ function Cooperation() {
     }
 
     // 3) Available campaigns from influencer home endpoint
-    for (const campaignItem of influencerDashboardQuery.data?.upcomingCampaigns ?? []) {
+    for (const campaignItem of influencerDashboardQuery.data
+      ?.upcomingCampaigns ?? []) {
       const rawCampaign = campaignItem.raw ?? {};
       const campaign = {
         ...rawCampaign,
@@ -550,7 +562,6 @@ function Cooperation() {
     influencerDashboardQuery.data?.upcomingCampaigns,
     collabRequestsQuery.data?.data,
     myApplicationsQuery.data?.data,
-    approvedConversationIds,
     approvedConversationMatches,
     rejectedCampaignIds,
   ]);
@@ -592,13 +603,17 @@ function Cooperation() {
         }),
       ]);
 
-      const finalConvId = await resolveAcceptedConversationId({
-        queryClient,
-        role: "influencer",
-        peerName: item.companyName,
-        existingConversationId:
-          responseConversationId || convId,
-      });
+      let finalConvId;
+      try {
+        finalConvId = await resolveAcceptedConversationId({
+          queryClient,
+          role: "influencer",
+          peerName: item.companyName,
+          existingConversationId: responseConversationId || convId,
+        });
+      } catch {
+        finalConvId = undefined;
+      }
       navigate("/dashboard/influencer/messages", {
         state: {
           conversationId: finalConvId,
@@ -624,7 +639,7 @@ function Cooperation() {
     } else if (item.source === "collaboration-request" && item.requestId) {
       respondMutation.mutate(
         { requestId: item.requestId, status: "accepted" },
-        { onSuccess: onAcceptSuccess, onError: onAcceptError }
+        { onSuccess: onAcceptSuccess, onError: onAcceptError },
       );
     } else if (item.source === "campaign") {
       const campToApply = campaign as Record<string, unknown>;
@@ -632,7 +647,11 @@ function Cooperation() {
         {
           campaignId: Number(campaign.id),
           payload: {
-            price: Number((campToApply.price as string | number | undefined) ?? (campToApply.budget as string | number | undefined) ?? 0),
+            price: Number(
+              (campToApply.price as string | number | undefined) ??
+                (campToApply.budget as string | number | undefined) ??
+                0,
+            ),
             note: "Accepted from cooperation board",
             execution_date: new Date().toISOString().slice(0, 10),
             is_ready: true,
@@ -640,14 +659,10 @@ function Cooperation() {
         },
         {
           onSuccess: async (response) => {
-            if (getConversationIdFromResponse(response)) {
-              await onAcceptSuccess(response);
-            } else {
-              setAcceptingItemId(null);
-            }
+            await onAcceptSuccess(response);
           },
           onError: onAcceptError,
-        }
+        },
       );
     } else {
       if (convId) {
@@ -673,14 +688,13 @@ function Cooperation() {
         applicationId: applicationId,
         status: "rejected",
       });
-    } else {
     }
 
     addRejectedCampaignId(item.campaign.id);
   };
 
   const isActionPending =
-    applyCampaignMutation.isPending || 
+    applyCampaignMutation.isPending ||
     respondMutation.isPending ||
     Boolean(acceptingItemId);
 
@@ -711,14 +725,14 @@ function Cooperation() {
                   <h1 className="inline-block text-[28px] font-bold text-[#22221f] sm:text-[38px]">
                     <span className="relative">
                       {t("cooperation.title")}
-                      <span className="absolute -bottom-2 left-0 h-[2px] w-full bg-[#22221f]" />
+                      <span className="absolute -bottom-2 left-0 h-0.5 w-full bg-[#22221f]" />
                     </span>
                   </h1>
                 </div>
 
                 {isLoading ? (
                   <div className="flex items-center justify-center py-16">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-[rgba(111,66,193,0.5)] border-t-transparent" />
                   </div>
                 ) : cooperationItems.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16">
@@ -731,7 +745,10 @@ function Cooperation() {
                     {cooperationItems.map((item) => {
                       const campaign = item.campaign;
                       const camp = campaign as Record<string, unknown>;
-                      const campUser = campaign.user as Record<string, unknown> | null;
+                      const campUser = campaign.user as Record<
+                        string,
+                        unknown
+                      > | null;
 
                       const displayData = {
                         companyName: item.companyName,
@@ -739,7 +756,11 @@ function Cooperation() {
                           campaign.campaign_type?.name ??
                           campaign.campaignType?.name ??
                           campaign.campaign_type_name ??
-                          ((camp.campaign_type as Record<string, unknown> | undefined)?.label as string) ??
+                          ((
+                            camp.campaign_type as
+                              | Record<string, unknown>
+                              | undefined
+                          )?.label as string) ??
                           (camp.idea as string | undefined) ??
                           (campUser?.field as string | undefined) ??
                           (camp.field as string | undefined) ??
@@ -810,11 +831,23 @@ function Cooperation() {
                                   onClick={() => handleAccept(item)}
                                   disabled={isActionPending}
                                   className="h-9 rounded-[8px] border border-[#aacd9f] bg-transparent text-xs font-medium text-[#5faa55] hover:bg-[#f7fcf5] sm:h-11 sm:text-sm">
-                                  {acceptingItemId === item.id || (respondMutation.isPending && respondMutation.variables?.status === "accepted" && String(respondMutation.variables?.requestId) === String(item.requestId))
-                                    ? t("createCampaign.submitting", "Sending...")
+                                  {acceptingItemId === item.id ||
+                                  (respondMutation.isPending &&
+                                    respondMutation.variables?.status ===
+                                      "accepted" &&
+                                    String(
+                                      respondMutation.variables?.requestId,
+                                    ) === String(item.requestId))
+                                    ? t(
+                                        "createCampaign.submitting",
+                                        "Sending...",
+                                      )
                                     : isAcceptedStatus(item.status)
-                                    ? t("cooperation.openChat", "فتح المحادثة")
-                                    : t("cooperation.accept")}
+                                      ? t(
+                                          "cooperation.openChat",
+                                          "فتح المحادثة",
+                                        )
+                                      : t("cooperation.accept")}
                                 </Button>
                                 <Button
                                   type="button"
@@ -822,7 +855,12 @@ function Cooperation() {
                                   onClick={() => handleReject(item)}
                                   disabled={isActionPending}
                                   className="h-9 rounded-[8px] border border-[#ea9f9f] bg-transparent text-xs font-medium text-[#e25d5d] hover:bg-[#fff7f7] sm:h-11 sm:text-sm">
-                                  {respondMutation.isPending && respondMutation.variables?.status === "rejected" && String(respondMutation.variables?.requestId) === String(item.requestId)
+                                  {respondMutation.isPending &&
+                                  respondMutation.variables?.status ===
+                                    "rejected" &&
+                                  String(
+                                    respondMutation.variables?.requestId,
+                                  ) === String(item.requestId)
                                     ? t("cooperation.rejecting", "Rejecting...")
                                     : t("cooperation.reject")}
                                 </Button>
@@ -840,7 +878,10 @@ function Cooperation() {
                                 }}
                                 className="h-9 w-full rounded-[8px] border border-[#d7d4ca] bg-transparent text-xs font-medium text-[#6f6d66] hover:bg-[#faf9f5] sm:h-11 sm:text-sm">
                                 {isAcceptedStatus(item.status)
-                                  ? t("campaign.followPublishing", "متابعة النشر")
+                                  ? t(
+                                      "campaign.followPublishing",
+                                      "متابعة النشر",
+                                    )
                                   : t("cooperation.negotiate")}
                               </Button>
                             </div>

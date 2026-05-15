@@ -274,6 +274,7 @@
     "managerName": "Company Manager",
     "managerNamePlaceholder": "Enter manager name",
     "field": "Field",
+    "fieldPlaceholder": "Enter field",
     "country": "Country",
     "platform": "Platform",
     "followersRange": "Followers Range",
@@ -281,10 +282,10 @@
     "selectPlatform": "Select platform",
     "selectFollowersRange": "Select followers range",
     "selectContentType": "Select content type",
-    "submit": "Sumbit",
+    "submit": "Submit",
     "loading": "Sending ...",
     "success": "Company Account Created Successfully",
-    "error": "Field Registeration, please try again",
+    "error": "Failed registration, please try again",
     "selectCountry": "Select country",
     "loadingCountries": "Loading countries...",
     "countriesError": "Could not load countries",
@@ -426,7 +427,12 @@
     "targetLocations": {
       "1": "Cairo, Egypt",
       "2": "Saudi Arabia",
-      "3": "United Arab Emirates"
+      "3": "United Arab Emirates",
+      "4": "Kuwait",
+      "5": "Qatar",
+      "6": "Jordan",
+      "7": "Bahrain",
+      "8": "Oman"
     },
     "targetAudiences": {
       "1": "Young Adults (25 - 34)",
@@ -519,7 +525,7 @@
     "otp_required": "please enter verify number",
     "company_name_required": "Company Name is required",
     "manager_name_required": "Manager Name",
-    "field_required": "Field Requires",
+    "field_required": "Field is required",
     "country_required": "Country Required",
     "platform_required": "Platform is required",
     "followers_required": "Followers count is required",

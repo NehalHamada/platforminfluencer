@@ -96,7 +96,7 @@ function ResetPassword() {
     <section
       dir={isArabic ? "rtl" : "ltr"}
       className={cn(
-        "fixed inset-0 z-60 flex min-h-screen flex-col items-center justify-center overflow-y-auto px-4 py-8 text-white lg:relative lg:inset-auto lg:z-auto lg:flex-col-reverse lg:justify-between lg:gap-10 lg:p-4 lg:text-inherit",
+        "fixed inset-0 z-60 flex min-h-screen flex-col items-center justify-center overflow-y-auto px-4 py-8 text-white lg:relative lg:inset-auto lg:z-auto lg:flex-col-reverse lg:justify-between lg:gap-6 lg:p-4 lg:text-inherit",
         "lg:flex-row",
         isArabic ? "lg:flex-row-reverse" : "lg:flex-row-reverse",
       )}>
@@ -246,7 +246,7 @@ function ResetPassword() {
                   type="submit"
                   disabled={resetPasswordMutation.isPending}
                   variant="brand"
-                  className="h-10 w-full rounded-full text-sm lg:h-14 lg:text-base">
+                  className="h-10 w-full rounded-full text-sm lg:h-11">
                   {resetPasswordMutation.isPending
                     ? t("resetPassword.loading")
                     : t("resetPassword.submit")}
@@ -260,7 +260,7 @@ function ResetPassword() {
         <img
           src={logphoto}
           alt={t("resetPassword.title")}
-          className="h-50 w-full rounded-[20px] object-cover lg:h-[calc(100vh-32px)]"
+          className="h-50 w-full rounded-[20px] object-cover lg:h-130"
         />
       </div>
     </section>

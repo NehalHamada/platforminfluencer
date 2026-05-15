@@ -293,7 +293,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
           <h2
             className={cn(
               "mx-auto max-w-[18rem] wrap-break-words text-center font-bold leading-tight text-[#2f2f2f] sm:max-w-md md:max-w-none",
-              isRTL ? "text-2xl md:text-4xl" : "text-xl md:text-3xl",
+              isRTL ? "text-xl md:text-3xl" : "text-lg md:text-2xl",
             )}>
             {title}
           </h2>
@@ -302,8 +302,8 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
             className={cn(
               "mx-auto mt-4 max-w-[20rem] wrap-break-words text-center leading-7 text-[#555] sm:max-w-lg md:max-w-none",
               isRTL
-                ? "text-sm sm:text-base md:text-[19px]"
-                : "text-xs sm:text-sm md:text-[16px]",
+                ? "text-xs sm:text-sm md:text-[16px]"
+                : "text-[10px] sm:text-xs md:text-[13px]",
             )}>
             {description}
           </p>
@@ -339,7 +339,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                   <div className="relative mx-auto flex items-center justify-center overflow-hidden py-2">
                     <Card className="relative w-full max-w-[18rem] overflow-hidden rounded-[18px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
                       <CardContent className="px-3 pt-3 pb-0">
-                        <CardTitle className="text-[14px] font-semibold text-[rgba(167,183,142,1)]">
+                        <CardTitle className="text-[14px] font-semibold text-[rgba(111,66,193,1)]">
                           {activeMobile.name}
                         </CardTitle>
 
@@ -435,7 +435,7 @@ function InfluencersSection({ data }: InfluencersSectionProps) {
                 <Card
                   className="relative mx-auto w-full max-w-[16rem] overflow-hidden rounded-[16px] border-0 bg-[rgba(143,134,172,0.04)] py-0 shadow-[0_8px_24px_rgba(0,0,0,0.06)] sm:max-w-none">
                   <CardContent className="px-3 pt-3 pb-0">
-                    <CardTitle className="text-[14px] font-semibold text-[rgba(167,183,142,1)]">
+                    <CardTitle className="text-[14px] font-semibold text-[rgba(111,66,193,1)]">
                       {item.name}
                     </CardTitle>
 

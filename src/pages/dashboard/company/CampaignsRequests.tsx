@@ -105,19 +105,23 @@ function CampaignsRequests() {
             return;
           }
           
-          // Force refresh of conversations list
           await queryClient.invalidateQueries({ queryKey: queryKeys.chat.conversations() });
 
           const peerName = getInfluencerName(request);
-          const conversationId = await resolveAcceptedConversationId({
-            queryClient,
-            role: "company",
-            peerName,
-            existingConversationId:
-              request.conversation_id ??
-              getConversationIdFromResponse(request) ??
-              getConversationIdFromResponse(response),
-          });
+          let conversationId;
+          try {
+            conversationId = await resolveAcceptedConversationId({
+              queryClient,
+              role: "company",
+              peerName,
+              existingConversationId:
+                request.conversation_id ??
+                getConversationIdFromResponse(request) ??
+                getConversationIdFromResponse(response),
+            });
+          } catch {
+            conversationId = undefined;
+          }
 
           navigate("/dashboard/company/messages", {
             state: {
@@ -169,7 +173,7 @@ function CampaignsRequests() {
             <div className="grid grid-cols-1 gap-3 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
               {activeQuery.isLoading ? (
                 <div className="col-span-full flex items-center justify-center py-16">
-                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#b8c99a] border-t-transparent" />
+                  <div className="h-8 w-8 animate-spin rounded-full border-2 border-[rgba(111,66,193,0.5)] border-t-transparent" />
                 </div>
               ) : requests.length === 0 ? (
                 <p className="col-span-full py-14 text-center text-sm text-[#a3a694]">
@@ -209,7 +213,7 @@ function CampaignsRequests() {
                         </p>
                       </div>
 
-                      <Badge className="gap-1 bg-[#eef2e6] px-1.5 py-1 text-[7px] text-[#8b9677] sm:px-2.5 sm:text-xs">
+                      <Badge className="gap-1 bg-[rgba(111,66,193,0.1)] px-1.5 py-1 text-[7px] text-[rgba(111,66,193,1)] sm:px-2.5 sm:text-xs">
                         <BadgeCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         {request.status}
                       </Badge>

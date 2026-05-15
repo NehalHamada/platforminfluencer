@@ -125,7 +125,7 @@ function Offers() {
     cn(
       "h-7 rounded-none bg-white px-3 text-[9px] text-[#474741] shadow-none placeholder:text-[#adaba4] sm:h-12 sm:rounded-full sm:px-5 sm:text-sm",
       hasError ? "border-red-400" : "border-[#d9d6cc]",
-      "focus-visible:border-[#aab48f] focus-visible:ring-1 focus-visible:ring-[#aab48f]/20 sm:focus-visible:ring-2",
+      "focus-visible:border-[rgba(111,66,193,0.5)] focus-visible:ring-1 focus-visible:ring-[rgba(111,66,193,0.2)] sm:focus-visible:ring-2",
       isRTL ? "text-right" : "text-left",
     );
 
@@ -160,7 +160,7 @@ function Offers() {
               {isCampaignsLoading && !campaignId ? (
                 <p
                   className={cn(
-                    "mx-auto mb-4 max-w-4xl rounded-2xl bg-[#f4f6ef] px-4 py-3 text-sm text-[#7f8d69]",
+                    "mx-auto mb-4 max-w-4xl rounded-2xl bg-[rgba(111,66,193,0.04)] px-4 py-3 text-sm text-[rgba(111,66,193,0.7)]",
                     isRTL ? "text-right" : "text-left",
                   )}>
                   {t("campaign.loadingCampaign")}
@@ -269,10 +269,10 @@ function Offers() {
                       }
                       variant="brand"
                       className={cn(
-                        "h-6 rounded-full px-2.5 text-[9px] font-medium shadow-none disabled:cursor-not-allowed sm:h-13 sm:px-6 sm:text-sm sm:shadow-[0_10px_30px_rgba(170,180,143,0.3)]",
+                        "h-6 rounded-full px-2.5 text-[9px] font-medium shadow-none disabled:cursor-not-allowed sm:h-13 sm:px-6 sm:text-sm sm:shadow-[0_0_20px_rgba(111,66,193,0.25)]",
                         isRTL ? "flex-row-reverse" : "flex-row-reverse",
                       )}>
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#eef2e6] text-[#7f8d69] sm:h-8 sm:w-8">
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/20 text-white sm:h-8 sm:w-8">
                         {isRTL ? (
                           <ArrowLeft className="h-3 w-3 sm:h-4.5 sm:w-4.5" />
                         ) : (

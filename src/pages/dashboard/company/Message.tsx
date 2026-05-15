@@ -35,7 +35,6 @@ function Message() {
         .filter(({ request, conversationId }) =>
           Boolean(
             isAcceptedStatus(request.status) &&
-              conversationId &&
               !isCompletedConversationId(conversationId) &&
               !isCompletedCampaignId(request.campaign_id ?? request.campaign?.id),
           ),
@@ -45,7 +44,7 @@ function Message() {
           const influencer = item.influencer ?? item.user ?? null;
 
           return {
-            id: request.conversationId as string | number,
+            id: (request.conversationId ?? `pending:req:${item.id}`) as string | number,
             status: item.status,
             campaign_id: item.campaign_id ?? item.campaign?.id,
             campaign_name: item.campaign?.name,
@@ -69,7 +68,6 @@ function Message() {
         .filter(
           (application) =>
             isAcceptedStatus(application.status) &&
-            application.conversation_id &&
             !isCompletedConversationId(application.conversation_id) &&
             !isCompletedApplicationId(application.id) &&
             !isCompletedCampaignId(
@@ -77,7 +75,7 @@ function Message() {
             ),
         )
         .map((application) => ({
-          id: application.conversation_id as string | number,
+          id: (application.conversation_id ?? `pending:app:${application.id}`) as string | number,
           status: application.status,
           application_id: application.id,
           campaign_id: application.campaign_id ?? application.campaign?.id,

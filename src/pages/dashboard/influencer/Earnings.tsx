@@ -260,7 +260,7 @@ function Earnings() {
                           </p>
                         </div>
 
-                        <div className="rounded-full bg-[#f2efe7] p-1.5 text-[#b2a9cf] sm:p-2">
+                        <div className="rounded-full bg-[rgba(111,66,193,0.1)] p-1.5 text-[rgba(111,66,193,0.7)] sm:p-2">
                           <Icon
                             size={14}
                             aria-hidden="true"
@@ -314,7 +314,7 @@ function Earnings() {
                               )}>
                               {row.companyName}
                             </p>
-                            <div className="bg-[#eef2e8] py-1.5 text-center text-[12px] font-medium text-[#788968]">
+                            <div className="bg-[rgba(111,66,193,0.1)] py-1.5 text-center text-[12px] font-medium text-[rgba(111,66,193,1)]">
                               {isCompleted
                                 ? t("earn.statusCompleted")
                                 : t("earn.statusPending")}
@@ -403,7 +403,7 @@ function Earnings() {
                                 className={cn(
                                   "px-5 py-4 font-medium",
                                   isRTL ? "text-right rounded-tl-lg" : "text-left rounded-tr-lg",
-                                  isCompleted ? "text-[#4a7a3a]" : "text-[#d08b45]",
+                                  isCompleted ? "text-[rgba(111,66,193,1)]" : "text-[#d08b45]",
                                 )}>
                                 {isCompleted
                                   ? t("earn.statusCompleted")

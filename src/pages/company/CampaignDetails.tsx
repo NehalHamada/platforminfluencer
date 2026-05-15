@@ -330,7 +330,7 @@ function CampaignDetails() {
             <CardContent className="px-3 py-3.5 sm:px-3.5 sm:py-4 lg:px-8 lg:py-8">
               <div className="relative mx-auto min-h-47.5 rounded-[7px] bg-[#fbfbfb] px-3.5 pb-4 pt-7 lg:min-h-82.5 lg:rounded-[10px] lg:px-8 lg:pb-10 lg:pt-14">
                 <div className="absolute left-4 top-4 lg:left-8 lg:top-8">
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-[#8faa74] px-2 py-1 text-[9px] font-medium leading-none text-white lg:px-4 lg:py-2 lg:text-sm">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-[rgba(111,66,193,1)] px-2 py-1 text-[9px] font-medium leading-none text-white lg:px-4 lg:py-2 lg:text-sm">
                     {statusLabel}
                     {isContentApproved ? <Check className="h-3 w-3" /> : null}
                   </span>
@@ -375,7 +375,7 @@ function CampaignDetails() {
                               "order-1 flex h-6 w-6 items-center justify-center rounded-full border bg-white lg:h-8 lg:w-8",
                               isRTL ? "sm:order-1" : "sm:order-2",
                               step.done
-                                ? "border-[#8faa74] text-[#8faa74]"
+                                ? "border-[rgba(111,66,193,1)] text-[rgba(111,66,193,1)]"
                                 : "border-[#cfd6c6] text-[#9a9d92]",
                             )}>
                             {step.done ? (
@@ -455,7 +455,7 @@ function CampaignDetails() {
                           },
                         })
                       }
-                      className="relative z-10 -mx-1 h-6 min-w-28 rounded-full bg-[#9aa883] px-4 text-[9px] font-semibold text-white shadow-none hover:bg-[#8f9d78] lg:h-11 lg:min-w-48 lg:px-8 lg:text-base">
+                      className="relative z-10 -mx-1 h-6 min-w-28 rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-4 text-[9px] font-semibold text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90 lg:h-11 lg:min-w-48 lg:px-8 lg:text-base">
                       {footerLabel}
                     </Button>
                   </div>

@@ -19,7 +19,7 @@ function AuthLayout() {
     ].indexOf(location.pathname) !== -1;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F9F9F9]">
+    <div className="flex min-h-screen flex-col bg-[#F9F9F9] lg:h-screen lg:overflow-hidden">
       <div
         className={cn("fixed top-4 z-80", isArabic ? "left-4" : "right-4")}>
         <LanguageToggle className="me-0 bg-black/20 text-white backdrop-blur-sm hover:bg-black/30 hover:text-white lg:bg-white/80 lg:text-[#333] lg:hover:bg-white lg:hover:text-[#111]" />
@@ -30,7 +30,7 @@ function AuthLayout() {
           "flex flex-1 pb-10",
           isFullBleedAuthPage
             ? "items-stretch justify-stretch px-0 pt-0"
-            : "items-center justify-center px-4 pt-28 sm:px-6",
+            : "items-center justify-center px-4 pt-20 sm:px-6 lg:p-0",
         )}>
         <Card
           className={cn(

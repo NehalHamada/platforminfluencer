@@ -87,7 +87,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
             <span
               className={cn(
                 "font-bold text-[#1a1a1a] leading-tight",
-                isRTL ? "text-3xl md:text-[45px]" : "text-2xl md:text-[38px]",
+                isRTL ? "text-2xl md:text-[38px]" : "text-xl md:text-[30px]",
               )}>
               {t("aboutPlatform.title1")}
             </span>
@@ -99,7 +99,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
             <span
               className={cn(
                 "font-bold text-[#1a1a1a] leading-tight",
-                isRTL ? "text-3xl md:text-[45px]" : "text-2xl md:text-[38px]",
+                isRTL ? "text-2xl md:text-[38px]" : "text-xl md:text-[30px]",
               )}>
               {t("aboutPlatform.title2")}
             </span>
@@ -107,7 +107,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
           <h2
             className={cn(
               "mt-2 font-bold text-[#1a1a1a] leading-tight",
-              isRTL ? "text-3xl md:text-[45px]" : "text-2xl md:text-[38px]",
+              isRTL ? "text-2xl md:text-[38px]" : "text-xl md:text-[30px]",
             )}>
             {t("aboutPlatform.title3")}
           </h2>
@@ -142,8 +142,8 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
                   className={cn(
                     "font-underdog leading-none text-[#1a1a1a] font-bold",
                     isRTL
-                      ? "text-[42px] md:text-[54px]"
-                      : "text-[36px] md:text-[46px]",
+                      ? "text-[36px] md:text-[46px]"
+                      : "text-[28px] md:text-[36px]",
                   )}>
                   {item.value}
                 </span>
@@ -162,21 +162,32 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
           <div className="relative flex-1">
             <div className="relative w-full lg:max-w-2xl">
               {/* ── IMAGE CONTAINER WITH MASK CUTOUTS ── */}
-              <div className="relative overflow-hidden rounded-[20px] bg-[#1a1a1a] shadow-2xl platform-img-mask">
+              <div
+                className="
+    relative overflow-hidden rounded-[20px]
+    bg-[rgba(26,20,37,1)] shadow-2xl
+
+    [mask-imageradial-gradient(circle_at_bottom_left,transparent_59px,black_60px),radial-gradient(circle_at_bottom_right,transparent_59px,black_60px)]
+    [-webkit-mask-image:radial-gradient(circle_at_bottom_left,transparent_59px,black_60px),radial-gradient(circle_at_bottom_right,transparent_59px,black_60px)]
+
+    [mask-intersect]
+    [-webkit-mask-composite:source-over]
+  ">
                 <img
                   src={mainImage}
                   alt=""
                   className="aspect-video lg:aspect-21/9 w-full object-cover opacity-90 transition-transform duration-700 hover:scale-105"
                 />
+
                 <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
               </div>
 
               {/* ── "اعرف المزيد" Area (Bottom Right in RTL, Bottom Left in LTR) ── */}
               <div className="lg:absolute lg:bottom-0 ltr:lg:left-0 rtl:lg:right-0 z-30 mt-6 lg:mt-0">
-                <div className="flex h-18.5 lg:h- w-full lg:w-55 items-center justify-center rounded-[15px] lg:rounded-none ltr:lg:rounded-tr-[15px] rtl:lg:rounded-tl-[15px] bg-[#e1e9e9f4] backdrop-blur-sm">
+                <div className="flex h-18.5 lg:h- w-full lg:w-55 items-center justify-center rounded-[15px] lg:rounded-none ltr:lg:rounded-tr-[15px] rtl:lg:rounded-tl-[15px] bg-[rgba(111,66,193,0.08)] backdrop-blur-sm">
                   <Button
                     type="button"
-                    className="h-12 rounded-[15px] bg-[#adc28b] px-10 text-white hover:bg-[#9db27b] font-bold text-lg shadow-sm">
+                    className="h-12 rounded-[15px] bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-10 text-white hover:opacity-90 font-bold text-lg shadow-sm">
                     <span>{t("aboutPlatform.readMore")}</span>
                     <ChevronRight
                       className={cn(
@@ -191,8 +202,8 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
               </div>
 
               {/* ── "تعرف علينا" Card (Bottom Left in RTL, Bottom Right in LTR) ── */}
-              <div className="lg:absolute lg:bottom-0.5 ltr:lg:right-45 rtl:lg:left-45 z-20 w-full lg:w-87.5 mt-8 lg:mt-0">
-                <div className="rounded-[20px] lg:rounded-none ltr:lg:rounded-tl-[20px] rtl:lg:rounded-tr-[20px] bg-[#e1e9e9ef]/95 p-5 lg:p-3 backdrop-blur-md shadow-lg lg:shadow-none">
+              <div className="lg:absolute lg:bottom-0.5 ltr:lg:right-45 rtl:lg:right-120 z-20 w-full lg:w-87.5 mt-8 lg:mt-0">
+                <div className="rounded-[20px] lg:rounded-none ltr:lg:rounded-tl-[20px] rtl:lg:rounded-tr-[20px] p-5 lg:p-3 backdrop-blur-md shadow-lg lg:shadow-none">
                   <div
                     className={cn(
                       "space-y-4",
@@ -204,7 +215,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
                         "flex items-center gap-3",
                         isRTL ? "flex-row-reverse" : "flex-row",
                       )}>
-                      <h3 className="text-3xl font-bold text-[#1a1a3a]">
+                      <h3 className="text-2xl font-bold text-[#1a1a3a]">
                         {cardTitle}
                       </h3>
                       <div className="h-0.5 flex-1 bg-[#1a1a3a]/30" />
@@ -226,7 +237,7 @@ function AboutPlatformSection({ data }: AboutPlatformSectionProps) {
                       </p>
                       <Button
                         size="icon"
-                        className="h-12 w-12 rounded-sm bg-[#adc28b] text-white hover:bg-[#9db27b] shadow-md border-0 shrink-0">
+                        className="h-12 w-12 rounded-sm bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] text-white hover:opacity-90 shadow-md border-0 shrink-0">
                         <svg
                           width="24"
                           height="24"

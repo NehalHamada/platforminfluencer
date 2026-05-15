@@ -79,7 +79,7 @@ function Photoes({ data }: PhotoesProps) {
           {/* Black Card - Exact copy */}
           <div
             className={cn(
-              "relative shrink-0 rounded-[40px] bg-[#171717] text-white photo-card-mask",
+              "relative shrink-0 rounded-[40px] bg-[rgba(26,20,37,1)] text-white photo-card-mask",
               "p-5",
             )}>
             <div
@@ -92,7 +92,7 @@ function Photoes({ data }: PhotoesProps) {
                 <h2
                   className={cn(
                     "font-bold leading-tight text-white",
-                    isRTL ? "text-2xl" : "text-xl",
+                    isRTL ? "text-xl" : "text-lg",
                   )}>
                   {title}
                 </h2>
@@ -169,7 +169,7 @@ function Photoes({ data }: PhotoesProps) {
           {/* Try Free Button */}
           <Button
             variant="ghost"
-            className="mt-2 w-full rounded-[40px] bg-[#C8D9A9] py-6 text-base font-bold text-[#171717] transition-colors hover:bg-[#B5C898]">
+            className="mt-2 w-full rounded-[40px] bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] py-6 text-base font-bold text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] transition-opacity hover:opacity-90">
             {t("TryFree")}
           </Button>
         </motion.div>
@@ -185,7 +185,7 @@ function Photoes({ data }: PhotoesProps) {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
-              "relative shrink-0 rounded-[40px] bg-[#171717] text-white photo-card-mask",
+              "relative shrink-0 rounded-[40px] bg-[rgba(26,20,37,1)] text-white photo-card-mask",
               "p-4 lg:p-6",
               "lg:w-[35%]",
             )}>
@@ -201,7 +201,7 @@ function Photoes({ data }: PhotoesProps) {
                 <h2
                   className={cn(
                     "font-bold leading-tight text-white",
-                    isRTL ? "text-2xl lg:text-3xl" : "text-xl lg:text-2xl",
+                    isRTL ? "text-xl lg:text-2xl" : "text-lg lg:text-xl",
                   )}>
                   {title}
                 </h2>
@@ -305,7 +305,7 @@ function Photoes({ data }: PhotoesProps) {
             </div>
             <Button
               variant="ghost"
-              className="rounded-[40px] bg-[#C8D9A9] text-[#171717] hover:bg-[#B5C898] transition-colors font-bold text-base py-6">
+              className="rounded-[40px] bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] hover:opacity-90 transition-opacity font-bold text-base py-6">
               {t("TryFree")}
             </Button>
           </motion.div>

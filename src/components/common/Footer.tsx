@@ -33,7 +33,7 @@ function Footer() {
 
   return (
     <footer className="bg-[#F9F9F9]" dir={isRTL ? "rtl" : "ltr"}>
-      <div className="w-full rounded-t-[30px] bg-[rgba(30,30,30,1)] px-4 py-12 font-ibm-plex md:py-16">
+      <div className="w-full rounded-t-[30px] bg-[rgba(26,20,37,1)] px-4 py-12 font-ibm-plex md:py-16">
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-center text-center">
           {/* Logo */}
           <img
@@ -75,7 +75,7 @@ function Footer() {
                         type="submit"
                         variant="default"
                         aria-label={t("registrationSuccess.emailPlaceholder")}
-                        className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-[#a7b78e] px-0 text-white transition-colors hover:bg-[#96a57e] md:w-[110px]">
+                        className="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-0 text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] transition-opacity hover:opacity-90 md:w-[110px]">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="20"

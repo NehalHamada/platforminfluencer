@@ -181,7 +181,7 @@ function CreateCampaignPayment() {
   };
 
   const fieldClass = cn(
-    "h-11 rounded-full border-[#d9d7cf] bg-white px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:border-[#9aa883] focus-visible:ring-1 focus-visible:ring-[#9aa883]/30",
+    "h-11 rounded-full border-[#d9d7cf] bg-white px-4 text-sm text-[#2f2f2b] placeholder:text-[#8b8b84] focus-visible:border-[rgba(111,66,193,0.5)] focus-visible:ring-1 focus-visible:ring-[rgba(111,66,193,0.2)]",
     isRTL ? "text-right" : "text-left",
   );
 
@@ -371,7 +371,7 @@ function CreateCampaignPayment() {
                       className={cn(
                         "flex h-14 items-center justify-center rounded-xl border transition-all duration-200 order-3 sm:order-1",
                         selectedPayment === "visa"
-                          ? "border-[#9aa883] bg-[#f8f9f5]"
+                          ? "border-[rgba(111,66,193,0.5)] bg-[rgba(111,66,193,0.04)]"
                           : "border-[#e8e6df] bg-white hover:border-[#d0cec4]",
                       )}>
                       <span className="font-sans text-[18px] font-bold italic tracking-wide text-[#1A1F71]">
@@ -389,7 +389,7 @@ function CreateCampaignPayment() {
                       className={cn(
                         "flex h-14 items-center justify-center rounded-xl border transition-all duration-200 order-2 sm:order-2",
                         selectedPayment === "mastercard"
-                          ? "border-[#9aa883] bg-[#f8f9f5]"
+                          ? "border-[rgba(111,66,193,0.5)] bg-[rgba(111,66,193,0.04)]"
                           : "border-[#e8e6df] bg-white hover:border-[#d0cec4]",
                       )}>
                       <svg
@@ -414,7 +414,7 @@ function CreateCampaignPayment() {
                       className={cn(
                         "flex h-14 items-center justify-center rounded-xl border transition-all duration-200 order-1 sm:order-3",
                         selectedPayment === "mada"
-                          ? "border-[#9aa883] bg-[#f8f9f5]"
+                          ? "border-[rgba(111,66,193,0.5)] bg-[rgba(111,66,193,0.04)]"
                           : "border-[#e8e6df] bg-white hover:border-[#d0cec4]",
                       )}>
                       <div className="flex items-center gap-1.5">
@@ -518,10 +518,10 @@ function CreateCampaignPayment() {
                     <Button
                       type="submit"
                       disabled={createCampaignMutation.isPending}
-                      className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[#9aa883] px-6 text-sm font-medium text-white shadow-[0_8px_18px_rgba(154,168,131,0.35)] transition hover:scale-[1.02] hover:bg-[#8f9d78] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
+                      className="group relative inline-flex h-11 min-w-42 items-center justify-center rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] px-6 text-sm font-medium text-white shadow-[0_0_20px_rgba(111,66,193,0.25)] transition hover:scale-[1.02] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70 sm:h-12 sm:min-w-45.5">
                       <span
                         className={cn(
-                          "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-[#f3f7eb] text-[#8c9878] sm:h-8 sm:w-8",
+                          "absolute top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white sm:h-8 sm:w-8",
                           isRTL ? "left-2" : "right-2",
                         )}>
                         {isRTL ? (

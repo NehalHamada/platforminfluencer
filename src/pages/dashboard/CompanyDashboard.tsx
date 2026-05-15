@@ -125,7 +125,7 @@ function SuggestedInfluencerCard({
 
         <div className="mt-3 flex items-center justify-center gap-1 text-[11px] text-[#62625d]">
           <span>{item.category ?? ""}</span>
-          <BadgeCheck className="h-3 w-3 fill-[#a7b78e] text-white" />
+          <BadgeCheck className="h-3 w-3 fill-[rgba(111,66,193,1)] text-white" />
         </div>
 
         {rating ? (
@@ -150,14 +150,14 @@ function SuggestedInfluencerCard({
             variant="outline"
             size="icon-xs"
             aria-label={t("companyDashboard.saveInfluencer")}
-            className="h-6.5 w-6.5 rounded-[6px] border-[#d9d98f] bg-white text-[#8f9d75] hover:bg-[#fbfbf3]">
+            className="h-6.5 w-6.5 rounded-[6px] border-[rgba(111,66,193,0.3)] bg-white text-[rgba(111,66,193,1)] hover:bg-[rgba(111,66,193,0.05)]">
             <Bookmark className="h-3.5 w-3.5" />
           </Button>
 
           <Button
             type="button"
             variant="outline"
-            className="h-6.5 flex-1 gap-1 rounded-[6px] border-0 bg-[#eef1e9] px-2 text-[10px] font-normal text-[#7f8c67] hover:bg-[#e7ecdf]"
+            className="h-6.5 flex-1 gap-1 rounded-[6px] border-0 bg-[rgba(111,66,193,0.1)] px-2 text-[10px] font-normal text-[rgba(111,66,193,1)] hover:bg-[rgba(111,66,193,0.15)]"
             onClick={handleFollowClick}>
             {t("companyDashboard.sendMessage")}
           </Button>
@@ -189,10 +189,10 @@ function BrowseAllInfluencersCard({
           goToExplore();
         }
       }}
-      className="relative min-h-full cursor-pointer overflow-hidden rounded-[12px] border-0 bg-[#fbf8ee] py-0 shadow-none">
+      className="relative min-h-full cursor-pointer overflow-hidden rounded-[12px] border-0 bg-[rgba(111,66,193,0.04)] py-0 shadow-none">
       <CardContent className="relative flex h-full min-h-71 flex-col items-center justify-center px-5 py-8 text-center">
-        <div className="absolute left-7 top-31 h-12 w-12 rotate-45 rounded-lg bg-[#bfceb0]" />
-        <div className="absolute left-10 top-43 h-6 w-6 rotate-45 rounded-[3px] bg-[#bfceb0]" />
+        <div className="absolute left-7 top-31 h-12 w-12 rotate-45 rounded-lg bg-[rgba(111,66,193,0.2)]" />
+        <div className="absolute left-10 top-43 h-6 w-6 rotate-45 rounded-[3px] bg-[rgba(111,66,193,0.2)]" />
 
         <Button
           type="button"
@@ -202,7 +202,7 @@ function BrowseAllInfluencersCard({
             event.stopPropagation();
             goToExplore();
           }}
-          className="mb-7 h-6 w-6 rounded-full bg-[#fde58f] text-[#9aa172] hover:bg-[#f9dc78]">
+          className="mb-7 h-6 w-6 rounded-full bg-[linear-gradient(135deg,rgba(111,66,193,1),rgba(201,162,39,1))] text-white hover:opacity-90">
           {isRTL ? (
             <ChevronLeft className="h-3.5 w-3.5" />
           ) : (
@@ -213,25 +213,25 @@ function BrowseAllInfluencersCard({
         <p className="text-[13px] font-medium text-[#1d1d19]">
           {t("companyDashboard.browseAll")}
         </p>
-        <p className="mt-2 text-[13px] text-[#a7b78e]">
+        <p className="mt-2 text-[13px] text-[rgba(111,66,193,1)]">
           {t("companyDashboard.browseAllCount")}
         </p>
 
-        <div className="absolute bottom-9 right-8 h-15 w-15 overflow-hidden rounded-full border-4 border-[#fbf8ee]">
+        <div className="absolute bottom-9 right-8 h-15 w-15 overflow-hidden rounded-full border-4 border-white">
           <img
             src={suggested[0]?.image ?? ""}
             alt=""
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="absolute bottom-8 right-21 h-7 w-7 overflow-hidden rounded-full border-3 border-[#fbf8ee]">
+        <div className="absolute bottom-8 right-21 h-7 w-7 overflow-hidden rounded-full border-3 border-white">
           <img
             src={suggested[1]?.image ?? ""}
             alt=""
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="absolute bottom-5 right-15 h-9 w-9 overflow-hidden rounded-full border-3 border-[#fbf8ee]">
+        <div className="absolute bottom-5 right-15 h-9 w-9 overflow-hidden rounded-full border-3 border-white">
           <img
             src={suggested[2]?.image ?? ""}
             alt=""
@@ -396,7 +396,7 @@ function CompanyDashboard() {
                   variant="outline"
                   onClick={isRTL ? goFeaturedNext : goFeaturedPrev}
                   aria-label={t("companyDashboard.prev")}
-                  className="h-4 w-4 rounded-full border-[#9baa81] bg-transparent p-0 text-[#83936c] hover:bg-white">
+                  className="h-4 w-4 rounded-full border-[rgba(111,66,193,0.5)] bg-transparent p-0 text-[rgba(111,66,193,1)] hover:bg-white">
                   {isRTL ? (
                     <ChevronRight className="h-2.5 w-2.5" />
                   ) : (
@@ -415,8 +415,8 @@ function CompanyDashboard() {
                       className={cn(
                         "h-1.5 rounded-full transition-all",
                         activeFeaturedIndex === index
-                          ? "w-9 bg-[#d8ddca]"
-                          : "w-1.5 bg-[#d8ddca]",
+                          ? "w-9 bg-[rgba(111,66,193,1)]"
+                          : "w-1.5 bg-[rgba(111,66,193,0.25)]",
                       )}
                     />
                   ))}
@@ -428,7 +428,7 @@ function CompanyDashboard() {
                   variant="outline"
                   onClick={isRTL ? goFeaturedPrev : goFeaturedNext}
                   aria-label={t("companyDashboard.next")}
-                  className="h-4 w-4 rounded-full border-[#9baa81] bg-transparent p-0 text-[#83936c] hover:bg-white">
+                  className="h-4 w-4 rounded-full border-[rgba(111,66,193,0.5)] bg-transparent p-0 text-[rgba(111,66,193,1)] hover:bg-white">
                   {isRTL ? (
                     <ChevronLeft className="h-2.5 w-2.5" />
                   ) : (
@@ -556,7 +556,7 @@ function CompanyDashboard() {
               className="w-full max-w-5xl overflow-hidden rounded-[22px] border-0 py-0 text-white shadow-[0_12px_28px_rgba(26,26,20,0.08)] sm:rounded-[28px]"
               style={{
                 background:
-                  "linear-gradient(135deg, rgba(167,183,142,1) 0%,   rgba(25,25,25,1) 100%)",
+                  "linear-gradient(135deg, rgba(111,66,193,1) 0%,   rgba(26,20,37,1) 100%)",
                 fontFamily: "'IBM Plex Sans Arabic', sans-serif",
               }}>
               <CardContent className="relative px-4 py-14 text-center sm:px-8 sm:py-20 lg:px-12 lg:py-24">
@@ -738,11 +738,11 @@ function CompanyDashboard() {
                         y2="400">
                         <stop
                           offset="0%"
-                          stopColor="rgba(167, 183, 142, 0.8)"
+                          stopColor="rgba(111,66,193,0.8)"
                         />
                         <stop
                           offset="100%"
-                          stopColor="rgba(167, 183, 142, 0)"
+                          stopColor="rgba(111,66,193,0)"
                         />
                       </linearGradient>
                     </defs>
@@ -778,13 +778,13 @@ function CompanyDashboard() {
           </section>
 
           <section>
-            <Card className="overflow-hidden rounded-[28px] border-0 bg-[rgba(167,183,142,0.09)] py-0 shadow-none sm:rounded-[34px]">
+            <Card className="overflow-hidden rounded-[28px] border-0 bg-[rgba(111,66,193,0.05)] py-0 shadow-none sm:rounded-[34px]">
               <CardContent className="relative px-5 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
                 <div className="absolute inset-0 opacity-60">
-                  <div className="absolute inset-y-0 left-0 w-[72%] bg-[radial-gradient(circle_at_20%_50%,rgba(167,183,142,0.12),transparent_58%)]" />
-                  <div className="absolute bottom-[-8%] left-[6%] h-[78%] w-[78%] rounded-full border border-[rgba(167,183,142,0.09)]" />
-                  <div className="absolute bottom-[-14%] left-[10%] h-[66%] w-[66%] rounded-full border border-[rgba(167,183,142,0.08)]" />
-                  <div className="absolute bottom-[-19%] left-[14%] h-[54%] w-[54%] rounded-full border border-[rgba(167,183,142,0.07)]" />
+                  <div className="absolute inset-y-0 left-0 w-[72%] bg-[radial-gradient(circle_at_20%_50%,rgba(111,66,193,0.1),transparent_58%)]" />
+                  <div className="absolute bottom-[-8%] left-[6%] h-[78%] w-[78%] rounded-full border border-[rgba(111,66,193,0.07)]" />
+                  <div className="absolute bottom-[-14%] left-[10%] h-[66%] w-[66%] rounded-full border border-[rgba(111,66,193,0.06)]" />
+                  <div className="absolute bottom-[-19%] left-[14%] h-[54%] w-[54%] rounded-full border border-[rgba(111,66,193,0.05)]" />
                 </div>
 
                 <div className="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-14">
@@ -806,7 +806,7 @@ function CompanyDashboard() {
                   </div>
 
                   <div className="relative mx-auto w-full max-w-3xl text-center lg:mx-0 lg:flex-1 lg:text-right">
-                    <h2 className="mx-auto text-[2rem] font-extrabold leading-[1.3] text-[#a7b78e] underline decoration-2 underline-offset-6 sm:text-[2.35rem] lg:mx-0 lg:max-w-[600px] lg:text-[3rem]">
+                    <h2 className="mx-auto text-[2rem] font-extrabold leading-[1.3] text-[rgba(111,66,193,1)] underline decoration-2 underline-offset-6 sm:text-[2.35rem] lg:mx-0 lg:max-w-[600px] lg:text-[3rem]">
                       {t("companyDashboard.matchingTitle")}
                     </h2>
 
@@ -827,7 +827,7 @@ function CompanyDashboard() {
                               alignRight ? "justify-start" : "justify-end",
                             )}>
                             <div className="flex flex-col items-center gap-2 lg:flex-row lg:items-start lg:gap-4">
-                              <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#a7b78e] text-white">
+                              <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(111,66,193,1)] text-white">
                                 <ShieldCheck className="h-3.5 w-3.5" />
                               </div>
                               <div

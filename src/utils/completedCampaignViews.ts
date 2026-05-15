@@ -6,7 +6,7 @@ import type {
 import type { Conversation } from "@/types/chat.types";
 import type { CompletedCampaignEntry } from "@/utils/completedCampaigns";
 import {
-  getCampaignProgressStepCount,
+  isAgreementStatus,
   isContentApprovedStatus,
 } from "@/utils/campaignProgress";
 import {
@@ -401,7 +401,11 @@ export const buildCompletedCampaignViews = ({
   };
 
   applications
-    .filter((application) => isContentApprovedStatus(application.status))
+    .filter(
+      (application) =>
+        isContentApprovedStatus(application.status) ||
+        isAgreementStatus(application.status),
+    )
     .forEach((application) =>
       addDraft({
         key: `application:${application.id}`,
@@ -411,7 +415,11 @@ export const buildCompletedCampaignViews = ({
     );
 
   collaborationRequests
-    .filter((request) => isContentApprovedStatus(request.status))
+    .filter(
+      (request) =>
+        isContentApprovedStatus(request.status) ||
+        isAgreementStatus(request.status),
+    )
     .forEach((request) =>
       addDraft({
         key: `request:${request.id}`,
@@ -421,7 +429,11 @@ export const buildCompletedCampaignViews = ({
     );
 
   campaigns
-    .filter((campaign) => isContentApprovedStatus(campaign.status))
+    .filter(
+      (campaign) =>
+        isContentApprovedStatus(campaign.status) ||
+        isAgreementStatus(campaign.status),
+    )
     .forEach((campaign) =>
       addDraft({
         key: `campaign:${campaign.id}`,
@@ -555,7 +567,7 @@ export const buildCompletedCampaignViews = ({
         companyName: role === "company" ? getCompanyName({ ...draft, campaign }) : getCompanyName({ ...draft, campaign }),
         influencerName: getInfluencerName(draft),
         status,
-        completedSteps: Math.max(3, getCampaignProgressStepCount(status)),
+        completedSteps: isContentApprovedStatus(status) ? 3 : 1,
         paymentSummary,
         contentUrl:
           entry?.mediaUrl ||

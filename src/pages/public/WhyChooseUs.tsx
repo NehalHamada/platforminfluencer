@@ -46,13 +46,13 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
   return (
     <section
       dir={isRTL ? "rtl" : "ltr"}
-      className="font-ibm-plex overflow-hidden bg-[rgba(18,18,18,1)] px-4 py-16 md:py-24 mt-3">
+      className="font-ibm-plex overflow-hidden bg-[rgba(26,20,37,1)] px-4 py-16 md:py-24 mt-3">
       <div className="mx-auto flex max-w-6xl flex-col-reverse gap-12 md:grid md:grid-cols-2 md:gap-20 md:items-center">
         {/* Mobile Text Section */}
         <div className="flex w-full flex-col md:hidden">
           <div className="w-full text-center">
             <div className="mb-10 inline-block border-b-[1.5px] border-white pb-2">
-              <h2 className="text-[22px] font-semibold tracking-wide text-white">
+              <h2 className="text-[18px] font-semibold tracking-wide text-white">
                 {isRTL ? "ما الذي يميزنا ؟" : title}
               </h2>
             </div>
@@ -83,19 +83,19 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 dir="ltr">
                 {isRTL ? (
                   <>
-                    <span className="text-right text-[14px] leading-relaxed text-[#dcdcdc]">
+                    <span className="text-right text-[12px] leading-relaxed text-[#dcdcdc]">
                       {item}
                     </span>
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#2a2a2a] text-[#b7c58d] shadow-sm">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(111,66,193,0.2)] text-[rgba(201,162,39,1)] shadow-sm">
                       <BsHddStack size={20} aria-hidden="true" />
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[#2a2a2a] text-[#b7c58d] shadow-sm">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(111,66,193,0.2)] text-[rgba(201,162,39,1)] shadow-sm">
                       <BsHddStack size={20} aria-hidden="true" />
                     </div>
-                    <span className="text-left text-[14px] leading-relaxed text-[#dcdcdc]">
+                    <span className="text-left text-[12px] leading-relaxed text-[#dcdcdc]">
                       {item}
                     </span>
                   </>
@@ -113,7 +113,7 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mb-10 inline-block border-b-2 border-[#e1e1e1] pb-3">
-            <h2 className="text-[28px] font-semibold tracking-wide text-white">
+            <h2 className="text-[22px] font-semibold tracking-wide text-white">
               {title}
             </h2>
           </motion.div>
@@ -140,12 +140,12 @@ function WhyChooseUs({ data }: WhyChooseUsProps) {
                 }}
                 className="flex w-full items-center justify-start gap-4">
                 {/* Icon (DOM Order 1 => Right in RTL, Left in LTR) */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[#2a2a2a] text-[#c0c0c0] shadow-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(111,66,193,0.2)] text-[rgba(201,162,39,1)] shadow-sm">
                   <BsHddStack size={18} aria-hidden="true" />
                 </div>
 
                 {/* Text (DOM Order 2 => Left in RTL, Right in LTR) */}
-                <span className="text-[16px] leading-relaxed text-[#dcdcdc]">
+                <span className="text-[13px] leading-relaxed text-[#dcdcdc]">
                   {item}
                 </span>
               </motion.li>
